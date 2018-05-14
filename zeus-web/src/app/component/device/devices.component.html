@@ -1,0 +1,6 @@
+<ul class="devices">
+	<li *ngFor="let device of devices">
+		<span class="state" (click)="sendCommand(device)">{{device.state}}</span>
+		<span class="label">{{device.name}}</span>
+	</li>
+</ul>
