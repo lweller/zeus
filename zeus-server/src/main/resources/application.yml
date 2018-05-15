@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    database: h2
+    hibernate:
+      ddl-auto: update
+      
+zeus.integrated-control-unit:
+  id: 00000000-0000-0000-0000-000000000001
+  driver-mappings:
+  - device-id: 00000000-0000-0000-0000-000000000002
+    device-type: GENERIC_SWITCH 
+    drivers:
+    - name: raspberry.GpioDigitalOutputPinDriver
+      properties:
+        pin: 1
+        active-state: LOW
