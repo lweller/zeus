@@ -32,6 +32,8 @@ import lombok.Getter;
 
 public class GpioDigitalOutputPinDriver implements DeviceDriver {
 
+	static final String BEAN_NAME = "deviceDriver.raspberry.GpioDigitalOutputPinDriver";
+
 	public static final String PIN_PROPERTY = "pin";
 	public static final String ACTIVE_STATE_PROPERTY = "active-state";
 
