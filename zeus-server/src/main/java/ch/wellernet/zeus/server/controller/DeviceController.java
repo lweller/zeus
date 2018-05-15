@@ -1,6 +1,7 @@
 package ch.wellernet.zeus.server.controller;
 
 import static ch.wellernet.zeus.server.controller.DeviceController.API_PATH;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -44,14 +45,14 @@ public class DeviceController implements ApiV1Controller {
 	@ApiOperation("Finds all registrered devices.")
 	@GetMapping
 	public ResponseEntity<Collection<Device>> findAll() {
-		return ResponseEntity.status(HttpStatus.OK).body(deviceRepository.findAll());
+		return ResponseEntity.status(HttpStatus.OK).body(newArrayList(deviceRepository.findAll()));
 	}
 
 	@ApiOperation("Finds device by its UUID.")
 	@GetMapping("/{id}")
 	public ResponseEntity<Device> findById(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) UUID id) {
-		return ResponseEntity.status(HttpStatus.OK).body(deviceRepository.findById(id));
+		return ResponseEntity.status(HttpStatus.OK).body(deviceRepository.findById(id).get());
 	}
 
 	@ApiOperation("Executes a command for a given device.")
@@ -62,7 +63,7 @@ public class DeviceController implements ApiV1Controller {
 			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) Command command)
 			throws UndefinedCommandException {
 
-		Device device = deviceRepository.findById(id);
+		Device device = deviceRepository.findById(id).get();
 		if (device == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}

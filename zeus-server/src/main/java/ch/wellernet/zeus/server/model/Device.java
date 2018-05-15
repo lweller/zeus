@@ -4,20 +4,27 @@ import static lombok.AccessLevel.PRIVATE;
 
 import java.util.UUID;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Type;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
 @Data
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "id")
 public class Device {
-	private @Setter(PRIVATE) UUID id;
-	private @Setter(PRIVATE) DeviceType type;
+	private @Id @Setter(PRIVATE) UUID id;
+	private @Type(type = "ch.wellernet.zeus.server.model.BuiltInDeviceType") @Setter(PRIVATE) DeviceType type;
 	private String name;
-	private ControlUnit controlUnit;
+	private @Transient ControlUnit controlUnit;
 	private State state;
 
 	@Builder
