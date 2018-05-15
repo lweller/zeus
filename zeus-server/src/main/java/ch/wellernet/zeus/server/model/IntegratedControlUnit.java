@@ -1,17 +1,19 @@
-package ch.wellernet.zeus.server.service.communication.integrated;
+package ch.wellernet.zeus.server.model;
 
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.List;
 import java.util.UUID;
 
-import ch.wellernet.zeus.server.model.ControlUnit;
-import ch.wellernet.zeus.server.model.Device;
+import javax.persistence.Entity;
+
 import lombok.NoArgsConstructor;
 
+@Entity
 @NoArgsConstructor(access = PRIVATE)
 public class IntegratedControlUnit extends ControlUnit {
-	IntegratedControlUnit(UUID id, List<Device> devices) {
+
+	public IntegratedControlUnit(UUID id, List<Device> devices) {
 		super(id, devices, new IntegratedControlUnitAddress());
 	}
 }

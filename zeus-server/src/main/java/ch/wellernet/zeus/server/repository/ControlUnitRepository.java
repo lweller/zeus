@@ -1,30 +1,17 @@
 package ch.wellernet.zeus.server.repository;
 
-import static java.util.Collections.unmodifiableCollection;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import ch.wellernet.zeus.server.model.ControlUnit;
+import ch.wellernet.zeus.server.model.IntegratedControlUnit;
 
 @Repository
-public class ControlUnitRepository {
+public interface ControlUnitRepository extends CrudRepository<ControlUnit, UUID> {
 
-	private Map<UUID, ControlUnit> controlUnits = new HashMap<>();
-
-	public Collection<ControlUnit> findAll() {
-		return unmodifiableCollection(controlUnits.values());
-	}
-
-	public void save(ControlUnit controlUnit) {
-		controlUnits.put(controlUnit.getId(), controlUnit);
-	}
-
-	public ControlUnit findById(UUID controlUnitId) {
-		return controlUnits.get(controlUnitId);
-	}
+	@Query("SELECT c FROM ControlUnit c WHERE TYPE(c) = IntegratedControlUnit")
+	public IntegratedControlUnit findIntegratedControlUnit();
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -17,6 +19,8 @@ import org.springframework.context.annotation.Configuration;
 
 import ch.wellernet.zeus.server.model.Command;
 import ch.wellernet.zeus.server.model.Device;
+import ch.wellernet.zeus.server.model.IntegratedControlUnit;
+import ch.wellernet.zeus.server.repository.ControlUnitRepository;
 import ch.wellernet.zeus.server.service.communication.integrated.IntegratedCommunicationService.DeviceCommandKey;
 import ch.wellernet.zeus.server.service.communication.integrated.IntegratedControlUnitProperties.DriverMapping;
 import ch.wellernet.zeus.server.service.communication.integrated.IntegratedControlUnitProperties.DriverMapping.DriverDefinition;
@@ -34,11 +38,12 @@ public class IntegratedControlUnitConfiguration {
 	@Autowired
 	private IntegratedControlUnitProperties properties;
 
-	private IntegratedControlUnit integratedControlUnit;
-	private IntegratedCommunicationService integratedCommunicationService;
+	@Autowired
+	private ControlUnitRepository controlUnitRepository;
 
-	@Bean
-	public IntegratedControlUnit integratedControlUnit() {
+	@PostConstruct
+	private void initializeIntegratedControlUnit() {
+		IntegratedControlUnit integratedControlUnit = controlUnitRepository.findIntegratedControlUnit();
 		if (integratedControlUnit == null) {
 			List<Device> devices = new ArrayList<>();
 			for (DriverMapping driverMapping : properties.getDriverMappings()) {
@@ -49,28 +54,24 @@ public class IntegratedControlUnitConfiguration {
 			for (Device device : devices) {
 				device.setControlUnit(integratedControlUnit);
 			}
+			controlUnitRepository.save(integratedControlUnit);
 		}
-		return integratedControlUnit;
 	}
 
 	@Bean(IntegratedCommunicationService.NAME)
 	public IntegratedCommunicationService integratedCommunicationService() {
-		if (integratedCommunicationService == null) {
-			Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping = new HashMap<>();
-			for (DriverMapping driverMapping : properties.getDriverMappings()) {
-				Set<Command> supportedCommands = new HashSet<>();
-				for (DriverDefinition driverDefinition : driverMapping.getDrivers()) {
-					DeviceDriver deviceDriver = (DeviceDriver) applicationContext.getBean(
-							DEVICE_DRIVER_BEAN_PREFIX + driverDefinition.getName(), driverDefinition.getProperties());
-					supportedCommands.addAll(deviceDriver.getSupportedCommands());
-					for (Command command : deviceDriver.getSupportedCommands()) {
-						deviceDriverMapping.put(new DeviceCommandKey(driverMapping.getDeviceId(), command),
-								deviceDriver);
-					}
+		Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping = new HashMap<>();
+		for (DriverMapping driverMapping : properties.getDriverMappings()) {
+			Set<Command> supportedCommands = new HashSet<>();
+			for (DriverDefinition driverDefinition : driverMapping.getDrivers()) {
+				DeviceDriver deviceDriver = (DeviceDriver) applicationContext.getBean(
+						DEVICE_DRIVER_BEAN_PREFIX + driverDefinition.getName(), driverDefinition.getProperties());
+				supportedCommands.addAll(deviceDriver.getSupportedCommands());
+				for (Command command : deviceDriver.getSupportedCommands()) {
+					deviceDriverMapping.put(new DeviceCommandKey(driverMapping.getDeviceId(), command), deviceDriver);
 				}
 			}
-			integratedCommunicationService = new IntegratedCommunicationService(deviceDriverMapping);
 		}
-		return integratedCommunicationService;
+		return new IntegratedCommunicationService(deviceDriverMapping);
 	}
 }
