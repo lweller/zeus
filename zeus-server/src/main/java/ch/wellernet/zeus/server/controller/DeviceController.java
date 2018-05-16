@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,7 +52,7 @@ public class DeviceController implements ApiV1Controller {
 	@ApiOperation("Finds device by its UUID.")
 	@GetMapping("/{id}")
 	public ResponseEntity<Device> findById(
-			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) UUID id) {
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id) {
 		return ResponseEntity.status(HttpStatus.OK).body(deviceRepository.findById(id).get());
 	}
 
@@ -59,24 +60,36 @@ public class DeviceController implements ApiV1Controller {
 	@ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
 	@PostMapping(value = "/{id}!sendCommand")
 	public ResponseEntity<Device> sendCommand(
-			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) UUID id,
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
 			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) Command command)
 			throws UndefinedCommandException {
-
-		Device device = deviceRepository.findById(id).get();
-		if (device == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
+		final Device device = findDevice(id);
 
 		if (command == null) {
 			command = device.getType().getMainCommand();
 		}
 
-		State newState = communicationServiceRegistry
+		final State newState = communicationServiceRegistry
 				.findByName(device.getControlUnit().getAddress().getCommunicationServiceName())
 				.sendCommand(device, command);
 		device.setState(newState);
 
 		return ResponseEntity.status(HttpStatus.OK).body(device);
+	}
+
+	@ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")
+	@PostMapping("/{id}!update")
+	public ResponseEntity<Device> update(
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
+			@ApiParam(value = "Device data", required = true) @RequestBody final Device device) {
+		final Device currentDevice = findDevice(id);
+		currentDevice.setName(device.getName());
+		deviceRepository.save(currentDevice);
+
+		return ResponseEntity.status(HttpStatus.OK).body(currentDevice);
+	}
+
+	private Device findDevice(final UUID id) {
+		return deviceRepository.findById(id).get();
 	}
 }
