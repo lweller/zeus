@@ -52,6 +52,13 @@
 	</dependencyManagement>
 	<dependencies>
 		<dependency>
+			<groupId>ch.wellernet.zeus</groupId>
+			<artifactId>zeus-web-ui</artifactId>
+			<scope>provided</scope>
+			<version>${project.version}</version>
+			<type>tar.gz</type>
+		</dependency>
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
