@@ -2,12 +2,13 @@ package ch.wellernet.zeus.server.controller;
 
 import static ch.wellernet.zeus.server.controller.DeviceController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.springframework.http.HttpStatus.OK;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,14 +47,15 @@ public class DeviceController implements ApiV1Controller {
 	@ApiOperation("Finds all registrered devices.")
 	@GetMapping
 	public ResponseEntity<Collection<Device>> findAll() {
-		return ResponseEntity.status(HttpStatus.OK).body(newArrayList(deviceRepository.findAll()));
+		return ResponseEntity.status(OK).body(newArrayList(deviceRepository.findAll()));
 	}
 
 	@ApiOperation("Finds device by its UUID.")
 	@GetMapping("/{id}")
 	public ResponseEntity<Device> findById(
-			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id) {
-		return ResponseEntity.status(HttpStatus.OK).body(deviceRepository.findById(id).get());
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
+			throws NoSuchElementException {
+		return ResponseEntity.status(OK).body(deviceRepository.findById(id).get());
 	}
 
 	@ApiOperation("Executes a command for a given device.")
@@ -62,7 +64,7 @@ public class DeviceController implements ApiV1Controller {
 	public ResponseEntity<Device> sendCommand(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
 			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) Command command)
-			throws UndefinedCommandException {
+			throws NoSuchElementException, UndefinedCommandException {
 		final Device device = findDevice(id);
 
 		if (command == null) {
@@ -74,7 +76,7 @@ public class DeviceController implements ApiV1Controller {
 				.sendCommand(device, command);
 		device.setState(newState);
 
-		return ResponseEntity.status(HttpStatus.OK).body(device);
+		return ResponseEntity.status(OK).body(device);
 	}
 
 	@ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")
@@ -86,7 +88,7 @@ public class DeviceController implements ApiV1Controller {
 		currentDevice.setName(device.getName());
 		deviceRepository.save(currentDevice);
 
-		return ResponseEntity.status(HttpStatus.OK).body(currentDevice);
+		return ResponseEntity.status(OK).body(currentDevice);
 	}
 
 	private Device findDevice(final UUID id) {
