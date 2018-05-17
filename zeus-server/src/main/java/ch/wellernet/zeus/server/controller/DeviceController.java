@@ -2,6 +2,8 @@ package ch.wellernet.zeus.server.controller;
 
 import static ch.wellernet.zeus.server.controller.DeviceController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.util.Collection;
@@ -11,6 +13,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,6 +61,16 @@ public class DeviceController implements ApiV1Controller {
 		return ResponseEntity.status(OK).body(deviceRepository.findById(id).get());
 	}
 
+	@ExceptionHandler({ NoSuchElementException.class })
+	public ResponseEntity<String> handleNoSuchElementException() {
+		return ResponseEntity.status(NOT_FOUND).body("cannot find device");
+	}
+
+	@ExceptionHandler({ UndefinedCommandException.class })
+	public ResponseEntity<String> handleUndefinedCommandException() {
+		return ResponseEntity.status(NOT_ACCEPTABLE).body("undefined command");
+	}
+
 	@ApiOperation("Executes a command for a given device.")
 	@ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
 	@PostMapping(value = "/{id}!sendCommand")
@@ -83,13 +96,19 @@ public class DeviceController implements ApiV1Controller {
 	@PostMapping("/{id}!update")
 	public ResponseEntity<Device> update(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
-			@ApiParam(value = "Device data", required = true) @RequestBody final Device device) {
+			@ApiParam(value = "Device data", required = true) @RequestBody final Device device)
+			throws NoSuchElementException {
 		final Device currentDevice = findDevice(id);
 		currentDevice.setName(device.getName());
 		deviceRepository.save(currentDevice);
 
 		return ResponseEntity.status(OK).body(currentDevice);
 	}
+
+	private Device findDevice(final UUID id) {
+		return deviceRepository.findById(id).get();
+	}
+}
 
 	private Device findDevice(final UUID id) {
 		return deviceRepository.findById(id).get();

@@ -2,14 +2,17 @@ package ch.wellernet.zeus.server.controller;
 
 import static ch.wellernet.zeus.server.controller.ControlUnitController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,19 +44,25 @@ public class ControlUnitController implements ApiV1Controller {
 	@ApiOperation("Finds control unit by its UUID.")
 	@GetMapping("/{id}")
 	public ResponseEntity<ControlUnit> findById(
-			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) UUID id) {
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
+			throws NoSuchElementException {
 		return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findById(id).get());
 	}
 
 	@ApiOperation("Finds intgegrated control unit.")
 	@GetMapping("/integrated")
-	public ResponseEntity<ControlUnit> findIntegrated() {
-		return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findIntegratedControlUnit());
+	public ResponseEntity<ControlUnit> findIntegrated() throws NoSuchElementException {
+		return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findIntegrated().get());
+	}
+
+	@ExceptionHandler({ NoSuchElementException.class })
+	public ResponseEntity<String> handleNoSuchElementException() {
+		return ResponseEntity.status(NOT_FOUND).body("cannot find control unit");
 	}
 
 	@ApiOperation("Scans intgegrated control unit for devices.")
 	@PostMapping("/integrated!scanDevices")
-	public ResponseEntity<Void> scanIntegrated() {
+	public ResponseEntity<Void> scanIntegrated() throws NoSuchElementException {
 		// TODO: fetch current states form devices
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}

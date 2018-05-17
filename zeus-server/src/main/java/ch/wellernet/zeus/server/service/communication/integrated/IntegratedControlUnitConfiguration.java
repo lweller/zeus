@@ -61,7 +61,7 @@ public class IntegratedControlUnitConfiguration {
 
 	@PostConstruct
 	private void initializeIntegratedControlUnit() {
-		ControlUnit integratedControlUnit = controlUnitRepository.findIntegratedControlUnit();
+		ControlUnit integratedControlUnit = controlUnitRepository.findIntegrated().orElse(null);
 		if (integratedControlUnit == null) {
 			final List<Device> devices = new ArrayList<>();
 			for (final DriverMapping driverMapping : properties.getDriverMappings()) {

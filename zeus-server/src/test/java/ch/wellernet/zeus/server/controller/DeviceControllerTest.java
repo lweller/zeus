@@ -13,12 +13,13 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,18 +42,18 @@ import ch.wellernet.zeus.server.service.communication.integrated.drivers.Undefin
 @RunWith(SpringRunner.class)
 public class DeviceControllerTest {
 
-	private static final String COMMUNICATION_SERVICE_NAME = "mock";
 	// test data
-	private final ControlUnit CONTROL_UNIT = ControlUnit.builder().id(randomUUID())
+	private static final String COMMUNICATION_SERVICE_NAME = "mock";
+	private static final ControlUnit CONTROL_UNIT = ControlUnit.builder().id(randomUUID())
 			.address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
 			}).build();
-	private final Device DEVICE_1 = Device.builder().id(randomUUID()).name("Device 1").type(GENERIC_SWITCH)
+	private static final Device DEVICE_1 = Device.builder().id(randomUUID()).name("Device 1").type(GENERIC_SWITCH)
 			.controlUnit(CONTROL_UNIT).build();
-	private final Device DEVICE_2 = Device.builder().id(randomUUID()).name("Device 2").type(GENERIC_SWITCH)
+	private static final Device DEVICE_2 = Device.builder().id(randomUUID()).name("Device 2").type(GENERIC_SWITCH)
 			.controlUnit(CONTROL_UNIT).build();
-	private final Device DEVICE_3 = Device.builder().id(randomUUID()).name("Device 3").type(GENERIC_SWITCH)
+	private static final Device DEVICE_3 = Device.builder().id(randomUUID()).name("Device 3").type(GENERIC_SWITCH)
 			.controlUnit(CONTROL_UNIT).build();
-	private final Set<Device> DEVICES = newHashSet(DEVICE_1, DEVICE_2, DEVICE_3);
+	private static final Collection<Device> DEVICES = newHashSet(DEVICE_1, DEVICE_2, DEVICE_3);
 
 	// object under test
 	@Autowired
@@ -67,85 +68,117 @@ public class DeviceControllerTest {
 	@MockBean
 	private CommunicationService comunicationService;
 
-	// ----------------------------- findAll -----------------------------
-
 	@Test
-	public void findAllShouldReturnCollectionOnDevices() {
+	public void findAllShouldReturnCollectionOfDevices() {
+		// given
 		given(deviceRepository.findAll()).willReturn(DEVICES);
 
+		// when
 		final ResponseEntity<Collection<Device>> response = deviceController.findAll();
 
+		// then
 		assertThat(response.getBody(), containsInAnyOrder(DEVICE_1, DEVICE_2, DEVICE_3));
 		assertThat(response.getStatusCode(), is(OK));
 	}
 
 	@Test
 	public void findAllShouldReturnEmptyCollectionIfNoDevicesAreAvailable() {
+		// given
 		given(deviceRepository.findAll()).willReturn(emptySet());
 
+		// when
 		final ResponseEntity<Collection<Device>> response = deviceController.findAll();
 
+		// then
 		assertThat(response.getBody(), is(empty()));
 		assertThat(response.getStatusCode(), is(OK));
 	}
 
-	// ----------------------------- findById -----------------------------
-
 	@Test
 	public void findByIdShouldReturnDevice() {
+		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
 
+		// when
 		final ResponseEntity<Device> response = deviceController.findById(DEVICE_1.getId());
 
+		// then
 		assertThat(response.getBody(), is(DEVICE_1));
 		assertThat(response.getStatusCode(), is(OK));
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void findByIdShouldReturnNullWithStatusNotFoundIfNoDevicesAreAvailable() {
+	public void findByIdShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() {
+		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 
 		deviceController.findById(DEVICE_1.getId());
 
-		// exception
+		// then an exception is expected
 	}
 
-	// ----------------------------- sendCommand -----------------------------
+	@Test
+	public void handleNoSuchElementExceptionShouldReturnNotFoundStatus() {
+		// given nothing special
+
+		// when
+		final ResponseEntity<String> response = deviceController.handleNoSuchElementException();
+
+		// then
+		assertThat(response.getStatusCode(), is(NOT_FOUND));
+	}
+
+	@Test
+	public void handleUndefinedCommandExceptionShouldReturnNotAcceptableStatus() {
+		// given nothing special
+
+		// when
+		final ResponseEntity<String> response = deviceController.handleUndefinedCommandException();
+
+		// then
+		assertThat(response.getStatusCode(), is(NOT_ACCEPTABLE));
+	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void sendCommandShouldThrowNoSuchElementExceptionIfNoDevicesAreAvailable() throws UndefinedCommandException {
+	public void sendCommandShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() throws UndefinedCommandException {
+		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 
+		// when
 		deviceController.sendCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
 
-		// exception
+		// then an exception is expected
 	}
 
 	@Test
 	public void sendCommandShouldTransmitCommandToCommunicationService() throws UndefinedCommandException {
+		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 
+		// when
 		final ResponseEntity<Device> response = deviceController.sendCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
 
+		// then
 		verify(comunicationService).sendCommand(DEVICE_1, GET_SWITCH_STATE);
 		assertThat(response.getBody(), is(DEVICE_1));
 		assertThat(response.getStatusCode(), is(OK));
 	}
 
-	// ----------------------------- update -----------------------------
-
 	@Test(expected = NoSuchElementException.class)
-	public void updateShouldThrowNoSuchElementExceptionIfNoDevicesAreAvailable() throws UndefinedCommandException {
+	public void updateShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() throws UndefinedCommandException {
+		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 
+		// when
 		deviceController.update(DEVICE_1.getId(), DEVICE_1);
 
-		// exception
+		// then an exception is expected
 	}
 
 	public void updateShouldUpdateOnlyName() throws UndefinedCommandException {
+		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 		final State originalState = DEVICE_1.getState();
@@ -153,8 +186,10 @@ public class DeviceControllerTest {
 		// change state to verify it will not updated
 		updatedDevice.setState(ON);
 
+		// when
 		final ResponseEntity<Device> response = deviceController.update(DEVICE_1.getId(), updatedDevice);
 
+		// then
 		verify(deviceRepository).save(DEVICE_1);
 		assertThat(response.getBody(), is(DEVICE_1));
 		assertThat(response.getBody().getName(), is("Renamed device"));

@@ -1,5 +1,6 @@
 package ch.wellernet.zeus.server.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Query;
@@ -12,5 +13,5 @@ import ch.wellernet.zeus.server.model.ControlUnit;
 public interface ControlUnitRepository extends CrudRepository<ControlUnit, UUID> {
 
 	@Query("SELECT c FROM ControlUnit c JOIN c.address a WHERE TYPE(a) = IntegratedControlUnitAddress")
-	public ControlUnit findIntegratedControlUnit();
+	public Optional<ControlUnit> findIntegrated();
 }
