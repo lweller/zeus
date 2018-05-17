@@ -48,11 +48,13 @@
 .devices .label {
 	display: inline-block;
 	position: relative;
-	top: -.6em;
+	top: -.4em;
 	min-width: 75%;
 }
 
 input {
+	font-size: large;
+	line-height: 1em;
 	cursor: hand;
 	cursor: pointer;
 	background: none;
