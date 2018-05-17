@@ -109,8 +109,3 @@ public class DeviceController implements ApiV1Controller {
 		return deviceRepository.findById(id).get();
 	}
 }
-
-	private Device findDevice(final UUID id) {
-		return deviceRepository.findById(id).get();
-	}
-}

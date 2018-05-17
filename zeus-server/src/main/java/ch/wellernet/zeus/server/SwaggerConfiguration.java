@@ -16,6 +16,6 @@ public class SwaggerConfiguration {
 	@Bean
 	public Docket publicApiDocumentation() {
 		return new Docket(DocumentationType.SWAGGER_2).select().paths(p -> PathSelectors.ant("/api/v1/**").apply(p))
-				.build().apiInfo(new ApiInfoBuilder().title("ZeusWeb").build()).forCodeGeneration(true);
+				.build().apiInfo(new ApiInfoBuilder().title("Zeus API v1").build()).forCodeGeneration(true);
 	}
 }
