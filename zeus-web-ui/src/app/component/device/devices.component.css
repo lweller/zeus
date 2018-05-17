@@ -49,4 +49,18 @@
 	display: inline-block;
 	position: relative;
 	top: -.6em;
+	min-width: 75%;
+}
+
+input {
+	cursor: hand;
+	cursor: pointer;
+	background: none;
+	border: none;
+	outline: none;
+}
+
+input.editing {
+	cursor: text;
+	border-bottom: 1px solid gray;
 }

@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,13 +23,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "communicationServiceName")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class ControlUnitAddress {
 	protected static final String SEQUENCE_NAME = "SEQ_CONTROL_UNIT_ADDRESS";
 
 	private @Id @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id;
 	private String communicationServiceName;
 
-	public ControlUnitAddress(String communicationServiceName) {
+	public ControlUnitAddress(final String communicationServiceName) {
 		this.communicationServiceName = communicationServiceName;
 	}
 }

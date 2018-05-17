@@ -21,4 +21,8 @@ export class DeviceService {
   sendCommand(device: Device) {
     return this.httpClient.post<Device>(BASE_API_URL + '/devices/' + device.id + '!sendCommand', {});
   }
+
+  update(device: Device) {
+    return this.httpClient.post<Device>(BASE_API_URL + '/devices/' + device.id + '!update', device);
+  }
 }

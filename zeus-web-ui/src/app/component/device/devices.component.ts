@@ -25,4 +25,9 @@ export class DevicesComponent implements OnInit {
     this.deviceService.sendCommand(device).subscribe(updatedDevice =>
       this.devices[this.devices.indexOf(device)] = updatedDevice);
   }
+
+  update(device: Device) {
+    this.deviceService.update(device).subscribe(updatedDevice =>
+      this.devices[this.devices.indexOf(device)] = updatedDevice);
+  }
 }
