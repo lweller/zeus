@@ -243,6 +243,7 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
+					<packagingExcludes>WEB-INF/classes/application-dev.yml</packagingExcludes>
 					<webResources>
 						<resource>
 							<directory>target/ui</directory>
