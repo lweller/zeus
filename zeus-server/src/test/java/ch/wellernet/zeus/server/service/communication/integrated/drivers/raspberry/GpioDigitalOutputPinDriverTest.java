@@ -45,7 +45,7 @@ import lombok.Value;
 @RunWith(JUnitParamsRunner.class)
 public class GpioDigitalOutputPinDriverTest {
 	// make class testable
-	private static class TestGpioDigitalOutputPinDriver extends GpioDigitalOutputPinDriver {
+	static class TestGpioDigitalOutputPinDriver extends GpioDigitalOutputPinDriver {
 
 		public TestGpioDigitalOutputPinDriver() {
 			super(new Properties() {
@@ -64,7 +64,7 @@ public class GpioDigitalOutputPinDriverTest {
 	}
 
 	@Value
-	private static class TestParameterSet {
+	static class TestParameterSet {
 		private PinState activePinState;
 		private PinState initialPinState;
 		private State initialDeviceState;
