@@ -32,6 +32,8 @@ import lombok.Getter;
 
 public class GpioDigitalOutputPinDriver implements DeviceDriver {
 
+	public static final PinState DEFAULT_ACTIVE_STATE = LOW;
+
 	static final String BEAN_NAME = "deviceDriver.raspberry.GpioDigitalOutputPinDriver";
 
 	public static final String PIN_PROPERTY = "pin";
@@ -41,7 +43,7 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	private GpioController gpioController;
 
 	@Getter
-	private Properties properties;
+	private final Properties properties;
 
 	@Getter
 	private PinState activePinState;
@@ -52,21 +54,9 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	@Getter
 	private final Collection<Command> supportedCommands;
 
-	public GpioDigitalOutputPinDriver(Properties properties) {
+	public GpioDigitalOutputPinDriver(final Properties properties) {
 		this.properties = properties;
 		supportedCommands = immutableEnumSet(SWITCH_ON, SWITCH_OFF, TOGGLE_SWITCH, GET_SWITCH_STATE);
-	}
-
-	/**
-	 * @see ch.wellernet.zeus.server.service.communication.integrated.drivers.DeviceDriver#init()
-	 */
-	@Override
-	@PostConstruct
-	public void init() {
-		this.activePinState = PinState.valueOf(properties.getProperty(ACTIVE_STATE_PROPERTY, LOW.name()));
-		Pin pin = getPinByAddress(Integer.valueOf(properties.getProperty(PIN_PROPERTY)));
-		provisionedPin = gpioController.provisionDigitalOutputPin(pin, getInverseState(activePinState));
-		provisionedPin.setShutdownOptions(true, getInverseState(activePinState));
 	}
 
 	/**
@@ -74,7 +64,7 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	 *      wellernet.zeus.server.model.Command)
 	 */
 	@Override
-	public State execute(Command command) throws UndefinedCommandException {
+	public State execute(final Command command) throws UndefinedCommandException {
 		switch (command) {
 		case SWITCH_ON:
 			provisionedPin.setState(activePinState);
@@ -92,5 +82,17 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 					format("Commdand %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
 		}
 		return provisionedPin.getState() == activePinState ? ON : OFF;
+	}
+
+	/**
+	 * @see ch.wellernet.zeus.server.service.communication.integrated.drivers.DeviceDriver#init()
+	 */
+	@Override
+	@PostConstruct
+	public void init() {
+		activePinState = PinState.valueOf(properties.getProperty(ACTIVE_STATE_PROPERTY, DEFAULT_ACTIVE_STATE.name()));
+		final Pin pin = getPinByAddress(Integer.valueOf(properties.getProperty(PIN_PROPERTY)));
+		provisionedPin = gpioController.provisionDigitalOutputPin(pin, getInverseState(activePinState));
+		provisionedPin.setShutdownOptions(true, getInverseState(activePinState));
 	}
 }
