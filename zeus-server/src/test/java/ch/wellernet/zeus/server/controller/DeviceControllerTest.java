@@ -162,6 +162,7 @@ public class DeviceControllerTest {
 
 		// then
 		verify(comunicationService).sendCommand(DEVICE_1, GET_SWITCH_STATE);
+		verify(deviceRepository).save(DEVICE_1);
 		assertThat(response.getBody(), is(DEVICE_1));
 		assertThat(response.getStatusCode(), is(OK));
 	}

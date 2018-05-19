@@ -88,6 +88,7 @@ public class DeviceController implements ApiV1Controller {
 				.findByName(device.getControlUnit().getAddress().getCommunicationServiceName())
 				.sendCommand(device, command);
 		device.setState(newState);
+		deviceRepository.save(device);
 
 		return ResponseEntity.status(OK).body(device);
 	}
