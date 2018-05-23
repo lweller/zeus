@@ -1,3 +1,5 @@
 export const environment = {
-  production: true
+  name: 'prod',
+  production: true,
+  zeusServerApiBaseUri: '/api/v1'
 };

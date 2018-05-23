@@ -1,13 +1,9 @@
 import {Injectable} from '@angular/core';
-
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-
 import {Observable} from 'rxjs/Observable';
-
 import {Device} from '../model/device';
+import {environment} from '../../environments/environment';
 
-
-const BASE_API_URL = '/api/v1';
 
 @Injectable()
 export class DeviceService {
@@ -15,14 +11,14 @@ export class DeviceService {
   constructor(private httpClient: HttpClient) {}
 
   findAll(): Observable<Device[]> {
-    return this.httpClient.get<Device[]>(BASE_API_URL + '/devices');
+    return this.httpClient.get<Device[]>(`${environment.zeusServerApiBaseUri}/devices`);
   }
 
   sendCommand(device: Device) {
-    return this.httpClient.post<Device>(BASE_API_URL + '/devices/' + device.id + '!sendCommand', {});
+    return this.httpClient.post<Device>(`${environment.zeusServerApiBaseUri}/devices/${device.id}!sendCommand`, {});
   }
 
   update(device: Device) {
-    return this.httpClient.post<Device>(BASE_API_URL + '/devices/' + device.id + '!update', device);
+    return this.httpClient.post<Device>(`${environment.zeusServerApiBaseUri}/devices/${device.id}!update`, device);
   }
 }
