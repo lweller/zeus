@@ -3,8 +3,8 @@ package ch.wellernet.zeus.server.controller;
 import static ch.wellernet.zeus.server.model.BuiltInDeviceType.GENERIC_SWITCH;
 import static ch.wellernet.zeus.server.model.Command.GET_SWITCH_STATE;
 import static ch.wellernet.zeus.server.model.State.ON;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.emptySet;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -18,6 +18,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class DeviceControllerTest {
 			.controlUnit(CONTROL_UNIT).build();
 	private static final Device DEVICE_3 = Device.builder().id(randomUUID()).name("Device 3").type(GENERIC_SWITCH)
 			.controlUnit(CONTROL_UNIT).build();
-	private static final Collection<Device> DEVICES = newHashSet(DEVICE_1, DEVICE_2, DEVICE_3);
+	private static final List<Device> DEVICES = newArrayList(DEVICE_1, DEVICE_2, DEVICE_3);
 
 	// object under test
 	@Autowired
@@ -84,7 +85,7 @@ public class DeviceControllerTest {
 	@Test
 	public void findAllShouldReturnEmptyCollectionIfNoDevicesAreAvailable() {
 		// given
-		given(deviceRepository.findAll()).willReturn(emptySet());
+		given(deviceRepository.findAll()).willReturn(emptyList());
 
 		// when
 		final ResponseEntity<Collection<Device>> response = deviceController.findAll();
@@ -173,14 +174,15 @@ public class DeviceControllerTest {
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 
 		// when
-		deviceController.update(DEVICE_1.getId(), DEVICE_1);
+		deviceController.update(DEVICE_1.getId(), DEVICE_1, DEVICE_1.getVersion());
 
 		// then an exception is expected
 	}
 
-	public void updateShouldUpdateOnlyName() throws UndefinedCommandException {
+	@Test
+	public void updateShouldUpdateOnlyName() throws UndefinedCommandException, InterruptedException {
 		// given
-		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
+		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 		final State originalState = DEVICE_1.getState();
 		final Device updatedDevice = Device.builder().name("Renamed device").type(GENERIC_SWITCH).build();
@@ -188,7 +190,8 @@ public class DeviceControllerTest {
 		updatedDevice.setState(ON);
 
 		// when
-		final ResponseEntity<Device> response = deviceController.update(DEVICE_1.getId(), updatedDevice);
+		final ResponseEntity<Device> response = deviceController.update(DEVICE_1.getId(), updatedDevice,
+				DEVICE_1.getVersion());
 
 		// then
 		verify(deviceRepository).save(DEVICE_1);

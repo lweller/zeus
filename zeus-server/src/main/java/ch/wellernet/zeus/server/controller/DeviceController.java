@@ -5,10 +5,13 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+
+import javax.persistence.OptimisticLockException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,6 +70,11 @@ public class DeviceController implements ApiV1Controller {
 		return ResponseEntity.status(NOT_FOUND).body("cannot find device");
 	}
 
+	@ExceptionHandler({ OptimisticLockException.class })
+	public ResponseEntity<Device> handleOptimisticLockException(final OptimisticLockException exception) {
+		return ResponseEntity.status(PRECONDITION_FAILED).body((Device) exception.getEntity());
+	}
+
 	@ExceptionHandler({ UndefinedCommandException.class })
 	public ResponseEntity<String> handleUndefinedCommandException() {
 		return ResponseEntity.status(NOT_ACCEPTABLE).body("undefined command");
@@ -94,12 +103,14 @@ public class DeviceController implements ApiV1Controller {
 	}
 
 	@ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")
+	@ApiResponses(@ApiResponse(code = 412, message = "Concurent modification"))
 	@PostMapping("/{id}!update")
 	public ResponseEntity<Device> update(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
-			@ApiParam(value = "Device data", required = true) @RequestBody final Device device)
-			throws NoSuchElementException {
-		final Device currentDevice = findDevice(id);
+			@ApiParam(value = "Device data", required = true) @RequestBody final Device device,
+			@ApiParam(value = "ETag (i.e.) version attribute for optimistic locking", required = true) @RequestHeader(value = "If-Match", required = true) final long version)
+			throws NoSuchElementException, OptimisticLockException {
+		final Device currentDevice = findDevice(id, version);
 		currentDevice.setName(device.getName());
 		deviceRepository.save(currentDevice);
 
@@ -107,6 +118,14 @@ public class DeviceController implements ApiV1Controller {
 	}
 
 	private Device findDevice(final UUID id) {
-		return deviceRepository.findById(id).get();
+		return findDevice(id, null);
+	}
+
+	private Device findDevice(final UUID id, final Long version) throws OptimisticLockException {
+		final Device device = deviceRepository.findById(id).get();
+		if (version != null && device.getVersion() != version) {
+			throw new OptimisticLockException(device);
+		}
+		return device;
 	}
 }

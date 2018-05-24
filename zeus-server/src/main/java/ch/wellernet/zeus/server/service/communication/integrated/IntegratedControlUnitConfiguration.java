@@ -68,7 +68,7 @@ public class IntegratedControlUnitConfiguration {
 				devices.add(new Device(driverMapping.getDeviceId(), driverMapping.getDeviceType(),
 						format("Device %s", devices.size() + 1), null));
 			}
-			integratedControlUnit = new ControlUnit(properties.getId(), devices, new IntegratedControlUnitAddress());
+			integratedControlUnit = new ControlUnit(properties.getId(), new IntegratedControlUnitAddress(), devices);
 			for (final Device device : devices) {
 				device.setControlUnit(integratedControlUnit);
 			}

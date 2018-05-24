@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -28,7 +29,8 @@ public abstract class ControlUnitAddress {
 	protected static final String SEQUENCE_NAME = "SEQ_CONTROL_UNIT_ADDRESS";
 
 	private @Id @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id;
-	private String communicationServiceName;
+	private @Setter(PRIVATE) String communicationServiceName;
+	private @Version long version;
 
 	public ControlUnitAddress(final String communicationServiceName) {
 		this.communicationServiceName = communicationServiceName;

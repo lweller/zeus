@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.Type;
 
@@ -30,13 +31,14 @@ public class Device {
 	private String name;
 	private @ManyToOne(cascade = { PERSIST, MERGE, REFRESH, DETACH }) ControlUnit controlUnit;
 	private State state;
+	private @Version long version;
 
 	@Builder
-	public Device(UUID id, DeviceType type, String name, ControlUnit controlUnit) {
+	public Device(final UUID id, final DeviceType type, final String name, final ControlUnit controlUnit) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
 		this.controlUnit = controlUnit;
-		this.state = type.getInitialState();
+		state = type.getInitialState();
 	}
 }

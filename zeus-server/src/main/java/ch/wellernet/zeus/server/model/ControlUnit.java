@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -23,12 +24,19 @@ import lombok.Setter;
 
 @Entity
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
 public class ControlUnit {
 	private @Id @Setter(PRIVATE) UUID id;
-	private @OneToMany(cascade = ALL, mappedBy = "controlUnit") @Setter(PRIVATE) @JsonIgnore List<Device> devices;
 	private @OneToOne(cascade = ALL) ControlUnitAddress address;
+	private @OneToMany(cascade = ALL, mappedBy = "controlUnit") @Setter(PRIVATE) @JsonIgnore List<Device> devices;
+	private @Version long versison;
+
+	@Builder
+	public ControlUnit(final UUID id, final ControlUnitAddress address, final List<Device> devices) {
+		this.id = id;
+		this.address = address;
+		this.devices = devices;
+	}
 }
