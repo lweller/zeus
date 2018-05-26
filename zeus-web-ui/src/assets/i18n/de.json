@@ -1,0 +1,10 @@
+{
+	"GENERAL_ERRORS": {
+		"UNEXPECTED": "Entschuldigung, es ist ein unerwarterter fehler aufgetreten !",
+		"CONCURENT_MODIFICATION": "Konnte wegen gleichzeitier Veränderung die Daten nicht aktualisieren."
+	},
+	"DEVICE_SERVICE": {
+		"UPDATE_SUCCESSFUL": "Das Gerät wurde aktualisiert.",
+		"COMMAND_EXECUTION_SUCCESSFUL": "Der Befehl wurde erfolgreich ausgeführt."
+	}
+}

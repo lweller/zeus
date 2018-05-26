@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'app';
+  title = 'Zeus Web';
+
+  constructor(private translateService: TranslateService) {
+    translateService.addLangs(['en', 'de', 'fr']);
+    translateService.setDefaultLang('en');
+    const browserLang = translateService.getBrowserLang();
+    translateService.use(browserLang.match(/en|de|fr/) ? browserLang : 'en');
+  }
 }

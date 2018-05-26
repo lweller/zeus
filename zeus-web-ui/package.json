@@ -32,6 +32,8 @@
     "@angular/cli": "1.6.5",
     "@angular/compiler-cli": "^5.2.11",
     "@angular/language-service": "^5.2.11",
+    "@ngx-translate/core": "^9.0.0",
+    "@ngx-translate/http-loader": "^2.0.0",
     "@types/jasmine": "~2.8.3",
     "@types/jasminewd2": "~2.0.2",
     "@types/node": "^6.0.111",

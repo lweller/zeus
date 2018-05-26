@@ -1,12 +1,8 @@
 .devices {
-	position: absolute;
-	left: 50%;
-	transform: translate(-50%, 0);
 	margin: 0 0 2em 0;
 	list-style-type: none;
 	padding: 0;
 	width: 100%;
-	max-width: 20em;
 }
 
 .devices li {
@@ -49,7 +45,7 @@
 	display: inline-block;
 	position: relative;
 	top: -.4em;
-	min-width: 75%;
+	width: 75%;
 }
 
 input {

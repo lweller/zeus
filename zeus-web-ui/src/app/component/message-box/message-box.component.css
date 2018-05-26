@@ -1,0 +1,120 @@
+.message-box {
+	margin: 0 10px 0 10px;
+	color: #777777;
+	border-color: #777777;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 4px;
+	background-color: #eaeaea;
+}
+
+.message-box div {
+	position: relative;
+	height: 2.4em;
+	max-height: 2.4em;
+	margin: 0.2em 0 0.2em 0.5em;
+	font-size: small;
+}
+
+.message-box div span {
+	position: absolute;
+	top: 50%;
+	transform: translate(0, -50%);
+	max-height: inherit;
+}
+
+.scroll-vertical {
+	overflow-x: hidden;
+	overflow-y: auto;
+	scrollbar-arrow-color: #777777;
+	scrollbar-track-color: #eaeaea;
+}
+
+.scroll-vertical::-webkit-scrollbar {
+	width: 18px;
+	background-color: #eaeaea;
+}
+
+.scroll-vertical::-webkit-scrollbar-button:vertical {
+	height: 10px;
+	width: 10px;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.scroll-vertical::-webkit-scrollbar-button:vertical:decrement {
+	background-image: url('/assets/ui/uparrow-gray.png');
+}
+
+.scroll-vertical::-webkit-scrollbar-button:vertical:increment {
+	background-image: url('/assets/ui/downarrow-gray.png');
+}
+
+.info {
+	color: #2ca763;
+	border-color: #2ca763;
+	background-color: #baedd1;
+}
+
+.info .scroll-vertical {
+	scrollbar-arrow-color: #2ca763;
+	scrollbar-track-color: #baedd1;
+}
+
+.info .scroll-vertical::-webkit-scrollbar {
+	background-color: #baedd1;
+}
+
+.info .scroll-vertical::-webkit-scrollbar-button:vertical:decrement {
+	background-image: url('/assets/ui/uparrow-green.png');
+}
+
+.info .scroll-vertical::-webkit-scrollbar-button:vertical:increment {
+	background-image: url('/assets/ui/downarrow-green.png');
+}
+
+.warning {
+	color: #e6961e;
+	border-color: #e6961e;
+	background-color: #faead1;
+}
+
+.warning .scroll-vertical {
+	scrollbar-arrow-color: #e6961e;
+	scrollbar-track-color: #faead1;
+}
+
+.warning .scroll-vertical::-webkit-scrollbar {
+	background-color: #faead1;
+}
+
+.warning .scroll-vertical::-webkit-scrollbar-button:vertical:decrement {
+	background-image: url('/assets/ui/uparrow-orange.png');
+}
+
+.warning .scroll-vertical::-webkit-scrollbar-button:vertical:increment {
+	background-image: url('/assets/ui/downarrow-orange.png');
+}
+
+.error {
+	color: #ff0000;
+	border-color: #ff0000;
+	background-color: #ffcccc;
+}
+
+.error .scroll-vertical {
+	scrollbar-arrow-color: #ff0000;
+	scrollbar-track-color: #ffcccc;
+}
+
+.error .scroll-vertical::-webkit-scrollbar {
+	background-color: #ffcccc;
+}
+
+.error .scroll-vertical::-webkit-scrollbar-button:vertical:decrement {
+	background-image: url('/assets/ui/uparrow-red.png');
+}
+
+.error .scroll-vertical::-webkit-scrollbar-button:vertical:increment {
+	background-image: url('/assets/ui/downarrow-red.png');
+}

@@ -4,4 +4,5 @@ export class Device {
   state: string;
   version: number;
   editing: boolean;
+  error: boolean;
 }

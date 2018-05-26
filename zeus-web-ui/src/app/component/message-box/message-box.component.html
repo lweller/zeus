@@ -1,0 +1,9 @@
+<div class="message-box" [class.info]="currentMessage.level === 'info'"
+	[class.warning]="currentMessage.level === 'warning'"
+	[class.error]="currentMessage.level === 'error'"
+	[@visibility-changed]="getVisibility()">
+	<div>
+		<span class="scroll-vertical">{{currentMessage.message |
+			translate}}</span>
+	</div>
+</div>
