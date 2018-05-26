@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>ch.wellernet</groupId>
@@ -12,10 +15,19 @@
 		<module>zeus-server</module>
 		<module>zeus-web-ui</module>
 	</modules>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<developers>
 		<developer>
+			<id>lweller</id>
 			<name>Lucien Weller</name>
 			<email>lucien@wellernet.ch</email>
+			<timezone>Europe/Zurich</timezone>
 		</developer>
 	</developers>
 	<issueManagement>
@@ -26,7 +38,7 @@
 		<url>https://github.com/lweller/zeus</url>
 		<connection>scm:git:git://github.com/lweller/zeus.git</connection>
 		<developerConnection>scm:git:git@github.com:lweller/zeus.git</developerConnection>
-<tag>HEAD</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<build>
 		<pluginManagement>
