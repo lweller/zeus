@@ -3,6 +3,8 @@ export class Device {
   name: string;
   state: string;
   version: number;
-  editing: boolean;
-  error: boolean;
+
+  // additional meta attributes
+  $editing: boolean;
+  $error: boolean;
 }

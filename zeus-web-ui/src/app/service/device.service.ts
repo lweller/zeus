@@ -31,18 +31,18 @@ export class DeviceService {
         switch (error.status) {
           case PRECONDITION_FAILED:
             this.messageService.displayError('GENERAL_ERRORS.CONCURENT_MODIFICATION');
-            const reloadedDevice = error.error;
-            reloadedDevice.error = true;
+            const reloadedDevice: Device = error.error;
+            reloadedDevice.$error = true;
             return Observable.of(reloadedDevice);
           default:
             this.messageService.displayError('GENERAL_ERRORS.UNEXCPECTED');
-            device.error = true;
-            device.editing = false;
+            device.$error = true;
             return Observable.of(device);
         }
       })
       .pipe(tap(reloadedDevice => {
-        if (!reloadedDevice.error) {
+        device.$editing = false;
+        if (!reloadedDevice.$error) {
           this.messageService.displayInfo('DEVICE_SERVICE.UPDATE_SUCCESSFUL');
         }
       }));
