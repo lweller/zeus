@@ -3,16 +3,20 @@ package ch.wellernet.zeus.server.service.scenario;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
+
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import ch.wellernet.zeus.server.model.scenario.InhibitionArc;
@@ -20,12 +24,18 @@ import ch.wellernet.zeus.server.model.scenario.InputArc;
 import ch.wellernet.zeus.server.model.scenario.OutputArc;
 import ch.wellernet.zeus.server.model.scenario.Place;
 import ch.wellernet.zeus.server.model.scenario.Transition;
+import ch.wellernet.zeus.server.repository.PlaceRepository;
+import ch.wellernet.zeus.server.repository.TransitionRepository;
 
 @SpringBootTest(classes = ScenarioService.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class ScenarioServiceTest {
 
-	private @Mock(answer = CALLS_REAL_METHODS) ScenarioService scenarioService;
+	// object under test
+	private @SpyBean ScenarioService scenarioService;
+
+	private @MockBean TransitionRepository transitionRepository;
+	private @MockBean PlaceRepository placeRepository;
 
 	@Test
 	public void canFireInhibitionArcShouldReturnFalseWhenPlaceNotSet() {
@@ -270,13 +280,15 @@ public class ScenarioServiceTest {
 		final Transition transition = Transition.builder()
 				.inputArcs(newHashSet(InputArc.builder().place(inputPlace).build()))
 				.outputArcs(newHashSet(OutputArc.builder().place(outputPlace).build())).build();
+		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
 
 		// when
-		scenarioService.fireTransition(transition);
+		scenarioService.fireTransition(transition.getId());
 
 		// then
 		assertThat(inputPlace.getCount(), is(1));
 		assertThat(outputPlace.getCount(), is(0));
+		verifyZeroInteractions(placeRepository);
 	}
 
 	@Test
@@ -290,14 +302,19 @@ public class ScenarioServiceTest {
 		final Transition transition = Transition.builder()
 				.inputArcs(newHashSet(InputArc.builder().weight(2).place(inputPlace).build()))
 				.outputArcs(newHashSet(OutputArc.builder().weight(3).place(outputPlace).build())).build();
+		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
 
 		// when
-		scenarioService.fireTransition(transition);
+		scenarioService.fireTransition(transition.getId());
 
 		// then
+		// withdraw tokens form inout place
 		assertThat(inputPlace.getCount(), is(0));
+		verify(placeRepository).save(inputPlace);
+		// add tokens to output place
 		assertThat(outputPlace.getCount(), is(3));
-		verify(scenarioService).fireTransition(transition);
+		verify(placeRepository).save(outputPlace);
+		// call next transition recursively
 		verify(scenarioService).fireTransition(nextTransition);
 	}
 }

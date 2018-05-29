@@ -1,6 +1,10 @@
 package ch.wellernet.zeus.server.model.scenario;
 
 import static ch.wellernet.zeus.server.model.scenario.InputArc.SEQUENCE_NAME;
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REFRESH;
 import static javax.persistence.GenerationType.SEQUENCE;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
@@ -31,8 +35,8 @@ public class InputArc {
 	private static int TEMP_ID;
 
 	private @Id @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id = --TEMP_ID;
-	private @ManyToOne Place place;
-	private @ManyToOne Transition transition;
+	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Place place;
+	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Transition transition;
 	private int weight = 1;
 	private @Version long version;
 
