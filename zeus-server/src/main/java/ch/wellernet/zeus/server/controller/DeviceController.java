@@ -2,6 +2,7 @@ package ch.wellernet.zeus.server.controller;
 
 import static ch.wellernet.zeus.server.controller.DeviceController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
@@ -12,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import javax.persistence.OptimisticLockException;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,7 @@ import io.swagger.annotations.ApiResponses;
 @RestController
 @CrossOrigin
 @RequestMapping(API_PATH)
+@Transactional(REQUIRED)
 public class DeviceController implements ApiV1Controller {
 	static final String API_PATH = API_ROOT_PATH + "/devices";
 

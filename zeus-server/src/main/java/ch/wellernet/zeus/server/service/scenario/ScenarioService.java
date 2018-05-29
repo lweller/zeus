@@ -1,6 +1,6 @@
 package ch.wellernet.zeus.server.service.scenario;
 
-import static javax.transaction.Transactional.TxType.REQUIRED;
+import static javax.transaction.Transactional.TxType.MANDATORY;
 
 import java.util.NoSuchElementException;
 
@@ -18,12 +18,12 @@ import ch.wellernet.zeus.server.repository.PlaceRepository;
 import ch.wellernet.zeus.server.repository.TransitionRepository;
 
 @Service
+@Transactional(MANDATORY)
 public class ScenarioService {
 
 	private @Autowired TransitionRepository transitionRepository;
 	private @Autowired PlaceRepository placeRepository;
 
-	@Transactional(REQUIRED)
 	public void fireTransition(final int transitionId) throws NoSuchElementException {
 		fireTransition(transitionRepository.findById(transitionId).get());
 	}

@@ -2,11 +2,14 @@ package ch.wellernet.zeus.server.controller;
 
 import static ch.wellernet.zeus.server.controller.ControlUnitController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,7 @@ import io.swagger.annotations.ApiParam;
 @RestController
 @CrossOrigin
 @RequestMapping(API_PATH)
+@Transactional(REQUIRED)
 public class ControlUnitController implements ApiV1Controller {
 	static final String API_PATH = API_ROOT_PATH + "/controlUnits";
 
