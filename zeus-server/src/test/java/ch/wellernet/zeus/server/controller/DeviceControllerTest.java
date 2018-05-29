@@ -1,8 +1,8 @@
 package ch.wellernet.zeus.server.controller;
 
-import static ch.wellernet.zeus.server.model.BuiltInDeviceType.GENERIC_SWITCH;
-import static ch.wellernet.zeus.server.model.Command.GET_SWITCH_STATE;
-import static ch.wellernet.zeus.server.model.State.ON;
+import static ch.wellernet.zeus.server.device.model.BuiltInDeviceType.GENERIC_SWITCH;
+import static ch.wellernet.zeus.server.device.model.Command.GET_SWITCH_STATE;
+import static ch.wellernet.zeus.server.device.model.State.ON;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
@@ -30,14 +30,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ch.wellernet.zeus.server.model.ControlUnit;
-import ch.wellernet.zeus.server.model.ControlUnitAddress;
-import ch.wellernet.zeus.server.model.Device;
-import ch.wellernet.zeus.server.model.State;
-import ch.wellernet.zeus.server.repository.DeviceRepository;
-import ch.wellernet.zeus.server.service.communication.CommunicationService;
-import ch.wellernet.zeus.server.service.communication.CommunicationServiceRegistry;
-import ch.wellernet.zeus.server.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.server.device.model.ControlUnit;
+import ch.wellernet.zeus.server.device.model.ControlUnitAddress;
+import ch.wellernet.zeus.server.device.model.Device;
+import ch.wellernet.zeus.server.device.model.State;
+import ch.wellernet.zeus.server.device.repository.DeviceRepository;
+import ch.wellernet.zeus.server.device.service.communication.CommunicationService;
+import ch.wellernet.zeus.server.device.service.communication.CommunicationServiceRegistry;
+import ch.wellernet.zeus.server.device.service.communication.integrated.drivers.UndefinedCommandException;
 
 @SpringBootTest(classes = DeviceController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)

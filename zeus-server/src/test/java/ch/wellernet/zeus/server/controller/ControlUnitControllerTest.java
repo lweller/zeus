@@ -26,10 +26,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.collect.Sets;
 
-import ch.wellernet.zeus.server.model.ControlUnit;
-import ch.wellernet.zeus.server.model.ControlUnitAddress;
-import ch.wellernet.zeus.server.model.IntegratedControlUnitAddress;
-import ch.wellernet.zeus.server.repository.ControlUnitRepository;
+import ch.wellernet.zeus.server.device.model.ControlUnit;
+import ch.wellernet.zeus.server.device.model.ControlUnitAddress;
+import ch.wellernet.zeus.server.device.model.IntegratedControlUnitAddress;
+import ch.wellernet.zeus.server.device.repository.ControlUnitRepository;
 
 @SpringBootTest(classes = ControlUnitController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)

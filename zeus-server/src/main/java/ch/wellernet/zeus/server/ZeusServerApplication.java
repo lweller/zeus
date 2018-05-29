@@ -9,15 +9,15 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableTransactionManagement
-@EntityScan(basePackages = "ch.wellernet.zeus.server.model")
+@EntityScan(basePackages = { "ch.wellernet.zeus.server.device.model", "ch.wellernet.zeus.server.scenario.model" })
 public class ZeusServerApplication extends SpringBootServletInitializer {
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(ZeusServerApplication.class);
+	public static void main(final String[] args) {
+		SpringApplication.run(ZeusServerApplication.class, args);
 	}
 
-	public static void main(String[] args) {
-		SpringApplication.run(ZeusServerApplication.class, args);
+	@Override
+	protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
+		return builder.sources(ZeusServerApplication.class);
 	}
 }

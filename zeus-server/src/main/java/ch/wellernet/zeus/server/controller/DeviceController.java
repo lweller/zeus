@@ -28,12 +28,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.wellernet.zeus.server.model.Command;
-import ch.wellernet.zeus.server.model.Device;
-import ch.wellernet.zeus.server.model.State;
-import ch.wellernet.zeus.server.repository.DeviceRepository;
-import ch.wellernet.zeus.server.service.communication.CommunicationServiceRegistry;
-import ch.wellernet.zeus.server.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.server.device.model.Command;
+import ch.wellernet.zeus.server.device.model.Device;
+import ch.wellernet.zeus.server.device.model.State;
+import ch.wellernet.zeus.server.device.repository.DeviceRepository;
+import ch.wellernet.zeus.server.device.service.communication.CommunicationServiceRegistry;
+import ch.wellernet.zeus.server.device.service.communication.integrated.drivers.UndefinedCommandException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

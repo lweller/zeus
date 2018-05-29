@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.wellernet.zeus.server.model.ControlUnit;
-import ch.wellernet.zeus.server.repository.ControlUnitRepository;
+import ch.wellernet.zeus.server.device.model.ControlUnit;
+import ch.wellernet.zeus.server.device.repository.ControlUnitRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
