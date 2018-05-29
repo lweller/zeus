@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class Scenario {
 	private String name;
 	private @OneToMany Set<Place> places;
 	private @OneToMany Set<Transition> transitions;
+	private @Version long version;
 
 	@Builder
 	protected Scenario(final UUID id, final String name, final Set<Place> places, final Set<Transition> transitions) {

@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Version;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,7 @@ public class OutputArc {
 	private @ManyToOne Transition transition;
 	private @ManyToOne Place place;
 	private int weight = 1;
+	private @Version long version;
 
 	@Builder
 	protected OutputArc(final Place place, final Transition transition, final int weight) {

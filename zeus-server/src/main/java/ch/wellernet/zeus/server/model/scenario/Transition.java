@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Version;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,7 @@ public class Transition {
 	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<InputArc> inputArcs = emptySet();
 	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<OutputArc> outputArcs = emptySet();
 	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<InhibitionArc> inhititionArcs = emptySet();
+	private @Version long version;
 
 	@Builder(toBuilder = true)
 	protected Transition(final Set<InputArc> inputArcs, final Set<OutputArc> outputArcs,

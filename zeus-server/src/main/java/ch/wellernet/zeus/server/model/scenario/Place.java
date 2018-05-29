@@ -14,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -39,6 +40,7 @@ public class Place {
 	private int maxCount = 1;
 	private int initialCount = 0;
 	private int count;
+	private @Version long version;
 
 	@Builder
 	protected Place(final Set<InputArc> inputArcs, final Set<OutputArc> outputArcs,
