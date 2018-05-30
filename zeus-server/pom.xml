@@ -77,6 +77,12 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+			<version>1.2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>pl.pragmatists</groupId>
 			<artifactId>JUnitParams</artifactId>
 		</dependency>

@@ -1,6 +1,6 @@
-package ch.wellernet.zeus.server.controller;
+package ch.wellernet.zeus.server.device.controller;
 
-import static ch.wellernet.zeus.server.controller.ControlUnitController.API_PATH;
+import static ch.wellernet.zeus.server.device.controller.ControlUnitController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;

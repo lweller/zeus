@@ -1,4 +1,4 @@
-package ch.wellernet.zeus.server.controller;
+package ch.wellernet.zeus.server.device.controller;
 
 import static ch.wellernet.zeus.server.device.model.BuiltInDeviceType.GENERIC_SWITCH;
 import static ch.wellernet.zeus.server.device.model.Command.GET_SWITCH_STATE;
@@ -30,6 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import ch.wellernet.zeus.server.device.controller.DeviceController;
 import ch.wellernet.zeus.server.device.model.ControlUnit;
 import ch.wellernet.zeus.server.device.model.ControlUnitAddress;
 import ch.wellernet.zeus.server.device.model.Device;

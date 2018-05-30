@@ -1,4 +1,4 @@
-package ch.wellernet.zeus.server.controller;
+package ch.wellernet.zeus.server.device.controller;
 
 import java.io.IOException;
 import java.util.Set;

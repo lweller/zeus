@@ -1,5 +1,5 @@
 
-package ch.wellernet.zeus.server.controller;
+package ch.wellernet.zeus.server.device.controller;
 
 import static java.util.Collections.emptySet;
 import static java.util.UUID.randomUUID;
@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.collect.Sets;
 
+import ch.wellernet.zeus.server.device.controller.ControlUnitController;
 import ch.wellernet.zeus.server.device.model.ControlUnit;
 import ch.wellernet.zeus.server.device.model.ControlUnitAddress;
 import ch.wellernet.zeus.server.device.model.IntegratedControlUnitAddress;
