@@ -45,7 +45,7 @@ import io.swagger.annotations.ApiResponses;
 @CrossOrigin
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
-public class DeviceController implements ApiV1Controller {
+public class DeviceController implements ApiV1DeviceController {
 	static final String API_PATH = API_ROOT_PATH + "/devices";
 
 	@Autowired
