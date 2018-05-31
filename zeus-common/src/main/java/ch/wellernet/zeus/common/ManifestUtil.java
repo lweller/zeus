@@ -1,44 +1,26 @@
-package ch.wellernet.zeus.modules.device.controller;
+package ch.wellernet.zeus.common;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Sets;
 
 import net.minidev.json.JSONObject;
 
-@RestController
-@CrossOrigin
-@RequestMapping("/version")
-public class VersionController {
-
+public final class ManifestUtil {
 	private final static Set<Attributes.Name> SHOW_ATTRIBUTES = Sets.newHashSet(
 			new Attributes.Name("Implementation-Title"), new Attributes.Name("Implementation-Vendor-Id"),
 			new Attributes.Name("Implementation-Version"), new Attributes.Name("Build-Host"),
 			new Attributes.Name("Build-Jdk"), new Attributes.Name("Build-Number"), new Attributes.Name("Build-Time"),
 			new Attributes.Name("Build-User"), new Attributes.Name("Created-By"));
 
-	@Autowired
-	private ApplicationContext applicationContext;
-
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public JSONObject getVersion() throws IOException {
+	public static JSONObject buildVersionInfo(final Manifest manifest) throws IOException {
 		final JSONObject result = new JSONObject();
-		final Resource resource = applicationContext.getResource("/META-INF/MANIFEST.MF");
 
-		final Manifest manifest = new Manifest(resource.getInputStream());
 		if (manifest != null) {
 			final Attributes mainAttributes = manifest.getMainAttributes();
 			if (mainAttributes != null) {
@@ -50,5 +32,23 @@ public class VersionController {
 			}
 		}
 		return result;
+	}
+
+	public static Manifest findManifest(final Class<?> clazz) throws IOException {
+		final String classFileUrl = clazz.getResource(clazz.getSimpleName() + ".class").toString();
+		InputStream inputStream = null;
+
+		try {
+			return new Manifest(inputStream = new URL(
+					classFileUrl.substring(0, classFileUrl.length() - (clazz.getCanonicalName() + ".class").length())
+							+ "META-INF/MANIFEST.MF").openStream());
+		} finally {
+			if (inputStream != null) {
+				inputStream.close();
+			}
+		}
+	}
+
+	private ManifestUtil() {
 	}
 }

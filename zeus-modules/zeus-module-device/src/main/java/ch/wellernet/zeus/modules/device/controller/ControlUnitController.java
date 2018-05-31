@@ -33,7 +33,7 @@ import io.swagger.annotations.ApiParam;
 @CrossOrigin
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
-public class ControlUnitController implements ApiV1DeviceController {
+public class ControlUnitController implements DeviceApiV1Controller {
 	static final String API_PATH = API_ROOT_PATH + "/controlUnits";
 
 	@Autowired

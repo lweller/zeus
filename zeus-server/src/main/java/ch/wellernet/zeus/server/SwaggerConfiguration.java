@@ -3,7 +3,7 @@ package ch.wellernet.zeus.server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ch.wellernet.zeus.modules.device.controller.ApiV1DeviceController;
+import ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -17,7 +17,7 @@ public class SwaggerConfiguration {
 	@Bean
 	public Docket publicApiDocumentation() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
-				.paths(p -> PathSelectors.ant(ApiV1DeviceController.API_ROOT_PATH + "/**").apply(p)).build()
+				.paths(p -> PathSelectors.ant(DeviceApiV1Controller.API_ROOT_PATH + "/**").apply(p)).build()
 				.apiInfo(new ApiInfoBuilder().title("Zeus API v1").build()).forCodeGeneration(true);
 	}
 }

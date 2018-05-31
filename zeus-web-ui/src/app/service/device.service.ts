@@ -16,16 +16,16 @@ export class DeviceService {
   constructor(private httpClient: HttpClient, private messageService: MessageService) {}
 
   findAll(): Observable<Device[]> {
-    return this.httpClient.get<Device[]>(`${environment.zeusServerApiBaseUri}/devices`);
+    return this.httpClient.get<Device[]>(`${environment.zeusServerDeviceApiBaseUri}/devices`);
   }
 
   sendCommand(device: Device): Observable<Device> {
-    return this.httpClient.post<Device>(`${environment.zeusServerApiBaseUri}/devices/${device.id}!sendCommand`, {})
+    return this.httpClient.post<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${device.id}!sendCommand`, {})
       .pipe(tap(_ => this.messageService.displayInfo('DEVICE_SERVICE.COMMAND_EXECUTION_SUCCESSFUL')));
   }
 
   update(device: Device): Observable<Device> {
-    return this.httpClient.post<Device>(`${environment.zeusServerApiBaseUri}/devices/${device.id}!update`, device,
+    return this.httpClient.post<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${device.id}!update`, device,
       {headers: new HttpHeaders().set('If-Match', `${device.version}`)})
       .catch((error: HttpErrorResponse) => {
         switch (error.status) {

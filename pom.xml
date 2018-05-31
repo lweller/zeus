@@ -24,6 +24,7 @@
 		<module>zeus-modules</module>
 		<module>zeus-server</module>
 		<module>zeus-web-ui</module>
+		<module>zeus-common</module>
 	</modules>
 	<licenses>
 		<license>
@@ -53,16 +54,19 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>ch.wellernet.zeus</groupId>
+				<artifactId>zeus-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>ch.wellernet.zeus.zeus-modules</groupId>
 				<artifactId>zeus-module-device</artifactId>
 				<version>${project.version}</version>
-				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>ch.wellernet.zeus.zeus-modules</groupId>
 				<artifactId>zeus-module-scenario</artifactId>
 				<version>${project.version}</version>
-				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>ch.wellernet.zeus</groupId>
@@ -410,6 +414,23 @@
 						<!-- required to load properties automagically -->
 						<ignoredDependency>org.springframework.boot:spring-boot-configuration-processor:jar</ignoredDependency>
 					</ignoredDependencies>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<manifest>
+						<addDefaultImplementationEntries>false</addDefaultImplementationEntries>
+					</manifest>
+					<archive>
+						<manifestEntries>
+							<Build-Number>${build.number}</Build-Number>
+							<Build-Time>${maven.build.timestamp}</Build-Time>
+							<Build-Host>${agent.name}</Build-Host>
+							<Build-User>${user.name}</Build-User>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
