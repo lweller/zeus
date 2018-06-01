@@ -1,6 +1,5 @@
 package ch.wellernet.zeus.modules.device.model;
 
-import static ch.wellernet.zeus.modules.device.model.ControlUnitAddress.SEQUENCE_NAME;
 import static javax.persistence.GenerationType.SEQUENCE;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -19,7 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@SequenceGenerator(name = SEQUENCE_NAME)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = PRIVATE)
@@ -28,7 +26,7 @@ import lombok.Setter;
 public abstract class ControlUnitAddress {
 	protected static final String SEQUENCE_NAME = "SEQ_CONTROL_UNIT_ADDRESS";
 
-	private @Id @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id;
+	private @Id @SequenceGenerator(name = SEQUENCE_NAME) @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id;
 	private @Setter(PRIVATE) String communicationServiceName;
 	private @Version long version;
 

@@ -1,6 +1,5 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import static ch.wellernet.zeus.modules.scenario.model.Arc.SEQUENCE_NAME;
 import static javax.persistence.CascadeType.DETACH;
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
@@ -22,7 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @MappedSuperclass
-@SequenceGenerator(name = SEQUENCE_NAME)
 @Data
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
@@ -31,7 +29,7 @@ public abstract class Arc {
 
 	private static int TEMP_ID;
 
-	private @Id @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id = --TEMP_ID;
+	private @Id @SequenceGenerator(name = SEQUENCE_NAME) @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id = --TEMP_ID;
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Place place;
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Transition transition;
 	private int weight = 1;
