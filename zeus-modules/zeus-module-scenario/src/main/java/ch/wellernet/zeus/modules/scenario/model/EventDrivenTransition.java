@@ -5,6 +5,7 @@ import static lombok.AccessLevel.PRIVATE;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,10 +17,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(callSuper = true)
 public class EventDrivenTransition extends Transition {
-	private String event;
+	private @OneToMany Event event;;
 
 	@Builder
-	protected EventDrivenTransition(final String event, final Set<InputArc> inputArcs, final Set<OutputArc> outputArcs,
+	protected EventDrivenTransition(final Event event, final Set<InputArc> inputArcs, final Set<OutputArc> outputArcs,
 			final Set<InhibitionArc> inhititionArcs) {
 		super(inputArcs, outputArcs, inhititionArcs);
 		this.event = event;
