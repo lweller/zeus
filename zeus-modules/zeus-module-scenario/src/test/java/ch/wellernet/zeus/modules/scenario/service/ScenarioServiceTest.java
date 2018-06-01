@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import ch.wellernet.zeus.modules.scenario.model.AutomaticTransition;
 import ch.wellernet.zeus.modules.scenario.model.InhibitionArc;
 import ch.wellernet.zeus.modules.scenario.model.InputArc;
 import ch.wellernet.zeus.modules.scenario.model.OutputArc;
@@ -26,7 +27,6 @@ import ch.wellernet.zeus.modules.scenario.model.Place;
 import ch.wellernet.zeus.modules.scenario.model.Transition;
 import ch.wellernet.zeus.modules.scenario.repository.PlaceRepository;
 import ch.wellernet.zeus.modules.scenario.repository.TransitionRepository;
-import ch.wellernet.zeus.modules.scenario.service.ScenarioService;
 
 @SpringBootTest(classes = ScenarioService.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
@@ -158,7 +158,7 @@ public class ScenarioServiceTest {
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true, false).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().build(), InputArc.builder().build()))
 				.outputArcs(newHashSet(OutputArc.builder().build(), OutputArc.builder().build()))
 				.inhititionArcs(newHashSet(InhibitionArc.builder().build(), InhibitionArc.builder().build())).build();
@@ -176,7 +176,7 @@ public class ScenarioServiceTest {
 		doReturn(true, false).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().build(), InputArc.builder().build()))
 				.outputArcs(newHashSet(OutputArc.builder().build(), OutputArc.builder().build()))
 				.inhititionArcs(newHashSet(InhibitionArc.builder().build(), InhibitionArc.builder().build())).build();
@@ -194,7 +194,7 @@ public class ScenarioServiceTest {
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true, false).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().build(), InputArc.builder().build()))
 				.outputArcs(newHashSet(OutputArc.builder().build(), OutputArc.builder().build()))
 				.inhititionArcs(newHashSet(InhibitionArc.builder().build(), InhibitionArc.builder().build())).build();
@@ -212,7 +212,7 @@ public class ScenarioServiceTest {
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().build(), InputArc.builder().build()))
 				.outputArcs(newHashSet(OutputArc.builder().build(), OutputArc.builder().build()))
 				.inhititionArcs(newHashSet(InhibitionArc.builder().build(), InhibitionArc.builder().build())).build();
@@ -229,7 +229,7 @@ public class ScenarioServiceTest {
 		// given
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().build(), InputArc.builder().build()))
 				.outputArcs(newHashSet(OutputArc.builder().build(), OutputArc.builder().build())).build();
 
@@ -245,7 +245,7 @@ public class ScenarioServiceTest {
 		// given
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.outputArcs(newHashSet(OutputArc.builder().build(), OutputArc.builder().build()))
 				.inhititionArcs(newHashSet(InhibitionArc.builder().build(), InhibitionArc.builder().build())).build();
 
@@ -261,7 +261,7 @@ public class ScenarioServiceTest {
 		// given
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().build(), InputArc.builder().build()))
 				.inhititionArcs(newHashSet(InhibitionArc.builder().build(), InhibitionArc.builder().build())).build();
 
@@ -278,7 +278,7 @@ public class ScenarioServiceTest {
 		doReturn(false).when(scenarioService).canFireTransition(any());
 		final Place inputPlace = Place.builder().initialCount(1).build();
 		final Place outputPlace = Place.builder().initialCount(0).build();
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().place(inputPlace).build()))
 				.outputArcs(newHashSet(OutputArc.builder().place(outputPlace).build())).build();
 		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
@@ -295,12 +295,12 @@ public class ScenarioServiceTest {
 	@Test
 	public void fireTransitionShouldTransferTokensAndRecusivelyFireIfItCanFire() {
 		// given
-		final Transition nextTransition = Transition.builder().build();
+		final Transition nextTransition = AutomaticTransition.builder().build();
 		doReturn(true).when(scenarioService).canFireTransition(any());
 		final Place inputPlace = Place.builder().initialCount(2).build();
 		final Place outputPlace = Place.builder().initialCount(0)
 				.inputArcs(newHashSet(InputArc.builder().transition(nextTransition).build())).build();
-		final Transition transition = Transition.builder()
+		final Transition transition = AutomaticTransition.builder()
 				.inputArcs(newHashSet(InputArc.builder().weight(2).place(inputPlace).build()))
 				.outputArcs(newHashSet(OutputArc.builder().weight(3).place(outputPlace).build())).build();
 		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
