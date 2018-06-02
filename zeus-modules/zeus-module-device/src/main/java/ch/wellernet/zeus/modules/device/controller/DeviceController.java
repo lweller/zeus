@@ -30,9 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.Device;
-import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
-import ch.wellernet.zeus.modules.device.service.communication.CommunicationServiceRegistry;
+import ch.wellernet.zeus.modules.device.service.DeviceService;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,11 +47,8 @@ import io.swagger.annotations.ApiResponses;
 public class DeviceController implements DeviceApiV1Controller {
 	static final String API_PATH = API_ROOT_PATH + "/devices";
 
-	@Autowired
-	private DeviceRepository deviceRepository;
-
-	@Autowired
-	private CommunicationServiceRegistry communicationServiceRegistry;
+	private @Autowired DeviceRepository deviceRepository;
+	private @Autowired DeviceService deviceService;
 
 	@ApiOperation("Finds all registrered devices.")
 	@GetMapping
@@ -88,21 +84,9 @@ public class DeviceController implements DeviceApiV1Controller {
 	@PostMapping(value = "/{id}!sendCommand")
 	public ResponseEntity<Device> sendCommand(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
-			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) Command command)
+			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) final Command command)
 			throws NoSuchElementException, UndefinedCommandException {
-		final Device device = findDevice(id);
-
-		if (command == null) {
-			command = device.getType().getMainCommand();
-		}
-
-		final State newState = communicationServiceRegistry
-				.findByName(device.getControlUnit().getAddress().getCommunicationServiceName())
-				.sendCommand(device, command);
-		device.setState(newState);
-		deviceRepository.save(device);
-
-		return ResponseEntity.status(OK).body(device);
+		return ResponseEntity.status(OK).body(deviceService.sendCommand(findDevice(id), command));
 	}
 
 	@ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")

@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 public class AutomaticTransition extends Transition {
 
 	@Builder
-	protected AutomaticTransition(final Set<InputArc> inputArcs, final Set<OutputArc> outputArcs,
-			final Set<InhibitionArc> inhititionArcs) {
-		super(inputArcs, outputArcs, inhititionArcs);
+	protected AutomaticTransition(final Set<Arc> arcs, final Set<Action> actions) {
+		super(true, arcs, actions);
 	}
 }

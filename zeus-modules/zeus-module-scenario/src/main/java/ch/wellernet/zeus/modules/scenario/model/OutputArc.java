@@ -12,7 +12,12 @@ import lombok.NoArgsConstructor;
 public class OutputArc extends Arc {
 
 	@Builder
-	private OutputArc(final Place place, final Transition transition, final int weight) {
-		super(place, transition, weight);
+	private OutputArc(final State state, final Transition transition, final int weight) {
+		super(state, transition, weight);
+	}
+
+	@Override
+	public <ReturnValue> ReturnValue dispatch(final Dispatcher<ReturnValue> dispatcher) {
+		return dispatcher.execute(this);
 	}
 }

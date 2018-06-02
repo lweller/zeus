@@ -30,12 +30,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ch.wellernet.zeus.modules.device.controller.DeviceController;
 import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.ControlUnitAddress;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
+import ch.wellernet.zeus.modules.device.service.DeviceService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationServiceRegistry;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
@@ -58,17 +58,12 @@ public class DeviceControllerTest {
 	private static final List<Device> DEVICES = newArrayList(DEVICE_1, DEVICE_2, DEVICE_3);
 
 	// object under test
-	@Autowired
-	private DeviceController deviceController;
+	private @Autowired DeviceController deviceController;
 
-	@MockBean
-	private DeviceRepository deviceRepository;
-
-	@MockBean
-	private CommunicationServiceRegistry communicationServiceRegistry;
-
-	@MockBean
-	private CommunicationService comunicationService;
+	private @MockBean DeviceRepository deviceRepository;
+	private @MockBean DeviceService deviceService;
+	private @MockBean CommunicationService comunicationService;
+	private @MockBean CommunicationServiceRegistry communicationServiceRegistry;
 
 	@Test
 	public void findAllShouldReturnCollectionOfDevices() {
@@ -157,15 +152,11 @@ public class DeviceControllerTest {
 	public void sendCommandShouldTransmitCommandToCommunicationService() throws UndefinedCommandException {
 		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
-		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 
-		// when
 		final ResponseEntity<Device> response = deviceController.sendCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
 
 		// then
-		verify(comunicationService).sendCommand(DEVICE_1, GET_SWITCH_STATE);
-		verify(deviceRepository).save(DEVICE_1);
-		assertThat(response.getBody(), is(DEVICE_1));
+		verify(deviceService).sendCommand(DEVICE_1, GET_SWITCH_STATE);
 		assertThat(response.getStatusCode(), is(OK));
 	}
 

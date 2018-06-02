@@ -15,21 +15,24 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(callSuper = true)
-public class TimerEvent extends Event {
+public class FixedRateEvent extends Event {
 
 	// default interval (1 day)
 	private static final int DEFAULT_INTERVAL = 60 * 60 * 24;
 
 	private int initialDelay;
 	private int interval;
-	private Integer maxCount;
 
 	@Builder
-	private TimerEvent(final Set<EventDrivenTransition> transitions, final Integer initialDelay, final Integer interval,
-			final Integer maxCount) {
-		super(transitions);
+	private FixedRateEvent(final String name, final Set<EventDrivenTransition> transitions, final Integer initialDelay,
+			final Integer interval) {
+		super(name, transitions);
 		this.initialDelay = initialDelay == null ? 0 : initialDelay;
 		this.interval = interval == null ? DEFAULT_INTERVAL : interval;
-		this.maxCount = maxCount;
+	}
+
+	@Override
+	public void dispatch(final Dispatcher dispatcher) {
+		dispatcher.execute(this);
 	}
 }

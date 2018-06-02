@@ -6,11 +6,11 @@ import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 
-import java.util.Set;
-
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
+import ch.wellernet.zeus.modules.device.model.Command;
+import ch.wellernet.zeus.modules.device.model.Device;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,13 +20,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(callSuper = true)
-public class EventDrivenTransition extends Transition {
-	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Event event;;
+public class SendCommandAction extends Action {
+	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Device device;
+	private Command command;
 
 	@Builder
-	protected EventDrivenTransition(final Event event, final Set<Arc> arcs, final Set<InhibitionArc> inhititionArcs,
-			final Set<Action> actions) {
-		super(false, arcs, actions);
-		this.event = event;
+	private SendCommandAction(final Device device, final Command command) {
+		this.device = device;
+		this.command = command;
+	}
+
+	@Override
+	public void dispatch(final Dispatcher dispatcher) {
+		dispatcher.execute(this);
 	}
 }
