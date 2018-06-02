@@ -159,8 +159,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration>
-					<ignoredDependencies>
+				<configuration >
+					<ignoredDependencies >
 						<!-- ignore runtime dependencies -->
 						<ignoredDependency>com.h2database:h2:jar</ignoredDependency>
 						<ignoredDependency>io.springfox:springfox-swagger-ui:jar</ignoredDependency>

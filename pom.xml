@@ -408,7 +408,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<ignoredDependencies>
+					<ignoredDependencies combine.children="append">
 						<!-- only used for code generation when compiling -->
 						<ignoredDependency>org.projectlombok:lombok:jar</ignoredDependency>
 						<!-- required to load properties automagically -->
