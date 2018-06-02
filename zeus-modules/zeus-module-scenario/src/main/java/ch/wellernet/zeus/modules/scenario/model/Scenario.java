@@ -23,15 +23,15 @@ import lombok.Setter;
 public class Scenario {
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-	private @OneToMany Set<State> places;
+	private @OneToMany Set<State> states;
 	private @OneToMany Set<Transition> transitions;
 	private @Version long version;
 
 	@Builder
-	protected Scenario(final UUID id, final String name, final Set<State> places, final Set<Transition> transitions) {
+	protected Scenario(final UUID id, final String name, final Set<State> states, final Set<Transition> transitions) {
 		this.id = id;
 		this.name = name;
-		this.places = places;
+		this.states = states;
 		this.transitions = transitions;
 	}
 }
