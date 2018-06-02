@@ -1,11 +1,13 @@
 package ch.wellernet.zeus.modules.device.model;
 
 import static javax.persistence.GenerationType.SEQUENCE;
+import static javax.persistence.InheritanceType.SINGLE_TABLE;
 import static lombok.AccessLevel.PRIVATE;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 
@@ -18,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Inheritance(strategy = SINGLE_TABLE)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = PRIVATE)
