@@ -6,7 +6,6 @@ import static com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator.getSunset;
 import java.util.Calendar;
 
 import com.luckycatlabs.sunrisesunset.Zenith;
-import com.luckycatlabs.sunrisesunset.dto.Location;
 
 import lombok.Builder;
 
@@ -20,12 +19,10 @@ public class HighNoonTrigger extends DayTimeTrigger {
 	@Override
 	Calendar computeEvent(final Calendar at) {
 		final Calendar calendar = Calendar.getInstance();
-		final Calendar sunrise = getSunrise(getLocation().getLatitude().doubleValue(),
-				getLocation().getLongitude().doubleValue(), at.getTimeZone(), at,
-				90. - getZenith().degrees().doubleValue());
-		final Calendar sunset = getSunset(getLocation().getLatitude().doubleValue(),
-				getLocation().getLongitude().doubleValue(), at.getTimeZone(), at,
-				90. - getZenith().degrees().doubleValue());
+		final Calendar sunrise = getSunrise(getLocation().getLatitude(), getLocation().getLongitude(), at.getTimeZone(),
+				at, 90. - getZenith().degrees().doubleValue());
+		final Calendar sunset = getSunset(getLocation().getLatitude(), getLocation().getLongitude(), at.getTimeZone(),
+				at, 90. - getZenith().degrees().doubleValue());
 		if (sunrise == null || sunset == null) {
 			return null;
 		} else {

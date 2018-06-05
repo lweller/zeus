@@ -1,5 +1,9 @@
 package ch.wellernet.zeus.modules.scenario.service;
 
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.HIGH_NOON;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.MIDNIGHT;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNRISE;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNSET;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.Matchers.closeTo;
@@ -16,6 +20,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
 import org.junit.Test;
@@ -30,15 +35,22 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import ch.wellernet.zeus.modules.scenario.model.CronEvent;
+import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.model.EventDrivenTransition;
 import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
+import ch.wellernet.zeus.modules.scenario.scheduling.HighNoonTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.MidnightTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.SunriseTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.SunsetTrigger;
 import ch.wellernet.zeus.modules.scenario.service.EventService.ScheduledEventRegistry;
 
-@SpringBootTest(classes = EventService.class, webEnvironment = NONE)
+@SpringBootTest(classes = EventService.class, properties = { "zeus.location.latitude=46.948877",
+		"zeus.location.longitude=7.439949" }, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class EventServiceTest {
+
 	// object under test
 	private @SpyBean EventService eventService;
 
@@ -46,13 +58,14 @@ public class EventServiceTest {
 	private @MockBean EventRepository eventRepository;
 	private @MockBean PlatformTransactionManager transactionManager;
 	private @MockBean TaskScheduler taskScheduler;
+
 	private @MockBean ScenarioService scenarioService;
 
 	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void cancelEventShouldCancelAlsoTask() {
 		// given
-		final int eventId = 42;
+		final UUID eventId = new UUID(0, 42);
 		final ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
 		given(scheduledEventRegistry.remove(eventId)).willReturn(scheduledFuture);
 
@@ -67,7 +80,7 @@ public class EventServiceTest {
 	@Test
 	public void fireEventShouldCancelItWhenEventNotExists() {
 		// given
-		final int eventId = 42;
+		final UUID eventId = new UUID(0, 42);
 		doNothing().when(eventService).cancelEvent(eventId);
 
 		// when
@@ -137,6 +150,58 @@ public class EventServiceTest {
 		// then
 		verify(eventRepository).save(cronEvent);
 		verify(taskScheduler).schedule(any(Runnable.class), eq(cronTrigger));
+	}
+
+	@Test
+	public void scheduleDayTimeEventHighNoonShouldSaveAndCreateTask() {
+		// given
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(HIGH_NOON).build();
+
+		// when
+		eventService.scheduleEvent(dayTimeEvent);
+
+		// then
+		verify(eventRepository).save(dayTimeEvent);
+		verify(taskScheduler).schedule(any(Runnable.class), any(HighNoonTrigger.class));
+	}
+
+	@Test
+	public void scheduleDayTimeEventMidnightShouldSaveAndCreateTask() {
+		// given
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(MIDNIGHT).build();
+
+		// when
+		eventService.scheduleEvent(dayTimeEvent);
+
+		// then
+		verify(eventRepository).save(dayTimeEvent);
+		verify(taskScheduler).schedule(any(Runnable.class), any(MidnightTrigger.class));
+	}
+
+	@Test
+	public void scheduleDayTimeEventSunriseShouldSaveAndCreateTask() {
+		// given
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNRISE).build();
+
+		// when
+		eventService.scheduleEvent(dayTimeEvent);
+
+		// then
+		verify(eventRepository).save(dayTimeEvent);
+		verify(taskScheduler).schedule(any(Runnable.class), any(SunriseTrigger.class));
+	}
+
+	@Test
+	public void scheduleDayTimeEventSunsetShouldSaveAndCreateTask() {
+		// given
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNSET).build();
+
+		// when
+		eventService.scheduleEvent(dayTimeEvent);
+
+		// then
+		verify(eventRepository).save(dayTimeEvent);
+		verify(taskScheduler).schedule(any(Runnable.class), any(SunsetTrigger.class));
 	}
 
 	@Test

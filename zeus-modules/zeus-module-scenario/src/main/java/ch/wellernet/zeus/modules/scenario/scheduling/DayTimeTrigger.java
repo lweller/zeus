@@ -10,7 +10,6 @@ import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
 
 import com.luckycatlabs.sunrisesunset.Zenith;
-import com.luckycatlabs.sunrisesunset.dto.Location;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

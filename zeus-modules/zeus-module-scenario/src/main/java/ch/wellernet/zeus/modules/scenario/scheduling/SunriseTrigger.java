@@ -5,7 +5,6 @@ import static com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator.getSunrise;
 import java.util.Calendar;
 
 import com.luckycatlabs.sunrisesunset.Zenith;
-import com.luckycatlabs.sunrisesunset.dto.Location;
 
 import lombok.Builder;
 
@@ -18,7 +17,7 @@ public class SunriseTrigger extends DayTimeTrigger {
 
 	@Override
 	Calendar computeEvent(final Calendar at) {
-		return getSunrise(getLocation().getLatitude().doubleValue(), getLocation().getLongitude().doubleValue(),
-				at.getTimeZone(), at, 90. - getZenith().degrees().doubleValue());
+		return getSunrise(getLocation().getLatitude(), getLocation().getLongitude(), at.getTimeZone(), at,
+				90. - getZenith().degrees().doubleValue());
 	}
 }

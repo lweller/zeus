@@ -12,8 +12,6 @@ import java.util.Date;
 import org.junit.Test;
 import org.springframework.scheduling.TriggerContext;
 
-import com.luckycatlabs.sunrisesunset.dto.Location;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 

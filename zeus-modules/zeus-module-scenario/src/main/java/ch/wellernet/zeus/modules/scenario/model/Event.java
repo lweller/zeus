@@ -6,19 +6,17 @@ import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.CascadeType.REFRESH;
 import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.SEQUENCE;
 import static javax.persistence.InheritanceType.SINGLE_TABLE;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -38,6 +36,9 @@ public abstract class Event {
 		public default void execute(final CronEvent event) {
 		}
 
+		public default void execute(final DayTimeEvent event) {
+		}
+
 		public default void execute(final Event event) {
 		}
 
@@ -45,10 +46,7 @@ public abstract class Event {
 		}
 	}
 
-	protected static final String SEQUENCE_NAME = "SEQ_EVENT";
-
-	private static int TEMP_ID;
-	private @Id @SequenceGenerator(name = SEQUENCE_NAME) @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id = --TEMP_ID;
+	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
 
 	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
