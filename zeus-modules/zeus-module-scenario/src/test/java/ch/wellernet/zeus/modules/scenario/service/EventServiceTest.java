@@ -4,6 +4,7 @@ import static ch.wellernet.zeus.modules.scenario.model.SunEvent.HIGH_NOON;
 import static ch.wellernet.zeus.modules.scenario.model.SunEvent.MIDNIGHT;
 import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNRISE;
 import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNSET;
+import static ch.wellernet.zeus.modules.scenario.model.SunEventDefinition.OFFICIAL;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.Matchers.closeTo;
@@ -155,7 +156,7 @@ public class EventServiceTest {
 	@Test
 	public void scheduleDayTimeEventHighNoonShouldSaveAndCreateTask() {
 		// given
-		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(HIGH_NOON).build();
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(HIGH_NOON).definition(OFFICIAL).build();
 
 		// when
 		eventService.scheduleEvent(dayTimeEvent);
@@ -168,7 +169,7 @@ public class EventServiceTest {
 	@Test
 	public void scheduleDayTimeEventMidnightShouldSaveAndCreateTask() {
 		// given
-		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(MIDNIGHT).build();
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(MIDNIGHT).definition(OFFICIAL).build();
 
 		// when
 		eventService.scheduleEvent(dayTimeEvent);
@@ -181,7 +182,7 @@ public class EventServiceTest {
 	@Test
 	public void scheduleDayTimeEventSunriseShouldSaveAndCreateTask() {
 		// given
-		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNRISE).build();
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNRISE).definition(OFFICIAL).build();
 
 		// when
 		eventService.scheduleEvent(dayTimeEvent);
@@ -194,7 +195,7 @@ public class EventServiceTest {
 	@Test
 	public void scheduleDayTimeEventSunsetShouldSaveAndCreateTask() {
 		// given
-		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNSET).build();
+		final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNSET).definition(OFFICIAL).build();
 
 		// when
 		eventService.scheduleEvent(dayTimeEvent);

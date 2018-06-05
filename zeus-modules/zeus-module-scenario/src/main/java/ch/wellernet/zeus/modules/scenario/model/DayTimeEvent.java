@@ -18,12 +18,12 @@ import lombok.NoArgsConstructor;
 public class DayTimeEvent extends Event {
 
 	private SunEvent sunEvent;
-	private SunEventMode definition;
+	private SunEventDefinition definition;
 	private int shift;
 
 	@Builder
 	private DayTimeEvent(final String name, final Set<EventDrivenTransition> transitions, final SunEvent sunEvent,
-			final SunEventMode definition, final int shift) {
+			final SunEventDefinition definition, final int shift) {
 		super(name, transitions);
 		this.sunEvent = sunEvent;
 		this.definition = definition;
