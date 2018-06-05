@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -295,14 +296,15 @@ public class ScenarioServiceTest {
 		doReturn(false).when(scenarioService).canFireTransition(any());
 		final State inputState = State.builder().initialCount(1).build();
 		final State outputState = State.builder().initialCount(0).build();
-		final Transition transition = AutomaticTransition.builder()
+		final UUID transitionId = new UUID(0, 1);
+		final Transition transition = AutomaticTransition.builder().id(transitionId)
 				.arcs(newHashSet((Arc) InputArc.builder().state(inputState).build(),
 						(Arc) OutputArc.builder().state(outputState).build()))
 				.actions(newHashSet(SendCommandAction.builder().build())).build();
-		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
+		given(transitionRepository.findById(transitionId)).willReturn(Optional.of(transition));
 
 		// when
-		scenarioService.fireTransition(transition.getId());
+		scenarioService.fireTransition(transitionId);
 
 		// then
 		assertThat(inputState.getCount(), is(1));
@@ -319,15 +321,16 @@ public class ScenarioServiceTest {
 		final State outputState = State.builder().initialCount(0).build();
 		final Device device = Device.builder().type(GENERIC_SWITCH).build();
 		final Command command = SWITCH_ON;
-		final Transition transition = AutomaticTransition.builder()
+		final UUID transitionId = new UUID(0, 1);
+		final Transition transition = AutomaticTransition.builder().id(new UUID(0, 1))
 				.arcs(newHashSet((Arc) InputArc.builder().weight(2).state(inputState).build(),
 						(Arc) OutputArc.builder().weight(3).state(outputState).build()))
 				.actions(newHashSet(SendCommandAction.builder().device(device).command(command).build())).build();
-		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
+		given(transitionRepository.findById(transitionId)).willReturn(Optional.of(transition));
 		given(deviceService.sendCommand(device, command)).willThrow(new UndefinedCommandException("command not found"));
 
 		// when
-		scenarioService.fireTransition(transition.getId());
+		scenarioService.fireTransition(transitionId);
 
 		// then an exception is expected
 	}
@@ -346,14 +349,15 @@ public class ScenarioServiceTest {
 				.build();
 		final Device device = Device.builder().type(GENERIC_SWITCH).build();
 		final Command command = SWITCH_ON;
-		final Transition transition = AutomaticTransition.builder()
+		final UUID transitionId = new UUID(0, 1);
+		final Transition transition = AutomaticTransition.builder().id(new UUID(0, 1))
 				.arcs(newHashSet((Arc) InputArc.builder().weight(2).state(inputState).build(),
 						(Arc) OutputArc.builder().weight(3).state(outputState).build()))
 				.actions(newHashSet(SendCommandAction.builder().device(device).command(command).build())).build();
-		given(transitionRepository.findById(transition.getId())).willReturn(Optional.of(transition));
+		given(transitionRepository.findById(transitionId)).willReturn(Optional.of(transition));
 
 		// when
-		scenarioService.fireTransition(transition.getId());
+		scenarioService.fireTransition(transitionId);
 
 		// then
 		// tokens should have been withdrawn from input state

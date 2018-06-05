@@ -3,6 +3,7 @@ package ch.wellernet.zeus.modules.scenario.model;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 
@@ -22,9 +23,9 @@ public class DayTimeEvent extends Event {
 	private int shift;
 
 	@Builder
-	private DayTimeEvent(final String name, final Set<EventDrivenTransition> transitions, final SunEvent sunEvent,
-			final SunEventDefinition definition, final int shift) {
-		super(name, transitions);
+	private DayTimeEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
+			final SunEvent sunEvent, final SunEventDefinition definition, final int shift) {
+		super(id, name, transitions);
 		this.sunEvent = sunEvent;
 		this.definition = definition;
 		this.shift = shift;

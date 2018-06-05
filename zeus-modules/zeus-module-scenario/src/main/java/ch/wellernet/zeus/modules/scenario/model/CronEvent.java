@@ -3,6 +3,7 @@ package ch.wellernet.zeus.modules.scenario.model;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 
@@ -20,8 +21,9 @@ public class CronEvent extends Event {
 	private String cronExpression;
 
 	@Builder
-	private CronEvent(final String name, final Set<EventDrivenTransition> transitions, final String cronExpression) {
-		super(name, transitions);
+	private CronEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
+			final String cronExpression) {
+		super(id, name, transitions);
 		this.cronExpression = cronExpression;
 	}
 

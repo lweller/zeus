@@ -31,6 +31,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class Arc {
+
 	public interface Dispatcher<ReturnValue> {
 		public default ReturnValue execute(final Arc event) {
 			return null;

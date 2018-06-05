@@ -7,6 +7,7 @@ import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -24,9 +25,9 @@ public class EventDrivenTransition extends Transition {
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Event event;;
 
 	@Builder
-	protected EventDrivenTransition(final Event event, final Set<Arc> arcs, final Set<InhibitionArc> inhititionArcs,
-			final Set<Action> actions) {
-		super(false, arcs, actions);
+	protected EventDrivenTransition(final UUID id, final String name, final Event event, final Set<Arc> arcs,
+			final Set<InhibitionArc> inhititionArcs, final Set<Action> actions) {
+		super(id, name, false, arcs, actions);
 		this.event = event;
 	}
 }

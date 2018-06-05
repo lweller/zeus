@@ -6,6 +6,8 @@ import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.UUID;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
@@ -25,7 +27,8 @@ public class SendCommandAction extends Action {
 	private Command command;
 
 	@Builder
-	private SendCommandAction(final Device device, final Command command) {
+	private SendCommandAction(final UUID id, final String name, final Device device, final Command command) {
+		super(id, name);
 		this.device = device;
 		this.command = command;
 	}

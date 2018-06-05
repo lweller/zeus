@@ -3,6 +3,7 @@ package ch.wellernet.zeus.modules.scenario.service;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -31,7 +32,7 @@ public class ScenarioService {
 
 	private @Autowired DeviceService deviceService;
 
-	public void fireTransition(final int transitionId) throws NoSuchElementException {
+	public void fireTransition(final UUID transitionId) throws NoSuchElementException {
 		fireTransition(transitionRepository.findById(transitionId).get());
 	}
 

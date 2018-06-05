@@ -21,6 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "id")
 public class Scenario {
+
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
 	private @OneToMany Set<State> states;

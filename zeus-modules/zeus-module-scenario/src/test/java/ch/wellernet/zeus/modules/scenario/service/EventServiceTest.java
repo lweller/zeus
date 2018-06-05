@@ -94,7 +94,7 @@ public class EventServiceTest {
 	@Test
 	public void fireEventShouldFireAllTransitionsWhenItIsFired() {
 		// given
-		doNothing().when(scenarioService).fireTransition(any());
+		doNothing().when(scenarioService).fireTransition(any(UUID.class));
 		final EventDrivenTransition transition1 = EventDrivenTransition.builder().build();
 		final EventDrivenTransition transition2 = EventDrivenTransition.builder().build();
 		final Set<EventDrivenTransition> transitions = newHashSet(transition1, transition2);

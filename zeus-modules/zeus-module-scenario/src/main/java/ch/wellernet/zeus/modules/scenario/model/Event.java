@@ -48,11 +48,11 @@ public abstract class Event {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-
 	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
 			REFRESH }, fetch = LAZY, mappedBy = "event") Set<EventDrivenTransition> transitions = emptySet();
 
-	protected Event(final String name, final Set<EventDrivenTransition> transitions) {
+	protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
+		this.id = id;
 		this.name = name;
 		if (transitions != null) {
 			this.transitions = transitions;

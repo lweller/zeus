@@ -3,6 +3,7 @@ package ch.wellernet.zeus.modules.scenario.model;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 
@@ -24,9 +25,9 @@ public class FixedRateEvent extends Event {
 	private int interval;
 
 	@Builder
-	private FixedRateEvent(final String name, final Set<EventDrivenTransition> transitions, final Integer initialDelay,
-			final Integer interval) {
-		super(name, transitions);
+	private FixedRateEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
+			final Integer initialDelay, final Integer interval) {
+		super(id, name, transitions);
 		this.initialDelay = initialDelay == null ? 0 : initialDelay;
 		this.interval = interval == null ? DEFAULT_INTERVAL : interval;
 	}
