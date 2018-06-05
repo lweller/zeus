@@ -2,6 +2,7 @@ package ch.wellernet.zeus.modules.scenario.model;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class Scenario {
 	protected Scenario(final UUID id, final String name, final Set<State> states, final Set<Transition> transitions) {
 		this.id = id;
 		this.name = name;
-		this.states = states;
-		this.transitions = transitions;
+		this.states = states == null ? new HashSet<>() : states;
+		this.transitions = transitions == null ? new HashSet<>() : transitions;
 	}
 }

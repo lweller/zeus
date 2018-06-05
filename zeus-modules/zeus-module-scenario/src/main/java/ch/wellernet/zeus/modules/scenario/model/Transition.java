@@ -1,10 +1,10 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import static java.util.Collections.emptySet;
 import static javax.persistence.CascadeType.ALL;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,8 +27,8 @@ public class Transition {
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
 	private boolean firingAutomatically;
-	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<Arc> arcs = emptySet();
-	private @OneToMany(cascade = ALL) Set<Action> actions = emptySet();
+	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<Arc> arcs;
+	private @OneToMany(cascade = ALL) Set<Action> actions;
 	private @Version long version;
 
 	protected Transition(final UUID id, final String name, final boolean firingAutomatically, final Set<Arc> arcs,
@@ -36,11 +36,7 @@ public class Transition {
 		this.id = id;
 		this.name = name;
 		this.firingAutomatically = firingAutomatically;
-		if (arcs != null) {
-			this.arcs = arcs;
-		}
-		if (actions != null) {
-			this.actions = actions;
-		}
+		this.arcs = arcs == null ? new HashSet<>() : arcs;
+		this.actions = actions == null ? new HashSet<>() : actions;
 	}
 }

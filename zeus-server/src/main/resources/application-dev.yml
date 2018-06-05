@@ -3,7 +3,7 @@ spring:
     include:
     - device.mock
   datasource:
-    url: jdbc:h2:file:./target/tmpdb
+    url: jdbc:h2:file:./target/zeusdb
   jpa:
     database: h2
     hibernate:

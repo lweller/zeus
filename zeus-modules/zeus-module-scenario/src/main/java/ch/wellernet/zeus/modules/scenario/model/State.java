@@ -1,10 +1,10 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import static java.util.Collections.emptySet;
 import static javax.persistence.CascadeType.ALL;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,7 +25,7 @@ public class State {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-	private @OneToMany(cascade = ALL, mappedBy = "state") Set<Arc> arcs = emptySet();
+	private @OneToMany(cascade = ALL, mappedBy = "state") Set<Arc> arcs;
 	private int maxCount = 1;
 	private int initialCount = 0;
 	private int count;
@@ -35,9 +35,7 @@ public class State {
 	protected State(final UUID id, final String name, final Set<Arc> arcs, final int maxCount, final int initialCount) {
 		this.id = id;
 		this.name = name;
-		if (arcs != null) {
-			this.arcs = arcs;
-		}
+		this.arcs = arcs == null ? new HashSet<>() : arcs;
 		this.maxCount = maxCount;
 		this.initialCount = initialCount;
 		count = initialCount;
