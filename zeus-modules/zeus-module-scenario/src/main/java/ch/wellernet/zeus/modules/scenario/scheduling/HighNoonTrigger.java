@@ -12,8 +12,8 @@ import lombok.Builder;
 public class HighNoonTrigger extends DayTimeTrigger {
 
 	@Builder
-	public HighNoonTrigger(final Location location, final Zenith zenith, final int offset) {
-		super(location, zenith, offset);
+	public HighNoonTrigger(final Location location, final Zenith zenith, final int shift) {
+		super(location, zenith, shift);
 	}
 
 	@Override

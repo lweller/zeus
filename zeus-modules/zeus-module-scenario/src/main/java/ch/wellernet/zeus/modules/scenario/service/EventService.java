@@ -24,6 +24,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.luckycatlabs.sunrisesunset.Zenith;
+
 import ch.wellernet.zeus.modules.scenario.model.CronEvent;
 import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
@@ -112,21 +114,30 @@ public class EventService {
 
 	public void scheduleEvent(final DayTimeEvent event) {
 		Trigger trigger = null;
+		Zenith zenith = null;
+		switch (event.getDefinition()) {
+		case ASTRONOMICAL:
+			zenith = Zenith.ASTRONOMICAL;
+		case CIVIL:
+			zenith = Zenith.CIVIL;
+		case NAUTICAL:
+			zenith = Zenith.NAUTICAL;
+		case OFFICIAL:
+			zenith = Zenith.OFFICIAL;
+		}
 		switch (event.getSunEvent()) {
 		case MIDNIGHT:
-			trigger = MidnightTrigger.builder().location(location).zenith(event.getZenith()).offset(event.getOffset())
+			trigger = MidnightTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000)
 					.build();
 			break;
 		case SUNRISE:
-			trigger = SunriseTrigger.builder().location(location).zenith(event.getZenith()).offset(event.getOffset())
-					.build();
+			trigger = SunriseTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000).build();
 			break;
 		case SUNSET:
-			trigger = SunsetTrigger.builder().location(location).zenith(event.getZenith()).offset(event.getOffset())
-					.build();
+			trigger = SunsetTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000).build();
 			break;
 		case HIGH_NOON:
-			trigger = HighNoonTrigger.builder().location(location).zenith(event.getZenith()).offset(event.getOffset())
+			trigger = HighNoonTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000)
 					.build();
 			break;
 		}

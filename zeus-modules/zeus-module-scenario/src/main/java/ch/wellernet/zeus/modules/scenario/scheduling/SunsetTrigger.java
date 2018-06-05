@@ -11,8 +11,8 @@ import lombok.Builder;
 public class SunsetTrigger extends DayTimeTrigger {
 
 	@Builder
-	public SunsetTrigger(final Location location, final Zenith zenith, final int offset) {
-		super(location, zenith, offset);
+	public SunsetTrigger(final Location location, final Zenith zenith, final int shift) {
+		super(location, zenith, shift);
 	}
 
 	@Override

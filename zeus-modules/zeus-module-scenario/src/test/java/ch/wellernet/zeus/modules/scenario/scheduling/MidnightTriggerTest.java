@@ -44,7 +44,7 @@ public class MidnightTriggerTest {
 	private static final Location BERN = new Location(46.948877, 7.439949);
 	private static final Location NORTH_POLE = new Location(90., 0.);
 
-	private static final int OFFSET = 15000;
+	private static final int SHIFT = 15000;
 
 	final static Calendar BEFORE_MIDNIGHT = Calendar.getInstance();
 	static {
@@ -67,7 +67,7 @@ public class MidnightTriggerTest {
 	final static Calendar TODAYS_MIDNIGHT_WITH_OFFSET = Calendar.getInstance();
 	static {
 		TODAYS_MIDNIGHT_WITH_OFFSET.set(2018, 8, 3, 1, 30, 30);
-		TODAYS_MIDNIGHT_WITH_OFFSET.set(MILLISECOND, OFFSET);
+		TODAYS_MIDNIGHT_WITH_OFFSET.set(MILLISECOND, SHIFT);
 	}
 
 	final static Calendar TOMORROWS_MIDNIGHT = Calendar.getInstance();
@@ -80,7 +80,7 @@ public class MidnightTriggerTest {
 	private final DayTimeTrigger triggerForBernSitzerland = MidnightTrigger.builder().location(BERN).zenith(OFFICIAL)
 			.build();
 	private final DayTimeTrigger triggerWithOffsetForBernSitzerland = MidnightTrigger.builder().location(BERN)
-			.zenith(OFFICIAL).build();
+			.zenith(OFFICIAL).shift(SHIFT).build();
 	private final DayTimeTrigger triggerForNorthPole = MidnightTrigger.builder().location(NORTH_POLE).zenith(OFFICIAL)
 			.build();
 

@@ -6,8 +6,6 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
-import com.luckycatlabs.sunrisesunset.Zenith;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,16 +18,16 @@ import lombok.NoArgsConstructor;
 public class DayTimeEvent extends Event {
 
 	private SunEvent sunEvent;
-	private Zenith zenith;
-	private int offset;
+	private SunEventMode definition;
+	private int shift;
 
 	@Builder
 	private DayTimeEvent(final String name, final Set<EventDrivenTransition> transitions, final SunEvent sunEvent,
-			final Zenith zenith, final int offset) {
+			final SunEventMode definition, final int shift) {
 		super(name, transitions);
 		this.sunEvent = sunEvent;
-		this.zenith = zenith;
-		this.offset = offset;
+		this.definition = definition;
+		this.shift = shift;
 	}
 
 	@Override

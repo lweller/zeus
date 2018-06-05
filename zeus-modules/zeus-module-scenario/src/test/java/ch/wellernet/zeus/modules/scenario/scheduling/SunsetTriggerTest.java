@@ -44,7 +44,7 @@ public class SunsetTriggerTest {
 	private static final Location BERN = new Location(46.948877, 7.439949);
 	private static final Location NORTH_POLE = new Location(90., 0.);
 
-	private static final int OFFSET = 15000;
+	private static final int SHIFT = 15000;
 
 	final static Calendar BEFORE_SUNSET = Calendar.getInstance();
 	static {
@@ -67,7 +67,7 @@ public class SunsetTriggerTest {
 	final static Calendar TODAYS_SUNSET_WITH_OFFSET = Calendar.getInstance();
 	static {
 		TODAYS_SUNSET_WITH_OFFSET.set(2018, 5, 2, 21, 18, 0);
-		TODAYS_SUNSET_WITH_OFFSET.set(MILLISECOND, OFFSET);
+		TODAYS_SUNSET_WITH_OFFSET.set(MILLISECOND, SHIFT);
 	}
 
 	final static Calendar TOMORROWS_SUNSET = Calendar.getInstance();
@@ -80,7 +80,7 @@ public class SunsetTriggerTest {
 	private final DayTimeTrigger triggerForBernSitzerland = SunsetTrigger.builder().location(BERN).zenith(OFFICIAL)
 			.build();
 	private final DayTimeTrigger triggerWithOffsetForBernSitzerland = SunsetTrigger.builder().location(BERN)
-			.zenith(OFFICIAL).offset(OFFSET).build();
+			.zenith(OFFICIAL).shift(SHIFT).build();
 	private final DayTimeTrigger triggerForNorthPole = SunsetTrigger.builder().location(NORTH_POLE).zenith(OFFICIAL)
 			.build();
 

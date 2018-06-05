@@ -20,7 +20,7 @@ public abstract class DayTimeTrigger implements Trigger {
 
 	private final Location location;
 	private final Zenith zenith;
-	private final int offset;
+	private final int shift;
 
 	@Override
 	public Date nextExecutionTime(final TriggerContext triggerContext) {
@@ -36,11 +36,11 @@ public abstract class DayTimeTrigger implements Trigger {
 		if (nextSunrise == null) {
 			return null;
 		} else {
-			nextSunrise.set(Calendar.MILLISECOND, offset);
+			nextSunrise.set(Calendar.MILLISECOND, shift);
 			if (nextSunrise.before(lastExecutionCalendar) || nextSunrise.equals(lastExecutionCalendar)) {
 				nextExecutionCalendar.add(DATE, 1);
 				nextSunrise = computeEvent(nextExecutionCalendar);
-				nextSunrise.set(Calendar.MILLISECOND, offset);
+				nextSunrise.set(Calendar.MILLISECOND, shift);
 			}
 			return nextSunrise.getTime();
 		}
