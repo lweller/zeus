@@ -31,11 +31,13 @@ public class ZeusServerApplication extends SpringBootServletInitializer {
 	}
 
 	private @Autowired DeviceModuleConfiguration deviceModuleConfiguration;
+	private @Autowired ScenarioModuleConfiguration scenarioModuleConfiguration;
 	private @Autowired ZeusServerConfiguration zeusServerConfiguration;
 
 	@PostConstruct
 	private void init() {
 		deviceModuleConfiguration.init();
+		scenarioModuleConfiguration.init();
 		zeusServerConfiguration.init();
 	}
 
