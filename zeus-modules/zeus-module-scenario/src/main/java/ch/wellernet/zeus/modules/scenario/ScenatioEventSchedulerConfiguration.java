@@ -1,7 +1,5 @@
 package ch.wellernet.zeus.modules.scenario;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,8 +20,7 @@ public class ScenatioEventSchedulerConfiguration {
 	private @Autowired EventService eventService;
 	private @Autowired PlatformTransactionManager transactionManager;
 
-	@PostConstruct
-	public void configureEvents() {
+	public void initializeEvents() {
 		new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
 			@Override
 			protected void doInTransactionWithoutResult(final TransactionStatus status) {

@@ -31,7 +31,6 @@ public class ZeusServerApplication extends SpringBootServletInitializer {
 	}
 
 	private @Autowired DeviceModuleConfiguration deviceModuleConfiguration;
-
 	private @Autowired ZeusServerConfiguration zeusServerConfiguration;
 
 	@PostConstruct
