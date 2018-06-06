@@ -66,25 +66,27 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	 */
 	@Override
 	public State execute(final Command command) throws UndefinedCommandException {
+		final PinState targetPinState;
 		switch (command) {
 		case SWITCH_ON:
-			log.info(String.format("setting pin %s to %s", provisionedPin.getName(), activePinState));
-			provisionedPin.setState(activePinState);
+			targetPinState = activePinState;
 			break;
 		case SWITCH_OFF:
-			log.info(String.format("setting pin %s to %s", provisionedPin.getName(), getInverseState(activePinState)));
-			provisionedPin.setState(getInverseState(activePinState));
+			targetPinState = getInverseState(activePinState);
 			break;
 		case TOGGLE_SWITCH:
-			log.info(String.format("setting pin %s to %s", provisionedPin.getName(),
-					getInverseState(provisionedPin.getState())));
-			provisionedPin.setState(getInverseState(provisionedPin.getState()));
+			targetPinState = getInverseState(provisionedPin.getState());
 			break;
 		case GET_SWITCH_STATE:
+			targetPinState = null;
 			break;
 		default:
 			throw new UndefinedCommandException(
 					format("Commdand %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
+		}
+		if (targetPinState != null) {
+			log.info(format("setting pin %s to %s", provisionedPin.getName(), targetPinState));
+			provisionedPin.setState(targetPinState);
 		}
 		return provisionedPin.getState() == activePinState ? ON : OFF;
 	}

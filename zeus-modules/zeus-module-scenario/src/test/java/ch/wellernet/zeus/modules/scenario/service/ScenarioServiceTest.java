@@ -36,6 +36,7 @@ import ch.wellernet.zeus.modules.scenario.model.OutputArc;
 import ch.wellernet.zeus.modules.scenario.model.SendCommandAction;
 import ch.wellernet.zeus.modules.scenario.model.State;
 import ch.wellernet.zeus.modules.scenario.model.Transition;
+import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepository;
 import ch.wellernet.zeus.modules.scenario.repository.StateRepository;
 import ch.wellernet.zeus.modules.scenario.repository.TransitionRepository;
 
@@ -46,6 +47,7 @@ public class ScenarioServiceTest {
 	// object under test
 	private @SpyBean ScenarioService scenarioService;
 
+	private @MockBean ScenarioRepository scenarioRepository;
 	private @MockBean TransitionRepository transitionRepository;
 	private @MockBean StateRepository stateRepository;
 	private @MockBean DeviceService deviceService;

@@ -57,7 +57,6 @@ public abstract class Arc {
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) State state;
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Transition transition;
 	private int weight;
-
 	private @Version long version;
 
 	protected Arc(final State state, final Transition transition, final int weight) {

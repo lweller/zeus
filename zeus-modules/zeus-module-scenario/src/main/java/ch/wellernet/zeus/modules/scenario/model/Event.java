@@ -9,6 +9,7 @@ import static javax.persistence.InheritanceType.SINGLE_TABLE;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -17,6 +18,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -50,6 +53,9 @@ public abstract class Event {
 	private String name;
 	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
 			REFRESH }, fetch = LAZY, mappedBy = "event") Set<EventDrivenTransition> transitions;
+	private @Version long version;
+
+	private @Transient Date lastFired;
 
 	protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
 		this.id = id;

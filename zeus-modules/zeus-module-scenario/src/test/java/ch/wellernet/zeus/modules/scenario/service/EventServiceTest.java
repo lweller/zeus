@@ -79,6 +79,19 @@ public class EventServiceTest {
 	}
 
 	@Test
+	public void cancelEventShouldNoNothingIdEventDoesNotExist() {
+		// given
+		final UUID eventId = new UUID(0, 42);
+		given(scheduledEventRegistry.remove(eventId)).willReturn(null);
+
+		// when
+		eventService.cancelEvent(eventId);
+
+		// then
+		verify(scheduledEventRegistry).remove(eventId);
+	}
+
+	@Test
 	public void fireEventShouldCancelItWhenEventNotExists() {
 		// given
 		final UUID eventId = new UUID(0, 42);
@@ -95,8 +108,8 @@ public class EventServiceTest {
 	public void fireEventShouldFireAllTransitionsWhenItIsFired() {
 		// given
 		doNothing().when(scenarioService).fireTransition(any(UUID.class));
-		final EventDrivenTransition transition1 = EventDrivenTransition.builder().build();
-		final EventDrivenTransition transition2 = EventDrivenTransition.builder().build();
+		final EventDrivenTransition transition1 = EventDrivenTransition.builder().id(new UUID(0, 1)).build();
+		final EventDrivenTransition transition2 = EventDrivenTransition.builder().id(new UUID(0, 2)).build();
 		final Set<EventDrivenTransition> transitions = newHashSet(transition1, transition2);
 		final Event event = FixedRateEvent.builder().transitions(transitions).build();
 		given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));

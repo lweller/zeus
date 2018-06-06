@@ -47,8 +47,8 @@ public class EventService {
 	static class ScheduledEventRegistry {
 		private final Map<UUID, ScheduledFuture<?>> scheduledEvents = new HashMap<>();
 
-		public void add(final UUID eventId, final ScheduledFuture<?> scheduledFuture) {
-			scheduledEvents.put(eventId, scheduledFuture);
+		public ScheduledFuture<?> add(final UUID eventId, final ScheduledFuture<?> scheduledFuture) {
+			return scheduledEvents.put(eventId, scheduledFuture);
 		}
 
 		public ScheduledFuture<?> remove(final UUID eventId) {
@@ -107,6 +107,7 @@ public class EventService {
 	}
 
 	public void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
+		cancelEvent(event.getId());
 		eventRepository.save(event);
 		scheduledEventRegistry.add(event.getId(),
 				taskScheduler.schedule(createRunnableToFireEvent(event), new CronTrigger(event.getCronExpression())));
@@ -141,11 +142,13 @@ public class EventService {
 					.build();
 			break;
 		}
+		cancelEvent(event.getId());
 		eventRepository.save(event);
 		scheduledEventRegistry.add(event.getId(), taskScheduler.schedule(createRunnableToFireEvent(event), trigger));
 	}
 
 	public void scheduleEvent(final FixedRateEvent event) {
+		cancelEvent(event.getId());
 		eventRepository.save(event);
 		scheduledEventRegistry.add(event.getId(), taskScheduler.scheduleAtFixedRate(createRunnableToFireEvent(event),
 				new Date(currentTimeMillis() + event.getInitialDelay() * 1000), event.getInterval() * 1000));
