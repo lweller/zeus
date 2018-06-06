@@ -56,14 +56,14 @@ public abstract class Arc {
 	private @Id @SequenceGenerator(name = SEQUENCE_NAME) @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME) @Setter(PRIVATE) int id = --TEMP_ID;
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) State state;
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Transition transition;
-	private int weight = 1;
+	private int weight;
 
 	private @Version long version;
 
 	protected Arc(final State state, final Transition transition, final int weight) {
 		this.state = state;
 		this.transition = transition;
-		this.weight = weight;
+		this.weight = weight <= 0 ? 1 : weight;
 	}
 
 	public abstract <ReturnValue> ReturnValue dispatch(Dispatcher<ReturnValue> dispatcher);

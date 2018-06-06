@@ -29,7 +29,9 @@ import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class GpioDigitalOutputPinDriver implements DeviceDriver {
 
 	public static final PinState DEFAULT_ACTIVE_STATE = LOW;
@@ -66,12 +68,16 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	public State execute(final Command command) throws UndefinedCommandException {
 		switch (command) {
 		case SWITCH_ON:
+			log.info(String.format("setting pin %s to %s", provisionedPin.getName(), activePinState));
 			provisionedPin.setState(activePinState);
 			break;
 		case SWITCH_OFF:
+			log.info(String.format("setting pin %s to %s", provisionedPin.getName(), getInverseState(activePinState)));
 			provisionedPin.setState(getInverseState(activePinState));
 			break;
 		case TOGGLE_SWITCH:
+			log.info(String.format("setting pin %s to %s", provisionedPin.getName(),
+					getInverseState(provisionedPin.getState())));
 			provisionedPin.setState(getInverseState(provisionedPin.getState()));
 			break;
 		case GET_SWITCH_STATE:

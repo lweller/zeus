@@ -26,8 +26,8 @@ public class State {
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
 	private @OneToMany(cascade = ALL, mappedBy = "state") Set<Arc> arcs;
-	private int maxCount = 1;
-	private int initialCount = 0;
+	private int maxCount;
+	private int initialCount;
 	private int count;
 	private @Version long version;
 
@@ -36,7 +36,10 @@ public class State {
 		this.id = id;
 		this.name = name;
 		this.arcs = arcs == null ? new HashSet<>() : arcs;
-		this.maxCount = maxCount;
+		this.arcs.forEach(arc -> {
+			arc.setState(this);
+		});
+		this.maxCount = maxCount <= 0 ? 1 : maxCount;
 		this.initialCount = initialCount;
 		count = initialCount;
 	}

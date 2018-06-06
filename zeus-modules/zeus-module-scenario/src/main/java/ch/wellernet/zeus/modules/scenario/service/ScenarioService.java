@@ -17,9 +17,11 @@ import ch.wellernet.zeus.modules.scenario.model.Arc;
 import ch.wellernet.zeus.modules.scenario.model.InhibitionArc;
 import ch.wellernet.zeus.modules.scenario.model.InputArc;
 import ch.wellernet.zeus.modules.scenario.model.OutputArc;
+import ch.wellernet.zeus.modules.scenario.model.Scenario;
 import ch.wellernet.zeus.modules.scenario.model.SendCommandAction;
 import ch.wellernet.zeus.modules.scenario.model.State;
 import ch.wellernet.zeus.modules.scenario.model.Transition;
+import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepository;
 import ch.wellernet.zeus.modules.scenario.repository.StateRepository;
 import ch.wellernet.zeus.modules.scenario.repository.TransitionRepository;
 
@@ -27,10 +29,15 @@ import ch.wellernet.zeus.modules.scenario.repository.TransitionRepository;
 @Transactional(MANDATORY)
 public class ScenarioService {
 
+	private @Autowired ScenarioRepository scenarioRepository;
 	private @Autowired TransitionRepository transitionRepository;
 	private @Autowired StateRepository stateRepository;
 
 	private @Autowired DeviceService deviceService;
+
+	public void create(final Scenario scenario) {
+		scenarioRepository.save(scenario);
+	}
 
 	public void fireTransition(final UUID transitionId) throws NoSuchElementException {
 		fireTransition(transitionRepository.findById(transitionId).get());

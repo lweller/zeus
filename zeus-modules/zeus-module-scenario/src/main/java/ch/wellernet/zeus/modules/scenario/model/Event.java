@@ -1,6 +1,5 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import static java.util.Collections.emptySet;
 import static javax.persistence.CascadeType.DETACH;
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
@@ -10,6 +9,7 @@ import static javax.persistence.InheritanceType.SINGLE_TABLE;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,14 +49,15 @@ public abstract class Event {
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
 	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
-			REFRESH }, fetch = LAZY, mappedBy = "event") Set<EventDrivenTransition> transitions = emptySet();
+			REFRESH }, fetch = LAZY, mappedBy = "event") Set<EventDrivenTransition> transitions;
 
 	protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
 		this.id = id;
 		this.name = name;
-		if (transitions != null) {
-			this.transitions = transitions;
-		}
+		this.transitions = transitions == null ? new HashSet<>() : transitions;
+		this.transitions.forEach(transition -> {
+			transition.setEvent(this);
+		});
 	}
 
 	public abstract void dispatch(Dispatcher dispatcher);

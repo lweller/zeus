@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -33,14 +31,25 @@ public class IntegratedControlUnitConfiguration {
 
 	private static final String DEVICE_DRIVER_BEAN_PREFIX = "deviceDriver.";
 
-	@Autowired
-	private ApplicationContext applicationContext;
+	private @Autowired ApplicationContext applicationContext;
+	private @Autowired IntegratedControlUnitProperties properties;
+	private @Autowired ControlUnitRepository controlUnitRepository;
 
-	@Autowired
-	private IntegratedControlUnitProperties properties;
-
-	@Autowired
-	private ControlUnitRepository controlUnitRepository;
+	public void initializeIntegratedControlUnit() {
+		ControlUnit integratedControlUnit = controlUnitRepository.findIntegrated().orElse(null);
+		if (integratedControlUnit == null) {
+			final List<Device> devices = new ArrayList<>();
+			for (final DriverMapping driverMapping : properties.getDriverMappings()) {
+				devices.add(new Device(driverMapping.getDeviceId(), driverMapping.getDeviceType(),
+						format("Device %s", devices.size() + 1), null));
+			}
+			integratedControlUnit = new ControlUnit(properties.getId(), new IntegratedControlUnitAddress(), devices);
+			for (final Device device : devices) {
+				device.setControlUnit(integratedControlUnit);
+			}
+			controlUnitRepository.save(integratedControlUnit);
+		}
+	}
 
 	@Bean(IntegratedCommunicationService.NAME)
 	public IntegratedCommunicationService integratedCommunicationService() {
@@ -57,22 +66,5 @@ public class IntegratedControlUnitConfiguration {
 			}
 		}
 		return new IntegratedCommunicationService(deviceDriverMapping);
-	}
-
-	@PostConstruct
-	private void initializeIntegratedControlUnit() {
-		ControlUnit integratedControlUnit = controlUnitRepository.findIntegrated().orElse(null);
-		if (integratedControlUnit == null) {
-			final List<Device> devices = new ArrayList<>();
-			for (final DriverMapping driverMapping : properties.getDriverMappings()) {
-				devices.add(new Device(driverMapping.getDeviceId(), driverMapping.getDeviceType(),
-						format("Device %s", devices.size() + 1), null));
-			}
-			integratedControlUnit = new ControlUnit(properties.getId(), new IntegratedControlUnitAddress(), devices);
-			for (final Device device : devices) {
-				device.setControlUnit(integratedControlUnit);
-			}
-			controlUnitRepository.save(integratedControlUnit);
-		}
 	}
 }

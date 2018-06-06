@@ -1,5 +1,6 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
+import static javax.persistence.CascadeType.ALL;
 import static lombok.AccessLevel.PRIVATE;
 
 import java.util.HashSet;
@@ -25,8 +26,8 @@ public class Scenario {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-	private @OneToMany Set<State> states;
-	private @OneToMany Set<Transition> transitions;
+	private @OneToMany(cascade = ALL, orphanRemoval = true) Set<State> states;
+	private @OneToMany(cascade = ALL, orphanRemoval = true) Set<Transition> transitions;
 	private @Version long version;
 
 	@Builder

@@ -1,5 +1,8 @@
 package ch.wellernet.zeus.server;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -25,6 +28,16 @@ public class ZeusServerApplication extends SpringBootServletInitializer {
 
 	public static void main(final String[] args) {
 		SpringApplication.run(ZeusServerApplication.class, args);
+	}
+
+	private @Autowired DeviceModuleConfiguration deviceModuleConfiguration;
+
+	private @Autowired ZeusServerConfiguration zeusServerConfiguration;
+
+	@PostConstruct
+	private void init() {
+		deviceModuleConfiguration.init();
+		zeusServerConfiguration.init();
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class Transition {
 	private String name;
 	private boolean firingAutomatically;
 	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<Arc> arcs;
-	private @OneToMany(cascade = ALL) Set<Action> actions;
+	private @OneToMany(cascade = ALL, orphanRemoval = true) Set<Action> actions;
 	private @Version long version;
 
 	protected Transition(final UUID id, final String name, final boolean firingAutomatically, final Set<Arc> arcs,
@@ -37,6 +37,9 @@ public class Transition {
 		this.name = name;
 		this.firingAutomatically = firingAutomatically;
 		this.arcs = arcs == null ? new HashSet<>() : arcs;
+		this.arcs.forEach(arc -> {
+			arc.setTransition(this);
+		});
 		this.actions = actions == null ? new HashSet<>() : actions;
 	}
 }

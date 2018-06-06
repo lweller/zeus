@@ -31,10 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
 
 	public static final String PIN_PROPERTY = "pin";
-	public static final String ACTIVE_STATE_PROPERTY = "activeState";
+	public static final String ACTIVE_STATE_PROPERTY = "active-state";
 
 	@Getter
-	private Properties properties;
+	private final Properties properties;
 
 	@Getter
 	private Pin pin;
@@ -48,27 +48,16 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
 	@Getter
 	private final Collection<Command> supportedCommands;
 
-	public MockGpioDigitalOutputPinDriver(Properties properties) {
+	public MockGpioDigitalOutputPinDriver(final Properties properties) {
 		this.properties = properties;
 		supportedCommands = immutableEnumSet(SWITCH_ON, SWITCH_OFF, TOGGLE_SWITCH, GET_SWITCH_STATE);
-	}
-
-	/**
-	 * @see ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver#init()
-	 */
-	@Override
-	@PostConstruct
-	public void init() {
-		this.pin = getPinByAddress(Integer.valueOf(properties.getProperty(PIN_PROPERTY)));
-		this.activePinState = PinState.valueOf(properties.getProperty(ACTIVE_STATE_PROPERTY, HIGH.name()));
-		this.currentState = getInverseState(activePinState);
 	}
 
 	/**
 	 * @see ch.wellernet.zeus.server.drivers.raspberrypi.DeviceDriver#execute(ch.wellernet.zeus.modules.device.model.Command)
 	 */
 	@Override
-	public State execute(Command command) throws UndefinedCommandException {
+	public State execute(final Command command) throws UndefinedCommandException {
 		switch (command) {
 		case SWITCH_ON:
 			currentState = activePinState;
@@ -90,5 +79,16 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
 					format("Commdand %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
 		}
 		return currentState == activePinState ? ON : OFF;
+	}
+
+	/**
+	 * @see ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver#init()
+	 */
+	@Override
+	@PostConstruct
+	public void init() {
+		pin = getPinByAddress(Integer.valueOf(properties.getProperty(PIN_PROPERTY)));
+		activePinState = PinState.valueOf(properties.getProperty(ACTIVE_STATE_PROPERTY, HIGH.name()));
+		currentState = getInverseState(activePinState);
 	}
 }
