@@ -79,7 +79,7 @@ public class DeviceControllerTest {
 	}
 
 	@Test
-	public void findAllShouldReturnEmptyCollectionIfNoDevicesAreAvailable() {
+	public void findAllShouldReturnEmptyCollectionWhenNoDevicesAreAvailable() {
 		// given
 		given(deviceRepository.findAll()).willReturn(emptyList());
 
@@ -105,10 +105,11 @@ public class DeviceControllerTest {
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void findByIdShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() {
+	public void findByIdShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists() {
 		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 
+		// when
 		deviceController.findById(DEVICE_1.getId());
 
 		// then an exception is expected
@@ -137,7 +138,7 @@ public class DeviceControllerTest {
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void sendCommandShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() throws UndefinedCommandException {
+	public void sendCommandShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists() throws UndefinedCommandException {
 		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
@@ -161,7 +162,7 @@ public class DeviceControllerTest {
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void updateShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() throws UndefinedCommandException {
+	public void updateShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists() throws UndefinedCommandException {
 		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 

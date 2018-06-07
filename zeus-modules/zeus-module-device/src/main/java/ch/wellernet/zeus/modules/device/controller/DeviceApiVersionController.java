@@ -7,8 +7,8 @@ import static ch.wellernet.zeus.modules.device.controller.DeviceApiVersionContro
 import java.io.IOException;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +21,7 @@ public class DeviceApiVersionController implements DeviceApiV1Controller {
 
 	static final String API_PATH = API_ROOT_PATH + "/version";
 
-	@RequestMapping(method = RequestMethod.GET)
+	@GetMapping
 	@ResponseBody
 	public JSONObject getVersion() throws IOException {
 		return buildVersionInfo(findManifest(getClass()));

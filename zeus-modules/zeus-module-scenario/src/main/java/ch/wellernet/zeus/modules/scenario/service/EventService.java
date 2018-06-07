@@ -1,9 +1,12 @@
 package ch.wellernet.zeus.modules.scenario.service;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +54,10 @@ public class EventService {
 			return scheduledEvents.put(eventId, scheduledFuture);
 		}
 
+		public ScheduledFuture<?> get(final UUID eventId) {
+			return scheduledEvents.get(eventId);
+		}
+
 		public ScheduledFuture<?> remove(final UUID eventId) {
 			return scheduledEvents.remove(eventId);
 		}
@@ -68,6 +75,18 @@ public class EventService {
 		if (scheduledFuture != null) {
 			scheduledFuture.cancel(true);
 		}
+	}
+
+	public Collection<Event> findAll() {
+		final Iterable<Event> events = eventRepository.findAll();
+		events.forEach(this::addNextFiringDate);
+		return newArrayList(events);
+	}
+
+	public Optional<Event> findById(final UUID eventId) {
+		final Optional<Event> event = eventRepository.findById(eventId);
+		addNextFiringDate(event.orElse(null));
+		return event;
 	}
 
 	public void fireEvent(final UUID eventId) {
@@ -152,6 +171,15 @@ public class EventService {
 		eventRepository.save(event);
 		scheduledEventRegistry.add(event.getId(), taskScheduler.scheduleAtFixedRate(createRunnableToFireEvent(event),
 				new Date(currentTimeMillis() + event.getInitialDelay() * 1000), event.getInterval() * 1000));
+	}
+
+	private void addNextFiringDate(final Event event) {
+		if (event != null) {
+			final ScheduledFuture<?> scheduledEvent = scheduledEventRegistry.get(event.getId());
+			if (scheduledEvent != null) {
+				event.setNextFiringDate(new Date(System.currentTimeMillis() + scheduledEvent.getDelay(MILLISECONDS)));
+			}
+		}
 	}
 
 	private Runnable createRunnableToFireEvent(final Event event) {

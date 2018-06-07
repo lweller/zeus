@@ -5,10 +5,17 @@ import static ch.wellernet.zeus.modules.scenario.model.SunEvent.MIDNIGHT;
 import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNRISE;
 import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNSET;
 import static ch.wellernet.zeus.modules.scenario.model.SunEventDefinition.OFFICIAL;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.System.currentTimeMillis;
+import static java.util.Collections.emptyList;
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,7 +25,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -51,6 +60,12 @@ import ch.wellernet.zeus.modules.scenario.service.EventService.ScheduledEventReg
 		"zeus.location.longitude=7.439949" }, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class EventServiceTest {
+
+	// test data
+	private static final Event EVENT_1 = CronEvent.builder().id(randomUUID()).name("Event 1").build();
+	private static final Event EVENT_2 = CronEvent.builder().id(randomUUID()).name("Event 2").build();
+	private static final Event EVENT_3 = CronEvent.builder().id(randomUUID()).name("Enevt 3").build();
+	private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
 	// object under test
 	private @SpyBean EventService eventService;
@@ -89,6 +104,96 @@ public class EventServiceTest {
 
 		// then
 		verify(scheduledEventRegistry).remove(eventId);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void findAllShouldReturnCollectionOfEventsWithNextFiringSet() {
+		// given
+		given(eventRepository.findAll()).willReturn(EVENTS);
+		given(scheduledEventRegistry.get(any())).willReturn(mock(ScheduledFuture.class));
+
+		// when
+		final Collection<Event> events = eventService.findAll();
+
+		// then
+		assertThat(events, containsInAnyOrder(EVENT_1, EVENT_2, EVENT_3));
+		events.forEach(event -> {
+			assertThat(event.getNextFiringDate(), is(not(nullValue())));
+		});
+	}
+
+	@Test
+	public void findAllShouldReturnCollectionOfEventsWithoutNextFiringSetWhenEventsHaveNotBeenScheduled() {
+		// given
+		final CronEvent originalEvent1 = CronEvent.builder().id(randomUUID()).build();
+		final CronEvent originalEvent2 = CronEvent.builder().id(randomUUID()).build();
+		final CronEvent originalEvent3 = CronEvent.builder().id(randomUUID()).build();
+		given(eventRepository.findAll()).willReturn(newArrayList(originalEvent1, originalEvent2, originalEvent3));
+		given(scheduledEventRegistry.get(any())).willReturn(null);
+
+		// when
+		final Collection<Event> events = eventService.findAll();
+
+		// then
+		assertThat(events, containsInAnyOrder(originalEvent1, originalEvent2, originalEvent3));
+		events.forEach(event -> {
+			assertThat(event.getNextFiringDate(), is(nullValue()));
+		});
+	}
+
+	@Test
+	public void findAllShouldReturnEmptyCollectionWhenNoEventsAreAvailable() {
+		// given
+		given(eventRepository.findAll()).willReturn(emptyList());
+
+		// when
+		final Collection<Event> events = eventService.findAll();
+
+		// then
+		assertThat(events, is(empty()));
+	}
+
+	@Test
+	public void findByIdShouldReturnEmptyOptionWhenEventDoesNotExists() {
+		// given
+		given(eventRepository.findById(EVENT_1.getId())).willReturn(Optional.empty());
+
+		// when
+		final Optional<Event> event = eventService.findById(EVENT_1.getId());
+
+		// then an exception is expected
+		assertThat(event.isPresent(), is(false));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void findByIdShouldReturnEventWithNextFiringSet() {
+		// given
+		given(eventRepository.findById(EVENT_1.getId())).willReturn(Optional.of(EVENT_1));
+		given(scheduledEventRegistry.get(any())).willReturn(mock(ScheduledFuture.class));
+
+		// when
+		final Optional<Event> event = eventService.findById(EVENT_1.getId());
+
+		// then
+		assertThat(event.orElse(null), is(EVENT_1));
+		assertThat(event.get().getNextFiringDate(), is(not(nullValue())));
+	}
+
+	@Test
+	public void findByIdShouldReturnEventWithoutNextFiringSetWhenEventHasNotBeenScheduled() {
+		// given
+		final Event originalEvent = CronEvent.builder().id(randomUUID()).build();
+		given(eventRepository.findById(originalEvent.getId())).willReturn(Optional.of(originalEvent));
+		given(scheduledEventRegistry.get(any())).willReturn(null);
+
+		// when
+		final Optional<Event> event = eventService.findById(originalEvent.getId());
+
+		// then
+		assertThat(event.orElse(null), is(originalEvent));
+		assertThat(event.get().getNextFiringDate(), is(nullValue()));
 	}
 
 	@Test

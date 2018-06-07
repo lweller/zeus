@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
@@ -52,10 +53,10 @@ public abstract class Event {
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
 	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
-			REFRESH }, fetch = LAZY, mappedBy = "event") Set<EventDrivenTransition> transitions;
+			REFRESH }, fetch = LAZY, mappedBy = "event") @JsonIgnore Set<EventDrivenTransition> transitions;
 	private @Version long version;
 
-	private @Transient Date lastFired;
+	private @Transient Date nextFiringDate;
 
 	protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
 		this.id = id;
