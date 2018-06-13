@@ -6,3 +6,4 @@
 .apt_generated/
 target/
 node_modules/
+/.metadata/

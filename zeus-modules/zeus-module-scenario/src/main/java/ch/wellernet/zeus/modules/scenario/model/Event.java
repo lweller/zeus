@@ -52,11 +52,12 @@ public abstract class Event {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
+	private Date lastExecution;
 	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
 			REFRESH }, fetch = LAZY, mappedBy = "event") @JsonIgnore Set<EventDrivenTransition> transitions;
 	private @Version long version;
 
-	private @Transient Date nextFiringDate;
+	private @Transient Date nextScheduledExecution;
 
 	protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
 		this.id = id;

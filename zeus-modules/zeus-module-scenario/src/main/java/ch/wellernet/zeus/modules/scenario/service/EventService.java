@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableConfigurationProperties(Location.class)
 public class EventService {
 
-	static class ScheduledEventRegistry {
+	static class ScheduledEventRegistrar {
 		private final Map<UUID, ScheduledFuture<?>> scheduledEvents = new HashMap<>();
 
 		public ScheduledFuture<?> add(final UUID eventId, final ScheduledFuture<?> scheduledFuture) {
@@ -63,15 +63,15 @@ public class EventService {
 		}
 	}
 
-	private @Autowired(required = false) final ScheduledEventRegistry scheduledEventRegistry = new ScheduledEventRegistry();
 	private @Autowired EventRepository eventRepository;
 	private @Autowired PlatformTransactionManager transactionManager;
-	private @Autowired TaskScheduler taskScheduler;
 	private @Autowired ScenarioService scenarioService;
 	private @Autowired Location location;
+	private @Autowired TaskScheduler taskScheduler;
+	private @Autowired(required = false) final ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
 
 	public void cancelEvent(final UUID eventId) {
-		final ScheduledFuture<?> scheduledFuture = scheduledEventRegistry.remove(eventId);
+		final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
 		if (scheduledFuture != null) {
 			scheduledFuture.cancel(true);
 		}
@@ -79,13 +79,13 @@ public class EventService {
 
 	public Collection<Event> findAll() {
 		final Iterable<Event> events = eventRepository.findAll();
-		events.forEach(this::addNextFiringDate);
+		events.forEach(this::updateNextFiringDate);
 		return newArrayList(events);
 	}
 
 	public Optional<Event> findById(final UUID eventId) {
 		final Optional<Event> event = eventRepository.findById(eventId);
-		addNextFiringDate(event.orElse(null));
+		updateNextFiringDate(event.orElse(null));
 		return event;
 	}
 
@@ -94,7 +94,9 @@ public class EventService {
 
 		if (event.isPresent()) {
 			log.info(format("firing event '%s'", event.get().getName()));
+			event.get().setLastExecution(new Date());
 			event.get().getTransitions().forEach(scenarioService::fireTransition);
+			eventRepository.save(event.get());
 		} else {
 			log.info(format("canceling event ID '%s' because it doesn't exist anymore", eventId));
 			cancelEvent(eventId);
@@ -128,7 +130,7 @@ public class EventService {
 	public void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
 		cancelEvent(event.getId());
 		eventRepository.save(event);
-		scheduledEventRegistry.add(event.getId(),
+		scheduledEventRegistrar.add(event.getId(),
 				taskScheduler.schedule(createRunnableToFireEvent(event), new CronTrigger(event.getCronExpression())));
 	}
 
@@ -163,23 +165,14 @@ public class EventService {
 		}
 		cancelEvent(event.getId());
 		eventRepository.save(event);
-		scheduledEventRegistry.add(event.getId(), taskScheduler.schedule(createRunnableToFireEvent(event), trigger));
+		scheduledEventRegistrar.add(event.getId(), taskScheduler.schedule(createRunnableToFireEvent(event), trigger));
 	}
 
 	public void scheduleEvent(final FixedRateEvent event) {
 		cancelEvent(event.getId());
 		eventRepository.save(event);
-		scheduledEventRegistry.add(event.getId(), taskScheduler.scheduleAtFixedRate(createRunnableToFireEvent(event),
+		scheduledEventRegistrar.add(event.getId(), taskScheduler.scheduleAtFixedRate(createRunnableToFireEvent(event),
 				new Date(currentTimeMillis() + event.getInitialDelay() * 1000), event.getInterval() * 1000));
-	}
-
-	private void addNextFiringDate(final Event event) {
-		if (event != null) {
-			final ScheduledFuture<?> scheduledEvent = scheduledEventRegistry.get(event.getId());
-			if (scheduledEvent != null) {
-				event.setNextFiringDate(new Date(System.currentTimeMillis() + scheduledEvent.getDelay(MILLISECONDS)));
-			}
-		}
 	}
 
 	private Runnable createRunnableToFireEvent(final Event event) {
@@ -191,5 +184,14 @@ public class EventService {
 				}
 			});
 		};
+	}
+
+	void updateNextFiringDate(final Event event) {
+		if (event != null) {
+			final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.get(event.getId());
+			if (scheduledFuture != null) {
+				event.setNextScheduledExecution(new Date(currentTimeMillis() + scheduledFuture.getDelay(MILLISECONDS)));
+			}
+		}
 	}
 }

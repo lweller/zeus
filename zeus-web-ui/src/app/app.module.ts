@@ -1,30 +1,62 @@
+import {AppRoutingModule} from './app-routing.module';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {NgModule} from '@angular/core';
+import {NgModule, LOCALE_ID} from '@angular/core';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
-import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
-import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {
+  TranslateModule, TranslateLoader, TranslateService, TranslateDefaultParser,
+  TranslateParser, MissingTranslationHandler, MissingTranslationHandlerParams
+} from '@ngx-translate/core';
+import {TranslatePoHttpLoader} from '@biesbjerg/ngx-translate-po-http-loader';
+import {Http} from '@angular/http';
+import {registerLocaleData} from '@angular/common';
+import localeEn from '@angular/common/locales/en';
+import localeDe from '@angular/common/locales/de';
+import localeFr from '@angular/common/locales/fr';
 
 import {AppComponent} from './app.component';
 import {DevicesComponent} from './component/device/devices.component';
+import {EventsComponent} from './component/scenario/events.component';
 import {MessageBoxComponent} from './component/message-box/message-box.component';
 import {DeviceService} from './service/device.service';
+import {EventService} from './service/event.service';
 import {MessageService} from './service/message.service';
-import {Http} from '@angular/http';
 
-export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+registerLocaleData(localeEn);
+registerLocaleData(localeDe);
+registerLocaleData(localeFr);
+
+export class InterpolatedTranslateParser extends TranslateDefaultParser {
+  public templateMatcher: RegExp = /{\s?([^{}\s]*)\s?}/g;
 }
+export class InterpolatedMissingTranslationHandler implements MissingTranslationHandler {
+  public parser: TranslateParser = createTranslateParser();
+  public handle(params: MissingTranslationHandlerParams) {
+    return params.translateService.parser.interpolate(params.key, params.interpolateParams);
+    // Workaround until this PR is merged: https://github.com/ocombe/ng2-translate/pull/348
+    // return this.parser.interpolate(params.key, params.interpolateParams);
+  }
+}
+export function createTranslateParser() {
+  return new InterpolatedTranslateParser();
+}
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslatePoHttpLoader(http, '/assets/i18n', '.po');
+}
+
+const translations = navigator.language || 'en_US';
 
 @NgModule({
   declarations: [
     AppComponent,
     DevicesComponent,
+    EventsComponent,
     MessageBoxComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    AppRoutingModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -34,7 +66,15 @@ export function createTranslateLoader(http: HttpClient) {
     }),
     HttpClientModule
   ],
-  providers: [DeviceService, MessageService],
+  providers: [
+    {provide: LOCALE_ID, useValue: translations},
+    {provide: TranslateParser, useFactory: (createTranslateParser)},
+    {provide: MissingTranslationHandler, useClass: InterpolatedMissingTranslationHandler},
+    TranslateService,
+    DeviceService,
+    EventService,
+    MessageService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

@@ -1,0 +1,51 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "1 hour"
+msgstr "1 Strunde"
+
+msgid "1 minute"
+msgstr "1 Minute"
+
+msgid "Command has been successfully executed."
+msgstr "Der Befehl wurde erfolgreich ausgeführt."
+
+msgid "Data has not been updated due to concurent modifications."
+msgstr "Konnte wegen gleichzeitier Veränderung die Daten nicht aktualisieren."
+
+msgid "Sorry, an unexpected error happend !"
+msgstr "Entschuldigung, es ist ein unerwarterter fehler aufgetreten !"
+
+msgid "The device '{name}' has been updated."
+msgstr "Das Gerät '{name}' wurde aktualisiert."
+
+msgid "and"
+msgstr "und"
+
+msgid "less than a minute"
+msgstr "weniger als einer Minute"
+
+msgid "more than a week"
+msgstr "über einer Woche"
+
+msgid "one day"
+msgstr "einem Tag"
+
+msgid "time of next occurrence is unknown"
+msgstr "Zeitpunkt der nächsten Auslösung ist unbekannt"
+
+msgid "will fire in {duration}"
+msgstr "wird in {duration} ausgelöst"
+
+msgid "{days} days"
+msgstr "{days} Tage"
+
+msgid "{hours} hours"
+msgstr "{hours} Stunden"
+
+msgid "{minutes} minutes"
+msgstr "{minutes} Minuten"
+

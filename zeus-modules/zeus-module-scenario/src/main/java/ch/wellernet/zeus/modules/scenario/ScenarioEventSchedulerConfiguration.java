@@ -15,7 +15,7 @@ import ch.wellernet.zeus.modules.scenario.service.EventService;
 
 @Configuration
 @EnableScheduling
-public class ScenatioEventSchedulerConfiguration {
+public class ScenarioEventSchedulerConfiguration {
 
 	private @Autowired EventService eventService;
 	private @Autowired PlatformTransactionManager transactionManager;
