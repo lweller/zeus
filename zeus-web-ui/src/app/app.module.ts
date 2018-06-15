@@ -21,6 +21,7 @@ import {MessageBoxComponent} from './component/message-box/message-box.component
 import {DeviceService} from './service/device.service';
 import {EventService} from './service/event.service';
 import {MessageService} from './service/message.service';
+import { NavigationBarComponent } from './component/navigation-bar/navigation-bar.component';
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
@@ -51,7 +52,8 @@ const translations = navigator.language || 'en_US';
     AppComponent,
     DevicesComponent,
     EventsComponent,
-    MessageBoxComponent
+    MessageBoxComponent,
+    NavigationBarComponent
   ],
   imports: [
     BrowserModule,
