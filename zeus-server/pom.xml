@@ -112,6 +112,14 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration >
+					<ignoredDependencies >
+						<!-- ignore runtime dependencies -->
+						<ignoredDependency>com.h2database:h2:jar</ignoredDependency>
+						<ignoredDependency>io.springfox:springfox-swagger-ui:jar</ignoredDependency>
+						<ignoredDependency>ch.wellernet.zeus:zeus-web-ui:tar.gz</ignoredDependency>
+					</ignoredDependencies>
+				</configuration>
 				<executions>
 					<execution>
 						<id>unpack-ui</id>
@@ -154,18 +162,6 @@
 							<directory>target/ui</directory>
 						</resource>
 					</webResources>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<configuration >
-					<ignoredDependencies >
-						<!-- ignore runtime dependencies -->
-						<ignoredDependency>com.h2database:h2:jar</ignoredDependency>
-						<ignoredDependency>io.springfox:springfox-swagger-ui:jar</ignoredDependency>
-						<ignoredDependency>ch.wellernet.zeus:zeus-web-ui:tar.gz</ignoredDependency>
-					</ignoredDependencies>
 				</configuration>
 			</plugin>
 		</plugins>
