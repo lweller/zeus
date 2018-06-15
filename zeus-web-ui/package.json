@@ -32,7 +32,7 @@
     "zone.js": "^0.8.19"
   },
   "devDependencies": {
-    "@angular/cli": "1.6.5",
+    "@angular/cli": "1.6.8",
     "@angular/compiler-cli": "^5.2.11",
     "@angular/language-service": "^5.2.11",
     "@biesbjerg/ngx-translate-extract": "^2.3.4",
@@ -40,6 +40,7 @@
     "@types/jasmine": "^2.8.8",
     "@types/jasminewd2": "~2.0.2",
     "@types/node": "^6.0.112",
+    "ajv": "^6.0.0",
     "angular-ide": "^0.9.41",
     "codelyzer": "^4.0.1",
     "jasmine-core": "~2.8.0",
