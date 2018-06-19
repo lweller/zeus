@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.CronEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
@@ -90,6 +93,33 @@ public class EventControllerTest {
 
 		// when
 		eventController.findById(EVENT_1.getId());
+
+		// then an exception is expected
+	}
+
+	@Test
+	public void fireShouldFireImmediately() throws NoSuchElementException, UndefinedCommandException {
+		// given
+		final UUID eventId = EVENT_1.getId();
+		given(eventService.fireEvent(eventId)).willReturn(EVENT_1);
+
+		// when
+		final ResponseEntity<Event> response = eventController.fire(eventId);
+
+		// then
+		verify(eventService).fireEvent(eventId);
+		assertThat(response.getBody(), is(EVENT_1));
+		assertThat(response.getStatusCode(), is(OK));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void fireShouldThrowNoSuchElementExceptionIfEventDoesNotExists() {
+		// given
+		final UUID eventId = EVENT_1.getId();
+		given(eventService.findById(eventId)).willReturn(Optional.empty());
+
+		// when
+		eventController.findById(eventId);
 
 		// then an exception is expected
 	}

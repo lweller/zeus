@@ -89,17 +89,20 @@ public class EventService {
 		return event;
 	}
 
-	public void fireEvent(final UUID eventId) {
-		final Optional<Event> event = eventRepository.findById(eventId);
+	public Event fireEvent(final UUID eventId) {
+		final Optional<Event> eventOptional = eventRepository.findById(eventId);
 
-		if (event.isPresent()) {
-			log.info(format("firing event '%s'", event.get().getName()));
-			event.get().setLastExecution(new Date());
-			event.get().getTransitions().forEach(scenarioService::fireTransition);
-			eventRepository.save(event.get());
+		if (eventOptional.isPresent()) {
+			final Event event = eventOptional.get();
+			log.info(format("firing event '%s'", event.getName()));
+			event.setLastExecution(new Date());
+			event.getTransitions().forEach(scenarioService::fireTransition);
+			updateNextFiringDate(event);
+			return eventRepository.save(event);
 		} else {
 			log.info(format("canceling event ID '%s' because it doesn't exist anymore", eventId));
 			cancelEvent(eventId);
+			return null;
 		}
 	}
 

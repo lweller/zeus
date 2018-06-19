@@ -1,62 +1,35 @@
-.devices {
+.list {
 	margin: 0 0 2em 0;
 	list-style-type: none;
 	padding: 0;
 	width: 100%;
 }
 
-.devices li {
+.entry {
 	position: relative;
-	cursor: hand;
-	cursor: pointer;
-	background-color: #EEEEEE;
+	background-color: #eeeeee;
 	margin: 0.5em;
 	padding: .5em .5em;
 	min-height: 2em;
 	border-radius: 4px;
-	-webkit-user-select: none; /* Safari */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 
-.devices .state {
-	display: inline-block;
-	font-size: small;
-	line-height: 1em;
-	position: relative;
-	padding: 1.4em 0.7em 0 0.7em;
-	left: -.1em;
-	top: -.6em;
-	color: white;
-	background-color: #4782E2;
-	margin: 0 .5em 0 0;
-	height: 2.2em;
-	min-width: 30px;
-	text-align: center;
-	border-radius: 4px 0 0 4px;
-	-webkit-user-select: none; /* Safari */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
-}
-
-.devices .label {
+.entry .name {
 	display: inline-block;
 	width: 100%;
 }
 
-.devices .comment {
+.entry .next-firing {
 	display: inline-block;
 	width: 100%;
 	font-size: small;
 }
 
 input {
+	cursor: default;
 	font-size: large;
 	line-height: 1em;
 	cursor: hand;
-	cursor: pointer;
 	background: none;
 	border: none;
 	outline: none;
@@ -65,4 +38,49 @@ input {
 input.editing {
 	cursor: text;
 	border-bottom: 1px solid gray;
+}
+
+.entry .left {
+	display: table-cell;
+	width: 100%;
+	vertical-align: middle;
+	text-align: left;
+}
+
+.entry .right {
+	display: table-cell;
+	position: relative;
+	min-width: 30px;
+	max-width: 30px;
+	height: 100%;
+}
+
+.fire-button {
+	cursor: hand;
+	cursor: pointer;
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 30px;
+	height: 30px;
+	background-color: #4782E2;
+	border-radius: 15px;
+	color: white;
+	font-weight: bolder;
+}
+
+.fire-button span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.unselectable {
+	-webkit-user-select: none; /* Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }

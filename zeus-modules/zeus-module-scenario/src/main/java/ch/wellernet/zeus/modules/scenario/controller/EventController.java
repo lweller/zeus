@@ -20,14 +20,18 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.wellernet.zeus.modules.device.model.Device;
+import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
 @CrossOrigin
@@ -51,6 +55,15 @@ public class EventController implements ScenarioApiV1Controller {
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
 			throws NoSuchElementException {
 		return ResponseEntity.status(OK).body(eventService.findById(id).get());
+	}
+
+	@ApiOperation("Fires immediatly an event.")
+	@ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
+	@PostMapping(value = "/{id}!fire")
+	public ResponseEntity<Event> fire(
+			@ApiParam(value = "Event UUID", required = true) @PathVariable(required = true) final UUID id)
+			throws NoSuchElementException, UndefinedCommandException {
+		return ResponseEntity.status(OK).body(eventService.fireEvent(id));
 	}
 
 	@ExceptionHandler({ NoSuchElementException.class })

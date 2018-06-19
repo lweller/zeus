@@ -1,16 +1,27 @@
-<ul class="devices">
-  <li *ngFor="let event of events">
-    <input
-      class="label"
-      [value]="event.name"
-      [class.editing]="event.$editing"
-      [readOnly]="!event.$editing"
-      (dblclick)="event.$editing=true"
-      (blur)="event.$editing = false; event.name = $event.target.value; update(event);"
-      (keyup.enter)="$event.target.blur()">
-    <span class="comment">
-      <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">{{'will fire in {duration}' | translate:{duration:buildNextOccurenceExpression(event)} }}</span>
-      <ng-template #nextOccurrenceUnknown>{{'time of next occurrence is unknown' | translate}}</ng-template>
-    </span>
+<ul class="list unselectable">
+  <li
+    class="entry"
+    *ngFor="let event of events">
+    <div class="left">
+      <input
+        class="name"
+        [value]="event.name"
+        [class.editing]="event.$editing"
+        [readOnly]="!event.$editing"
+        (dblclick)="event.$editing=true"
+        (blur)="event.$editing = false; event.name = $event.target.value; update(event);"
+        (keyup.enter)="$event.target.blur()">
+      <span class="next-firing">
+        <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">{{'will fire in {duration}' | translate:{duration:buildNextOccurenceExpression(event)} }}</span>
+        <ng-template #nextOccurrenceUnknown> <span>{{'time of next occurrence is unknown' | translate}}</span> </ng-template>
+      </span>
+    </div>
+    <div class="right">
+      <span
+        class="fire-button"
+        (click)="fire(event)">
+        <span>&gt;</span>
+      </span>
+    </div>
   </li>
 </ul>

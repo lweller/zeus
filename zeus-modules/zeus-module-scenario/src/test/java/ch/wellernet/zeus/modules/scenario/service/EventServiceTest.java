@@ -220,13 +220,17 @@ public class EventServiceTest {
 		final Set<EventDrivenTransition> transitions = newHashSet(transition1, transition2);
 		final Event event = FixedRateEvent.builder().transitions(transitions).build();
 		given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
+		given(eventRepository.save(event)).willReturn(event);
 
 		// when
-		eventService.fireEvent(event.getId());
+		final Event updatedEvent = eventService.fireEvent(event.getId());
 
 		// then
 		verify(scenarioService).fireTransition(transition1);
 		verify(scenarioService).fireTransition(transition2);
+		verify(eventRepository).save(event);
+		assertThat(updatedEvent, is(event));
+		verify(eventService).updateNextFiringDate(event);
 	}
 
 	@Test

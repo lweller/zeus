@@ -25,20 +25,9 @@ export class EventsComponent implements OnInit {
   update(event: Event): void {
   }
 
-  days(seconds: number): number {
-    return Math.floor(seconds / 86400);
-  }
-
-  hours(seconds: number): number {
-    return Math.floor((seconds % 86400) / 3600);
-  }
-
-  minutes(seconds: number): number {
-    return Math.floor((seconds % 3600) / 60);
-  }
-
-  seconds(seconds: number): number {
-    return Math.floor(seconds % 60);
+  fire(event: Event): void {
+    this.eventService.fire(event).subscribe(updatedEvent =>
+      this.events[this.events.indexOf(event)] = updatedEvent);
   }
 
   buildNextOccurenceExpression(event: Event): string {
