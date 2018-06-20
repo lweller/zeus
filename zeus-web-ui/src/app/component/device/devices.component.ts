@@ -27,25 +27,7 @@ export class DevicesComponent implements OnInit {
   }
 
   update(device: Device) {
-    if (device.$editing) {
-      this.deviceService.update(device).subscribe(updatedDevice =>
-        this.devices[this.devices.indexOf(device)] = updatedDevice);
-      device.$editing = false;
-    }
-  }
-
-  setCaretPosition(elem, caretStartPos, caretEndPos) {
-    if (elem !== null) {
-      if (elem.createTextRange) {
-        const range = elem.createTextRange();
-        range.move('character', caretStartPos, caretEndPos);
-        range.select();
-      } else {
-        if (elem.setSelectionRange) {
-          elem.focus();
-          elem.setSelectionRange(caretStartPos, caretEndPos);
-        }
-      }
-    }
+    this.deviceService.update(device).subscribe(updatedDevice =>
+      this.devices[this.devices.indexOf(device)] = updatedDevice);
   }
 }

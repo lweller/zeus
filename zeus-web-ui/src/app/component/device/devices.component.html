@@ -1,16 +1,11 @@
-<ul class="devices">
-  <li *ngFor="let device of devices">
+<ul class="list">
+  <li class="entry" *ngFor="let device of devices">
     <span
       class="state"
       (click)="sendCommand(device)">{{device.state}}</span>
-    <input
-      class="label"
+    <app-editable-label
+      class="name"
       [value]="device.name"
-      [class.editing]="device.$editing"
-      [readOnly]="!device.$editing"
-      (dblclick)="device.$editing=true; setCaretPosition($event.target, 0, $event.target.value.length)"
-      (blur)="device.name = $event.target.value; update(device);"
-      (keyup.enter)="$event.target.blur()"
-      (keydown.esc)="$event.target.value = device.name; device.$editing=false;">
+      (finishedEditing)="device.name = $event; update(device)"></app-editable-label>
   </li>
 </ul>

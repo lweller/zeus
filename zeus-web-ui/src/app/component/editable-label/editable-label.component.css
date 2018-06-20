@@ -1,0 +1,15 @@
+input {
+	width: 100%;
+	font-size: large;
+	line-height: 1em;
+	cursor: hand;
+	cursor: pointer;
+	background: none;
+	border: none;
+	outline: none;
+}
+
+input.editing {
+	cursor: text;
+	border-bottom: 1px solid gray;
+}

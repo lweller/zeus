@@ -3,6 +3,10 @@
 	list-style-type: none;
 	padding: 0;
 	width: 100%;
+	-webkit-user-select: none; /* Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 
 .entry {
@@ -14,6 +18,13 @@
 	border-radius: 4px;
 }
 
+.entry .left {
+	display: table-cell;
+	width: 100%;
+	vertical-align: middle;
+	text-align: left;
+}
+
 .entry .name {
 	display: inline-block;
 	width: 100%;
@@ -23,28 +34,6 @@
 	display: inline-block;
 	width: 100%;
 	font-size: small;
-}
-
-input {
-	cursor: default;
-	font-size: large;
-	line-height: 1em;
-	cursor: hand;
-	background: none;
-	border: none;
-	outline: none;
-}
-
-input.editing {
-	cursor: text;
-	border-bottom: 1px solid gray;
-}
-
-.entry .left {
-	display: table-cell;
-	width: 100%;
-	vertical-align: middle;
-	text-align: left;
 }
 
 .entry .right {
@@ -76,11 +65,4 @@ input.editing {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-}
-
-.unselectable {
-	-webkit-user-select: none; /* Safari */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }

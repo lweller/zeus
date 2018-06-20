@@ -22,6 +22,7 @@ import {DeviceService} from './service/device.service';
 import {EventService} from './service/event.service';
 import {MessageService} from './service/message.service';
 import { NavigationBarComponent } from './component/navigation-bar/navigation-bar.component';
+import { EditableLabelComponent } from './component/editable-label/editable-label.component';
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
@@ -53,7 +54,8 @@ const translations = navigator.language || 'en_US';
     DevicesComponent,
     EventsComponent,
     MessageBoxComponent,
-    NavigationBarComponent
+    NavigationBarComponent,
+    EditableLabelComponent
   ],
   imports: [
     BrowserModule,

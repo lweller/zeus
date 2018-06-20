@@ -1,11 +1,15 @@
-.devices {
+.list {
 	margin: 0 0 2em 0;
 	list-style-type: none;
 	padding: 0;
 	width: 100%;
+	-webkit-user-select: none; /* Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
 }
 
-.devices li {
+.entry {
 	position: relative;
 	cursor: hand;
 	cursor: pointer;
@@ -14,13 +18,9 @@
 	padding: .5em 0;
 	height: 2em;
 	border-radius: 4px;
-	-webkit-user-select: none; /* Safari */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
 }
 
-.devices .state {
+.entry .state {
 	display: inline-block;
 	font-size: small;
 	line-height: 1em;
@@ -41,24 +41,9 @@
 	user-select: none;
 }
 
-.devices .label {
+.entry .name {
 	display: inline-block;
 	position: relative;
 	top: -.4em;
 	width: 75%;
-}
-
-input {
-	font-size: large;
-	line-height: 1em;
-	cursor: hand;
-	cursor: pointer;
-	background: none;
-	border: none;
-	outline: none;
-}
-
-input.editing {
-	cursor: text;
-	border-bottom: 1px solid gray;
 }
