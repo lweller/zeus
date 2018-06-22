@@ -13,7 +13,6 @@ import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,6 @@ import lombok.Setter;
 @Entity
 @Inheritance(strategy = SINGLE_TABLE)
 @Data
-@AllArgsConstructor
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "communicationServiceName")
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")

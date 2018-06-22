@@ -1,3 +1,4 @@
+
 package ch.wellernet.zeus.modules.device.model;
 
 import javax.persistence.Entity;

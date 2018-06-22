@@ -1,5 +1,6 @@
 package ch.wellernet.zeus.modules.device.model;
 
+import static ch.wellernet.zeus.modules.device.model.State.UNKNOWN;
 import static javax.persistence.CascadeType.DETACH;
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
@@ -39,6 +40,6 @@ public class Device {
 		this.type = type;
 		this.name = name;
 		this.controlUnit = controlUnit;
-		state = type.getInitialState();
+		state = type == null ? UNKNOWN : type.getInitialState();
 	}
 }
