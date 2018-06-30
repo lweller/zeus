@@ -7,7 +7,7 @@
 GenericSwitchMockDriver::GenericSwitchMockDriver(String id) : Driver(id) {
 }
 
-String GenericSwitchMockDriver::executeCommand(String* command) {
+String GenericSwitchMockDriver::executeCommand(String* command, String* data) {
 	if ((*command).equals("GET_SWITCH_STATE")) {
 	} else if ((*command).equals("SWITCH_ON")) {
 		this->state = "ON";

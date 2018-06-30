@@ -17,7 +17,9 @@ public:
 	void init() {
 	}
 
-	virtual String executeCommand(String* command) = 0;
+	virtual String executeCommand(String* command, String* data) = 0;
+	virtual void check() {
+	}
 };
 
 #endif // Driver_h

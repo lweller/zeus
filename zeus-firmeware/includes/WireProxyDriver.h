@@ -14,7 +14,7 @@ public:
 
 	WireProxyDriver(String id, int address);
 
-	String executeCommand(String* command);
+	String executeCommand(String* command, String* data);
 };
 
 #endif // WireProxyDriver_h

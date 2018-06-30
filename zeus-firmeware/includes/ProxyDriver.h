@@ -12,7 +12,7 @@ public:
 
 	ProxyDriver(String id, Stream* stream);
 
-	String executeCommand(String* command);
+	String executeCommand(String* command, String* data);
 };
 
 #endif // ProxyDriver_h

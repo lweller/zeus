@@ -11,7 +11,7 @@ public:
 
 	GenericSwitchMockDriver(String id);
 
-	String executeCommand(String* command);
+	String executeCommand(String* command, String* data);
 };
 
 #endif // GenericSwitchMockDriver_h

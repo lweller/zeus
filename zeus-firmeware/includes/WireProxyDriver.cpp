@@ -10,7 +10,7 @@ WireProxyDriver::WireProxyDriver(String id, int address) :
 	this->address = address;
 }
 
-String WireProxyDriver::executeCommand(String* command) {
+String WireProxyDriver::executeCommand(String* command, String* data) {
 	Wire.beginTransmission(this->address);
 	Wire.print(*command);
 	Wire.print(" ");
@@ -20,6 +20,15 @@ String WireProxyDriver::executeCommand(String* command) {
 	Wire.endTransmission();
 	Wire.beginTransmission(this->address);
 	Wire.print(this->id.substring(32));
+	Wire.print(" ");
+	Wire.endTransmission();
+	for (unsigned int i = 0; i < data->length() / 32; i++) {
+		Wire.beginTransmission(this->address);
+		Wire.print(data->substring(i * 32, (i + 1)* 32));
+		Wire.endTransmission();
+	}
+	Wire.beginTransmission(this->address);
+	Wire.print(data->substring(data->length() / 32 * 32));
 	Wire.println();
 	Wire.endTransmission();
 	delay(100);

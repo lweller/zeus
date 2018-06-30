@@ -10,7 +10,7 @@ ProxyDriver::ProxyDriver(String id, Stream* stream) :
 	this->stream = stream;
 }
 
-String ProxyDriver::executeCommand(String* command) {
+String ProxyDriver::executeCommand(String* command, String* data) {
 	this->stream->println(*command + " " + this->id);
 	String response = this->stream->readStringUntil('\n');
 	unsigned int index0 = nextArgument(&response, 0);
