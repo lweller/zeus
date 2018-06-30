@@ -14,12 +14,13 @@ public:
 	virtual ~Driver() {
 	}
 
-	void init() {
+	virtual void init() {
+	}
+
+	virtual void check() {
 	}
 
 	virtual String executeCommand(String* command, String* data) = 0;
-	virtual void check() {
-	}
 };
 
 #endif // Driver_h

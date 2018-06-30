@@ -1,17 +1,18 @@
-#ifndef GenericSwitchDriver_h
-#define GenericSwitchDriver_h
+#ifndef _GpioOutputDriver_h
+#define _GpioOutputDriver_h
 
 #include "Arduino.h"
 
 #include "Driver.h"
 
-class GenericSwitchDriver : public Driver {
+class GpioOutputDriver : public Driver {
 public:
 	byte pin;
+	byte activeState = HIGH;
 	unsigned long timer = 0;
 	unsigned long switchedOnAt = 0;
 
-	GenericSwitchDriver(String id, byte pin);
+	GpioOutputDriver(String id, byte pin, byte activeState);
 
 	void init();
 
@@ -19,4 +20,4 @@ public:
 	void check();
 };
 
-#endif // GenericSwitchDriver_h
+#endif // _GpioOutputDriver_h

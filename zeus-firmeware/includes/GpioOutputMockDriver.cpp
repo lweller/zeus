@@ -1,13 +1,13 @@
-#include "GenericSwitchMockDriver.h"
+#include "GpioOutputMockDriver.h"
 
 #include "Driver.h"
 
 #include "Arduino.h"
 
-GenericSwitchMockDriver::GenericSwitchMockDriver(String id) : Driver(id) {
+GpioOutputMockDriver::GpioOutputMockDriver(String id) : Driver(id) {
 }
 
-String GenericSwitchMockDriver::executeCommand(String* command, String* data) {
+String GpioOutputMockDriver::executeCommand(String* command, String* data) {
 	if ((*command).equals("GET_SWITCH_STATE")) {
 	} else if ((*command).equals("SWITCH_ON")) {
 		this->state = "ON";
