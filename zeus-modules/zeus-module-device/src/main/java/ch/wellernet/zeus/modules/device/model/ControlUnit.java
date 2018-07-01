@@ -21,12 +21,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
+@ToString(exclude = { "devices" })
 public class ControlUnit {
 	private @Id @Setter(PRIVATE) UUID id;
 	private @OneToOne(cascade = ALL) ControlUnitAddress address;

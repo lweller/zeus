@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Service;
+
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.Device;
@@ -23,6 +25,7 @@ import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
+@Service(TcpCommunicationService.NAME)
 @Slf4j
 public class TcpCommunicationService implements CommunicationService {
 
