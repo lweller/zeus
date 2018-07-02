@@ -8,6 +8,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -53,7 +54,10 @@ public class DeviceController implements DeviceApiV1Controller {
 	@ApiOperation("Finds all registrered devices.")
 	@GetMapping
 	public ResponseEntity<Collection<Device>> findAll() {
-		return ResponseEntity.status(OK).body(newArrayList(deviceRepository.findAll()));
+		final ArrayList<Device> devices = newArrayList(deviceRepository.findAll());
+		devices.sort((device1,
+				device2) -> device1 != null && device2 != null ? device1.getName().compareTo(device2.getName()) : 0);
+		return ResponseEntity.status(OK).body(devices);
 	}
 
 	@ApiOperation("Finds device by its UUID.")
