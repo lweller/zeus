@@ -32,7 +32,7 @@ WireRequest::WireRequest(Communication* communication, String command, String de
 }
 
 void WireRequest::answer(String response) {
-	communication->send(response);
+	communication->send(this, response);
 }
 
 WireCommunication::WireCommunication(int address) {
@@ -53,7 +53,7 @@ Request* WireCommunication::receive() {
 	return request;
 }
 
-void WireCommunication::send(String message) {
+void WireCommunication::send(Request* request, String message) {
 	responseMessage = message + "\n";
 }
 

@@ -17,7 +17,7 @@ class WireCommunication: public Communication {
 public:
 	WireCommunication(int address);
 	Request* receive();
-	void send(String message);
+	void send(Request* request, String message);
 };
 
 #endif // WireCommunication_h

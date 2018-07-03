@@ -10,7 +10,7 @@ SerialRequest::SerialRequest(Communication* communication, String command, Strin
 }
 
 void SerialRequest::answer(String response) {
-	communication->send(response);
+	communication->send(this, response);
 }
 
 SerialCommunication::SerialCommunication() {
@@ -28,7 +28,7 @@ Request* SerialCommunication::receive() {
 	return request;
 }
 
-void SerialCommunication::send(String message) {
+void SerialCommunication::send(Request* request, String message) {
 	if (Serial.availableForWrite()) {
 		Serial.println(message);
 	}

@@ -29,7 +29,7 @@ public:
 	virtual ~Communication() {
 	}
 	virtual Request* receive() = 0;
-	virtual void send(String message) = 0;
+	virtual void send(Request* request, String message) = 0;
 };
 
 Communication* initCommunication();

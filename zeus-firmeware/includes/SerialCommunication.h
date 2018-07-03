@@ -17,7 +17,7 @@ class SerialCommunication: public Communication {
 public:
 	SerialCommunication();
 	Request* receive();
-	void send(String message);
+	void send(Request* request, String message);
 };
 
 #endif // SerialCommunication_h
