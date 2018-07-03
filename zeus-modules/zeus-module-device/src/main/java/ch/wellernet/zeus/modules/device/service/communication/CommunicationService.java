@@ -12,7 +12,7 @@ public interface CommunicationService {
 
 	public String getName();
 
-	public State sendCommand(Device device, Command command) throws UndefinedCommandException;
-
 	public Collection<Device> scanDevices(ControlUnit controlUnit);
+
+	public State sendCommand(Device device, Command command, String data) throws UndefinedCommandException;
 }

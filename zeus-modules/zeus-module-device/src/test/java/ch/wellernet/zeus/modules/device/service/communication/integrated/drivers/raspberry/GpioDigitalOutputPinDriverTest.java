@@ -11,32 +11,43 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.pi4j.io.gpio.PinState.HIGH;
 import static com.pi4j.io.gpio.PinState.LOW;
 import static com.pi4j.io.gpio.PinState.getInverseState;
+import static java.lang.System.currentTimeMillis;
+import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Answers.RETURNS_MOCKS;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.PinState;
 
+import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.raspberry.GpioDigitalOutputPinDriver;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import junitparams.naming.TestCaseName;
@@ -88,6 +99,22 @@ public class GpioDigitalOutputPinDriverTest {
 	private @Autowired TestGpioDigitalOutputPinDriver gpioDigitalOutputPinDriver;
 
 	private @MockBean(answer = RETURNS_MOCKS) GpioController gpioController;
+	private @MockBean TaskScheduler taskScheduler;
+
+	@Test
+	public void executeCommandGetStateShouldNotCancelPreviousScheduledTaskWhenOneExists()
+			throws UndefinedCommandException, IllegalAccessException {
+		// given
+		final ScheduledFuture<?> timerTask = mock(ScheduledFuture.class);
+		writeField(gpioDigitalOutputPinDriver, "timerTask", timerTask, true);
+
+		// when
+		gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE, null);
+
+		// then
+		verifyZeroInteractions(timerTask);
+		assertThat(gpioDigitalOutputPinDriver.getTimerTask(), is(timerTask));
+	}
 
 	@Test
 	@Parameters(method = "testParameterSets")
@@ -103,7 +130,7 @@ public class GpioDigitalOutputPinDriverTest {
 		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState);
 
 		// when
-		final State state = gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE);
+		final State state = gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE, null);
 
 		// then
 		assertThat(state, is(testParameterSet.getInitialDeviceState()));
@@ -123,7 +150,7 @@ public class GpioDigitalOutputPinDriverTest {
 		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
 		// when
-		final State state = gpioDigitalOutputPinDriver.execute(SWITCH_OFF);
+		final State state = gpioDigitalOutputPinDriver.execute(SWITCH_OFF, null);
 
 		// then
 		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(getInverseState(activePinState));
@@ -144,11 +171,51 @@ public class GpioDigitalOutputPinDriverTest {
 		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
 		// when
-		final State state = gpioDigitalOutputPinDriver.execute(SWITCH_ON);
+		final State state = gpioDigitalOutputPinDriver.execute(SWITCH_ON, null);
 
 		// then
 		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(activePinState);
 		assertThat(state, is(ON));
+	}
+
+	@Test
+	@Parameters(method = "testParameterSets")
+	@TestCaseName("[{index}] {0}")
+	public void executeCommandOnWTimerShouldSetPinStateToActiveStateAndScheduleTimer(
+			final TestParameterSet testParameterSet) throws UndefinedCommandException {
+		final long timerDelay = 1800;
+		final PinState activePinState = testParameterSet.getActivePinState();
+		final PinState finalPinState = activePinState;
+		final Properties properties = new Properties();
+		properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
+		gpioDigitalOutputPinDriver.reinitForTest(properties);
+		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
+
+		// when
+		final State state = gpioDigitalOutputPinDriver.execute(Command.SWITCH_ON_W_TIMER, Long.toString(timerDelay));
+
+		// then
+		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(activePinState);
+		final ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
+		verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
+		assertThat(instantCaptor.getValue().getEpochSecond() * 1000d,
+				is(closeTo(currentTimeMillis() + timerDelay * 1000, 1000)));
+		assertThat(state, is(ON));
+	}
+
+	@Test
+	public void executeCommandToggleShouldCancelPreviousScheduledTaskWhenOneExists()
+			throws UndefinedCommandException, IllegalAccessException {
+		// given
+		final ScheduledFuture<?> timerTask = mock(ScheduledFuture.class);
+		writeField(gpioDigitalOutputPinDriver, "timerTask", timerTask, true);
+
+		// when
+		gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH, null);
+
+		// then
+		verify(timerTask).cancel(true);
+		assertThat(gpioDigitalOutputPinDriver.getTimerTask(), is(nullValue()));
 	}
 
 	@Test
@@ -166,7 +233,7 @@ public class GpioDigitalOutputPinDriverTest {
 		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState, finalPinState);
 
 		// when
-		final State state = gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH);
+		final State state = gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH, null);
 
 		// then
 		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(finalPinState);

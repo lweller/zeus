@@ -87,7 +87,7 @@ public class ScenarioService {
 					@Override
 					public void execute(final SendCommandAction action) {
 						try {
-							deviceService.sendCommand(action.getDevice(), action.getCommand());
+							deviceService.sendCommand(action.getDevice(), action.getCommand(), action.getData());
 						} catch (final UndefinedCommandException exception) {
 							throw new RuntimeException(exception);
 						}

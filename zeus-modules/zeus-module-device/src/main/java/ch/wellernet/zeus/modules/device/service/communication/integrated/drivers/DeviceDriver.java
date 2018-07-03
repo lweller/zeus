@@ -7,9 +7,9 @@ import ch.wellernet.zeus.modules.device.model.State;
 
 public interface DeviceDriver {
 
-	public void init();
-
-	public State execute(Command command) throws UndefinedCommandException;
+	public State execute(Command command, String data) throws UndefinedCommandException;
 
 	public Collection<Command> getSupportedCommands();
+
+	public void init();
 }

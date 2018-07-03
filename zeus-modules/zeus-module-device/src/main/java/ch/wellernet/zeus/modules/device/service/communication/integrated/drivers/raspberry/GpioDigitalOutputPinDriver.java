@@ -10,14 +10,19 @@ import static com.google.common.collect.Sets.immutableEnumSet;
 import static com.pi4j.io.gpio.PinState.LOW;
 import static com.pi4j.io.gpio.PinState.getInverseState;
 import static com.pi4j.io.gpio.RaspiPin.getPinByAddress;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
@@ -41,20 +46,14 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	public static final String PIN_PROPERTY = "pin";
 	public static final String ACTIVE_STATE_PROPERTY = "active-state";
 
-	@Autowired
-	private GpioController gpioController;
+	private @Autowired GpioController gpioController;
+	private @Autowired TaskScheduler taskScheduler;
 
-	@Getter
-	private final Properties properties;
-
-	@Getter
-	private PinState activePinState;
-
-	@Getter
-	private GpioPinDigitalOutput provisionedPin;
-
-	@Getter
-	private final Collection<Command> supportedCommands;
+	private @Getter final Properties properties;
+	private @Getter PinState activePinState;
+	private @Getter GpioPinDigitalOutput provisionedPin;
+	private @Getter final Collection<Command> supportedCommands;
+	private @Getter ScheduledFuture<?> timerTask;
 
 	public GpioDigitalOutputPinDriver(final Properties properties) {
 		this.properties = properties;
@@ -62,31 +61,39 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 	}
 
 	/**
-	 * @see ch.wellernet.zeus.server.drivers.raspberrypi.DeviceDriver#execute(ch.wellernet.zeus.modules.device.model.Command)
+	 * @see ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver#execute(ch.wellernet.zeus.modules.device.model.Command,
+	 *      java.lang.String)
 	 */
 	@Override
-	public State execute(final Command command) throws UndefinedCommandException {
-		final PinState targetPinState;
+	public synchronized State execute(final Command command, final String data) throws UndefinedCommandException {
 		switch (command) {
 		case SWITCH_ON:
-			targetPinState = activePinState;
+			setPinState(activePinState);
+			break;
+		case SWITCH_ON_W_TIMER:
+			setPinState(activePinState);
+			final String[] agrs = data.split("\\s");
+			final long timer;
+			if (agrs.length > 0) {
+				timer = parseLong(agrs[0]);
+			} else {
+				timer = 0;
+			}
+			timerTask = taskScheduler.schedule((Runnable) () -> {
+				setPinState(getInverseState(activePinState));
+			}, Instant.now().plus(timer, SECONDS));
 			break;
 		case SWITCH_OFF:
-			targetPinState = getInverseState(activePinState);
+			setPinState(getInverseState(activePinState));
 			break;
 		case TOGGLE_SWITCH:
-			targetPinState = getInverseState(provisionedPin.getState());
+			setPinState(getInverseState(provisionedPin.getState()));
 			break;
 		case GET_SWITCH_STATE:
-			targetPinState = null;
 			break;
 		default:
 			throw new UndefinedCommandException(
 					format("Commdand %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
-		}
-		if (targetPinState != null) {
-			log.info(format("setting pin %s to %s", provisionedPin.getName(), targetPinState));
-			provisionedPin.setState(targetPinState);
 		}
 		return provisionedPin.getState() == activePinState ? ON : OFF;
 	}
@@ -101,5 +108,14 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
 		final Pin pin = getPinByAddress(Integer.valueOf(properties.getProperty(PIN_PROPERTY)));
 		provisionedPin = gpioController.provisionDigitalOutputPin(pin, getInverseState(activePinState));
 		provisionedPin.setShutdownOptions(true, getInverseState(activePinState));
+	}
+
+	private synchronized void setPinState(final PinState pinState) {
+		log.info(format("setting pin %s to %s", provisionedPin.getName(), pinState));
+		provisionedPin.setState(pinState);
+		if (timerTask != null) {
+			timerTask.cancel(true);
+			timerTask = null;
+		}
 	}
 }

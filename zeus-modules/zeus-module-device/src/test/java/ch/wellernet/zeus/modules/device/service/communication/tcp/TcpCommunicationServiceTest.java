@@ -64,7 +64,7 @@ public class TcpCommunicationServiceTest {
 				Mockito.eq(format("%s %s", command, deviceId)));
 
 		// when
-		final State state = tcpCommunicationService.sendCommand(device, command);
+		final State state = tcpCommunicationService.sendCommand(device, command, null);
 
 		// then
 		assertThat(state, is(ON));
@@ -82,7 +82,7 @@ public class TcpCommunicationServiceTest {
 				Mockito.eq(format("%s %s", command, deviceId)));
 
 		// when
-		final State state = tcpCommunicationService.sendCommand(device, command);
+		final State state = tcpCommunicationService.sendCommand(device, command, null);
 
 		// then
 		assertThat(state, is(OFF));
@@ -100,7 +100,7 @@ public class TcpCommunicationServiceTest {
 				Mockito.eq(format("%s %s", command, deviceId)));
 
 		// when
-		final State state = tcpCommunicationService.sendCommand(device, command);
+		final State state = tcpCommunicationService.sendCommand(device, command, null);
 
 		// then
 		assertThat(state, is(UNKNOWN));
@@ -118,7 +118,7 @@ public class TcpCommunicationServiceTest {
 				Mockito.eq(format("%s %s", command, deviceId)));
 
 		// when
-		final State state = tcpCommunicationService.sendCommand(device, command);
+		final State state = tcpCommunicationService.sendCommand(device, command, null);
 
 		// then
 		assertThat(state, is(UNKNOWN));
@@ -133,7 +133,7 @@ public class TcpCommunicationServiceTest {
 		final Command command = SWITCH_ON;
 
 		// when
-		tcpCommunicationService.sendCommand(device, command);
+		tcpCommunicationService.sendCommand(device, command, null);
 
 		// then an exception is expected
 	}

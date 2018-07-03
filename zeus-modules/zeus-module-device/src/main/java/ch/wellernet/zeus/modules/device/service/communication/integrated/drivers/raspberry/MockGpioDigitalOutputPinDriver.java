@@ -10,12 +10,19 @@ import static com.google.common.collect.Sets.immutableEnumSet;
 import static com.pi4j.io.gpio.PinState.HIGH;
 import static com.pi4j.io.gpio.PinState.getInverseState;
 import static com.pi4j.io.gpio.RaspiPin.getPinByAddress;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
@@ -33,20 +40,14 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
 	public static final String PIN_PROPERTY = "pin";
 	public static final String ACTIVE_STATE_PROPERTY = "active-state";
 
-	@Getter
-	private final Properties properties;
+	private @Autowired TaskScheduler taskScheduler;
 
-	@Getter
-	private Pin pin;
-
-	@Getter
-	private PinState activePinState;
-
-	@Getter
-	private PinState currentState;
-
-	@Getter
-	private final Collection<Command> supportedCommands;
+	private @Getter final Properties properties;
+	private @Getter Pin pin;
+	private @Getter PinState activePinState;
+	private @Getter PinState currentState;
+	private @Getter final Collection<Command> supportedCommands;
+	private @Getter ScheduledFuture<?> timerTask;
 
 	public MockGpioDigitalOutputPinDriver(final Properties properties) {
 		this.properties = properties;
@@ -54,25 +55,35 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
 	}
 
 	/**
-	 * @see ch.wellernet.zeus.server.drivers.raspberrypi.DeviceDriver#execute(ch.wellernet.zeus.modules.device.model.Command)
+	 * @see ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver#execute(ch.wellernet.zeus.modules.device.model.Command,
+	 *      java.lang.String)
 	 */
 	@Override
-	public State execute(final Command command) throws UndefinedCommandException {
+	public synchronized State execute(final Command command, final String data) throws UndefinedCommandException {
 		switch (command) {
 		case SWITCH_ON:
-			currentState = activePinState;
-			log.info(String.format("setting pin %s to %s", pin, currentState));
+			setPinState(activePinState);
+			break;
+		case SWITCH_ON_W_TIMER:
+			setPinState(activePinState);
+			final String[] agrs = data.split("\\s");
+			final long timer;
+			if (agrs.length > 0) {
+				timer = parseLong(agrs[0]);
+			} else {
+				timer = 0;
+			}
+			timerTask = taskScheduler.schedule((Runnable) () -> {
+				setPinState(getInverseState(activePinState));
+			}, Instant.now().plus(timer, SECONDS));
 			break;
 		case SWITCH_OFF:
-			currentState = getInverseState(activePinState);
-			log.info(String.format("setting pin %s to %s", pin, currentState));
+			setPinState(getInverseState(activePinState));
 			break;
 		case TOGGLE_SWITCH:
-			currentState = getInverseState(currentState);
-			log.info(String.format("setting pin %s to %s", pin, currentState));
+			setPinState(getInverseState(currentState));
 			break;
 		case GET_SWITCH_STATE:
-			log.info(String.format("pin %s is %s", pin, currentState));
 			break;
 		default:
 			throw new UndefinedCommandException(
@@ -90,5 +101,14 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
 		pin = getPinByAddress(Integer.valueOf(properties.getProperty(PIN_PROPERTY)));
 		activePinState = PinState.valueOf(properties.getProperty(ACTIVE_STATE_PROPERTY, HIGH.name()));
 		currentState = getInverseState(activePinState);
+	}
+
+	private synchronized void setPinState(final PinState pinState) {
+		log.info(format("setting pin %s to %s", pin.getName(), pinState));
+		currentState = pinState;
+		if (timerTask != null) {
+			timerTask.cancel(true);
+			timerTask = null;
+		}
 	}
 }

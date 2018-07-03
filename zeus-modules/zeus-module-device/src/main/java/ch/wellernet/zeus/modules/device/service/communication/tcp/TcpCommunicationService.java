@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +55,8 @@ public class TcpCommunicationService implements CommunicationService {
 	}
 
 	@Override
-	public State sendCommand(final Device device, final Command command) throws UndefinedCommandException {
+	public State sendCommand(final Device device, final Command command, final String data)
+			throws UndefinedCommandException {
 		if (!(device.getControlUnit().getAddress() instanceof TcpControlUnitAddress)) {
 			throw new IllegalStateException("TcpCommunicationSerice requires a TcpContrlUnitAddress");
 		}
@@ -62,7 +64,8 @@ public class TcpCommunicationService implements CommunicationService {
 		State state = UNKNOWN;
 		Response response = null;
 		try {
-			response = send(address, format("%s %s", command, device.getId()));
+			response = send(address,
+					format("%s %s %s", command, device.getId(), Optional.ofNullable(data).orElse("")).trim());
 			if (response.getState() == TcpState.NOK) {
 				log.warn("execution of command {} was not successful for device '{}'", command, device);
 			}

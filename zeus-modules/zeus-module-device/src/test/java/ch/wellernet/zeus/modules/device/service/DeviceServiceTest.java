@@ -41,7 +41,21 @@ public class DeviceServiceTest {
 	private @MockBean CommunicationServiceRegistry communicationServiceRegistry;
 
 	@Test
-	public void sendCommandShouldTransmitCommandToCommunicationService() throws UndefinedCommandException {
+	public void sendCommandShouldTransmitCommandWithDataToCommunicationService() throws UndefinedCommandException {
+		// given
+		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
+		final String data = "some data";
+
+		// when
+		deviceService.sendCommand(DEVICE, GET_SWITCH_STATE, data);
+
+		// then
+		verify(comunicationService).sendCommand(DEVICE, GET_SWITCH_STATE, data);
+		verify(deviceRepository).save(DEVICE);
+	}
+
+	@Test
+	public void sendCommandShouldTransmitCommandWithoutDataToCommunicationService() throws UndefinedCommandException {
 		// given
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 
@@ -49,7 +63,7 @@ public class DeviceServiceTest {
 		deviceService.sendCommand(DEVICE, GET_SWITCH_STATE);
 
 		// then
-		verify(comunicationService).sendCommand(DEVICE, GET_SWITCH_STATE);
+		verify(comunicationService).sendCommand(DEVICE, GET_SWITCH_STATE, null);
 		verify(deviceRepository).save(DEVICE);
 	}
 }

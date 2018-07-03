@@ -20,14 +20,19 @@ public class DeviceService {
 	private @Autowired DeviceRepository deviceRepository;
 	private @Autowired CommunicationServiceRegistry communicationServiceRegistry;
 
-	public Device sendCommand(final Device device, Command command) throws UndefinedCommandException {
+	public Device sendCommand(final Device device, final Command command) throws UndefinedCommandException {
+		return sendCommand(device, command, null);
+	}
+
+	public Device sendCommand(final Device device, Command command, final String data)
+			throws UndefinedCommandException {
 		if (command == null) {
 			command = device.getType().getMainCommand();
 		}
 
 		final State newState = communicationServiceRegistry
 				.findByName(device.getControlUnit().getAddress().getCommunicationServiceName())
-				.sendCommand(device, command);
+				.sendCommand(device, command, data);
 		device.setState(newState);
 		return deviceRepository.save(device);
 	}

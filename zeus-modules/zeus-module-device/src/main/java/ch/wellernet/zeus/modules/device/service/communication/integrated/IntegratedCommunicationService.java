@@ -18,11 +18,17 @@ import lombok.Value;
 
 public class IntegratedCommunicationService implements CommunicationService {
 
+	@Value
+	static class DeviceCommandKey {
+		private final UUID deviceId;
+		private final Command command;
+	}
+
 	public static final String NAME = "serivce.communication.integrated";
 
 	private final Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping;
 
-	public IntegratedCommunicationService(Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping) {
+	public IntegratedCommunicationService(final Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping) {
 		this.deviceDriverMapping = unmodifiableMap(deviceDriverMapping);
 
 	}
@@ -33,19 +39,14 @@ public class IntegratedCommunicationService implements CommunicationService {
 	}
 
 	@Override
-	public Collection<Device> scanDevices(ControlUnit controlUnit) {
+	public Collection<Device> scanDevices(final ControlUnit controlUnit) {
 		return unmodifiableCollection(controlUnit.getDevices());
 	}
 
 	@Override
-	public State sendCommand(Device device, Command command) throws UndefinedCommandException {
-		return deviceDriverMapping.get(new DeviceCommandKey(device.getId(), command)).execute(command);
-	}
-
-	@Value
-	static class DeviceCommandKey {
-		private final UUID deviceId;
-		private final Command command;
+	public State sendCommand(final Device device, final Command command, final String data)
+			throws UndefinedCommandException {
+		return deviceDriverMapping.get(new DeviceCommandKey(device.getId(), command)).execute(command, data);
 	}
 
 }

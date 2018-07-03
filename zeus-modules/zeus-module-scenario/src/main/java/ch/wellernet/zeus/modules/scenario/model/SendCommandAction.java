@@ -25,12 +25,15 @@ import lombok.NoArgsConstructor;
 public class SendCommandAction extends Action {
 	private @ManyToOne(cascade = { PERSIST, DETACH, MERGE, REFRESH }) Device device;
 	private Command command;
+	private String data;
 
 	@Builder
-	private SendCommandAction(final UUID id, final String name, final Device device, final Command command) {
+	private SendCommandAction(final UUID id, final String name, final Device device, final Command command,
+			final String data) {
 		super(id, name);
 		this.device = device;
 		this.command = command;
+		this.data = data;
 	}
 
 	@Override
