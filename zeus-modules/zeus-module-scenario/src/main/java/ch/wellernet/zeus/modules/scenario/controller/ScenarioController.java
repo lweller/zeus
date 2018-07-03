@@ -1,6 +1,6 @@
 package ch.wellernet.zeus.modules.scenario.controller;
 
-import static ch.wellernet.zeus.modules.scenario.controller.EventController.API_PATH;
+import static ch.wellernet.zeus.modules.scenario.controller.ScenarioController.API_PATH;
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -20,55 +20,42 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.wellernet.zeus.modules.device.model.Device;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
-import ch.wellernet.zeus.modules.scenario.model.Event;
-import ch.wellernet.zeus.modules.scenario.service.EventService;
+import ch.wellernet.zeus.modules.scenario.model.Scenario;
+import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepository;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @RestController
 @CrossOrigin
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
-public class EventController implements ScenarioApiV1Controller {
+public class ScenarioController implements ScenarioApiV1Controller {
 
-	static final String API_PATH = API_ROOT_PATH + "/events";
+	static final String API_PATH = API_ROOT_PATH + "/scenarios";
 
-	private @Autowired EventService eventService;
+	private @Autowired ScenarioRepository scenarioRepository;
 
-	@ApiOperation("Finds all registrered events.")
+	@ApiOperation("Finds all scenarios.")
 	@GetMapping
-	public ResponseEntity<Collection<Event>> findAll() {
-		return ResponseEntity.status(OK).body(newArrayList(eventService.findAll()));
+	public ResponseEntity<Collection<Scenario>> findAll() {
+		return ResponseEntity.status(OK).body(newArrayList(scenarioRepository.findAll()));
 	}
 
-	@ApiOperation("Finds event by its UUID.")
+	@ApiOperation("Finds scenario by its UUID.")
 	@GetMapping("/{id}")
-	public ResponseEntity<Event> findById(
-			@ApiParam(value = "Event UUID", required = true) @PathVariable(required = true) final UUID id)
+	public ResponseEntity<Scenario> findById(
+			@ApiParam(value = "Scenario UUID", required = true) @PathVariable(required = true) final UUID id)
 			throws NoSuchElementException {
-		return ResponseEntity.status(OK).body(eventService.findById(id).get());
-	}
-
-	@ApiOperation("Fires immediatly an event.")
-	@ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
-	@PostMapping(value = "/{id}!fire")
-	public ResponseEntity<Event> fire(
-			@ApiParam(value = "Event UUID", required = true) @PathVariable(required = true) final UUID id)
-			throws NoSuchElementException, UndefinedCommandException {
-		return ResponseEntity.status(OK).body(eventService.fireEvent(id));
+		return ResponseEntity.status(OK).body(scenarioRepository.findById(id).get());
 	}
 
 	@ExceptionHandler({ NoSuchElementException.class })
 	public ResponseEntity<String> handleNoSuchElementException() {
-		return ResponseEntity.status(NOT_FOUND).body("cannot find event");
+		return ResponseEntity.status(NOT_FOUND).body("cannot find scenario");
 	}
 
 	@ExceptionHandler({ OptimisticLockException.class })
