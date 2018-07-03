@@ -329,7 +329,8 @@ public class ScenarioServiceTest {
 						(Arc) OutputArc.builder().weight(3).state(outputState).build()))
 				.actions(newHashSet(SendCommandAction.builder().device(device).command(command).build())).build();
 		given(transitionRepository.findById(transitionId)).willReturn(Optional.of(transition));
-		given(deviceService.sendCommand(device, command)).willThrow(new UndefinedCommandException("command not found"));
+		given(deviceService.sendCommand(device, command, null))
+				.willThrow(new UndefinedCommandException("command not found"));
 
 		// when
 		scenarioService.fireTransition(transitionId);
@@ -369,7 +370,7 @@ public class ScenarioServiceTest {
 		assertThat(outputState.getCount(), is(3));
 		verify(stateRepository).save(outputState);
 		// actions should have executed
-		verify(deviceService).sendCommand(device, command);
+		verify(deviceService).sendCommand(device, command, null);
 		// next automatic transition should have been called recursively
 		verify(scenarioService).fireTransition(nextAutomaticTransition);
 		// but not next event driven transition
