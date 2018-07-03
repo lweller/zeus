@@ -26,7 +26,7 @@ IPAddress subnet(255, 255, 255, 0);
 
 void initWifi() {
 	WiFi.config(ip, gateway, subnet);
-	WiFi.begin("WELLERNET", "Up3ieW0EeF");
+	WiFi.begin("xxx", "xxx");
 	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
 		delay(500);
 		Serial.print(".");

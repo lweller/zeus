@@ -14,6 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -27,7 +29,7 @@ public class Transition {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-	private @OneToMany(cascade = ALL, mappedBy = "transition") Set<Arc> arcs;
+	private @OneToMany(cascade = ALL, mappedBy = "transition") @JsonIgnore Set<Arc> arcs;
 	private @OneToMany(cascade = ALL, orphanRemoval = true) Set<Action> actions;
 	private @Version long version;
 

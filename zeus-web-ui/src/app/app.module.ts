@@ -16,13 +16,15 @@ import localeFr from '@angular/common/locales/fr';
 
 import {AppComponent} from './app.component';
 import {DevicesComponent} from './component/device/devices.component';
-import {EventsComponent} from './component/scenario/events.component';
+import {EventsComponent} from './component/event/events.component';
+import {ScenariosComponent} from './component/scenario/scenarios.component';
 import {MessageBoxComponent} from './component/message-box/message-box.component';
 import {DeviceService} from './service/device.service';
 import {EventService} from './service/event.service';
+import {ScenarioService} from './service/scenario.service';
 import {MessageService} from './service/message.service';
-import { NavigationBarComponent } from './component/navigation-bar/navigation-bar.component';
-import { EditableLabelComponent } from './component/editable-label/editable-label.component';
+import {NavigationBarComponent} from './component/navigation-bar/navigation-bar.component';
+import {EditableLabelComponent} from './component/editable-label/editable-label.component';
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
@@ -53,6 +55,7 @@ const translations = navigator.language || 'en_US';
     AppComponent,
     DevicesComponent,
     EventsComponent,
+    ScenariosComponent,
     MessageBoxComponent,
     NavigationBarComponent,
     EditableLabelComponent
@@ -77,6 +80,7 @@ const translations = navigator.language || 'en_US';
     TranslateService,
     DeviceService,
     EventService,
+    ScenarioService,
     MessageService
   ],
   bootstrap: [AppComponent]

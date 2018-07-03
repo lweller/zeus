@@ -1,0 +1,10 @@
+<ul class="list">
+  <li
+    class="entry"
+    *ngFor="let scenario of scenarios">
+    <app-editable-label
+      class="name"
+      [value]="scenario.name"
+      (finishedEditing)="event.name = $event; update(scenario)"></app-editable-label>
+  </li>
+</ul>

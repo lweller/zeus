@@ -11,5 +11,6 @@ public class WebUIConfiguration implements WebMvcConfigurer {
 	public void addViewControllers(final ViewControllerRegistry registry) {
 		registry.addViewController("/devices/**").setViewName("forward:/");
 		registry.addViewController("/events/**").setViewName("forward:/");
+		registry.addViewController("/scenarios/**").setViewName("forward:/");
 	}
 }

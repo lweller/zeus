@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +27,7 @@ public class State {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-	private @OneToMany(cascade = ALL, mappedBy = "state") Set<Arc> arcs;
+	private @OneToMany(cascade = ALL, mappedBy = "state") @JsonIgnore Set<Arc> arcs;
 	private int maxCount;
 	private int initialCount;
 	private int count;
