@@ -110,7 +110,12 @@ public class TcpCommunicationService implements CommunicationService {
 		Socket socket = null;
 		try {
 			socket = createSocket(address);
-			new DataOutputStream(socket.getOutputStream()).writeBytes(request);
+			final DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+			dataOutputStream.writeBytes(request);
+			if (request.endsWith("\\n")) {
+				dataOutputStream.writeBytes("\\n");
+			}
+			dataOutputStream.flush();
 			return parseResponse(new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine());
 		} finally {
 			if (socket != null) {
