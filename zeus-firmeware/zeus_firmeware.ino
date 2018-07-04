@@ -2,9 +2,9 @@
 
 #include "includes/Helper.h"
 
-//#include "MainControlUnit.h"
+#include "MainControlUnit.h"
 //#include "SubControlUnit1.h"
-#include "SubControlUnit2.h"
+//#include "SubControlUnit2.h"
 
 Communication* communication;
 

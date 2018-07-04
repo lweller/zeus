@@ -41,18 +41,16 @@ String WireProxyDriver::executeCommand(String* command, String* data) {
 	Wire.println();
 	Wire.endTransmission();
 	delay(100);
-	Wire.requestFrom(this->address, 32);
+	Wire.requestFrom(this->address, 10);
 	String response = "";
 	while (Wire.available()) {
 		char c = Wire.read();
 		response += c;
-		if(c == '\n') {
-			break;
-		}
 	}
 	unsigned int index0 = nextArgument(&response, 0);
 	if (response.substring(0, index0).equals("OK")) {
-		String state = response.substring(index0);
+		unsigned int index1 = nextArgument(&response, index0);
+		String state = response.substring(index0, index1);
 		state.trim();
 		return state;
 	} else {
