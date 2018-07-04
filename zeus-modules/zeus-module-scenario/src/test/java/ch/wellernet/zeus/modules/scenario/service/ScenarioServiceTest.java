@@ -33,6 +33,7 @@ import ch.wellernet.zeus.modules.scenario.model.EventDrivenTransition;
 import ch.wellernet.zeus.modules.scenario.model.InhibitionArc;
 import ch.wellernet.zeus.modules.scenario.model.InputArc;
 import ch.wellernet.zeus.modules.scenario.model.OutputArc;
+import ch.wellernet.zeus.modules.scenario.model.Scenario;
 import ch.wellernet.zeus.modules.scenario.model.SendCommandAction;
 import ch.wellernet.zeus.modules.scenario.model.State;
 import ch.wellernet.zeus.modules.scenario.model.Transition;
@@ -172,7 +173,7 @@ public class ScenarioServiceTest {
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true, false).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = AutomaticTransition.builder()
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
 				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
 						(Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build(),
 						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
@@ -191,7 +192,7 @@ public class ScenarioServiceTest {
 		doReturn(true, false).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = AutomaticTransition.builder()
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
 				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
 						(Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build(),
 						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
@@ -210,7 +211,26 @@ public class ScenarioServiceTest {
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true, false).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = AutomaticTransition.builder()
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
+				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
+						(Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build(),
+						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
+				.build();
+
+		// when
+		final boolean result = scenarioService.canFireTransition(transition);
+
+		// then
+		assertThat(result, is(false));
+	}
+
+	@Test
+	public void canFireTransitionShouldReturnFalseWhenScenarioIsDisabled() {
+		// given
+		doReturn(true).when(scenarioService).canFireInputArc(any());
+		doReturn(true).when(scenarioService).canFireOutputArc(any());
+		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(false).build())
 				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
 						(Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build(),
 						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
@@ -229,7 +249,7 @@ public class ScenarioServiceTest {
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = AutomaticTransition.builder()
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
 				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
 						(Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build(),
 						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
@@ -247,8 +267,9 @@ public class ScenarioServiceTest {
 		// given
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
-		final Transition transition = AutomaticTransition.builder().arcs(newHashSet((Arc) InputArc.builder().build(),
-				(Arc) InputArc.builder().build(), (Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build()))
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
+				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
+						(Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build()))
 				.build();
 
 		// when
@@ -263,7 +284,7 @@ public class ScenarioServiceTest {
 		// given
 		doReturn(true).when(scenarioService).canFireOutputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = AutomaticTransition.builder()
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
 				.arcs(newHashSet((Arc) OutputArc.builder().build(), (Arc) OutputArc.builder().build(),
 						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
 				.build();
@@ -280,7 +301,7 @@ public class ScenarioServiceTest {
 		// given
 		doReturn(true).when(scenarioService).canFireInputArc(any());
 		doReturn(true).when(scenarioService).canFireInhibitionArc(any());
-		final Transition transition = AutomaticTransition.builder()
+		final Transition transition = AutomaticTransition.builder().scenario(Scenario.builder().enabled(true).build())
 				.arcs(newHashSet((Arc) InputArc.builder().build(), (Arc) InputArc.builder().build(),
 						(Arc) InhibitionArc.builder().build(), (Arc) InhibitionArc.builder().build()))
 				.build();
@@ -293,7 +314,7 @@ public class ScenarioServiceTest {
 	}
 
 	@Test
-	public void fireTransitionShouldChangeNothingWhenIfItCannotFire() {
+	public void fireTransitionShouldChangeNothingWhenItCannotFire() {
 		// given
 		doReturn(false).when(scenarioService).canFireTransition(any());
 		final State inputState = State.builder().initialCount(1).build();

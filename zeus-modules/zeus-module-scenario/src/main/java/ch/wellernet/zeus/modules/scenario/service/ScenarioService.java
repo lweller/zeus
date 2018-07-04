@@ -57,6 +57,9 @@ public class ScenarioService {
 	}
 
 	boolean canFireTransition(final Transition transition) {
+		if (!transition.getScenario().isEnabled()) {
+			return false;
+		}
 		boolean result = true;
 		for (final Arc arc : transition.getArcs()) {
 			result &= arc.dispatch(new Arc.Dispatcher<Boolean>() {

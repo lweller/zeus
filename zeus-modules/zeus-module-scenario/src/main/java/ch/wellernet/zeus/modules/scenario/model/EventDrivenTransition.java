@@ -23,9 +23,9 @@ public class EventDrivenTransition extends Transition {
 	private @ManyToOne(cascade = { DETACH, REFRESH }) Event event;;
 
 	@Builder
-	protected EventDrivenTransition(final UUID id, final String name, final Event event, final Set<Arc> arcs,
-			final Set<Action> actions) {
-		super(id, name, false, arcs, actions);
+	protected EventDrivenTransition(final UUID id, final String name, final Scenario scenario, final Event event,
+			final Set<Arc> arcs, final Set<Action> actions) {
+		super(id, name, scenario, false, arcs, actions);
 		this.event = event;
 	}
 }

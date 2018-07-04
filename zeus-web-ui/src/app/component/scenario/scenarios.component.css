@@ -11,14 +11,42 @@
 
 .entry {
 	position: relative;
-	background-color: #eeeeee;
+	cursor: hand;
+	cursor: pointer;
+	background-color: #EEEEEE;
 	margin: 0.5em;
-	padding: .5em .5em;
-	min-height: 2em;
+	padding: .5em 0;
+	height: 2em;
 	border-radius: 4px;
+}
+
+.entry .state {
+	display: inline-block;
+	font-size: small;
+	line-height: 1em;
+	position: relative;
+	padding: 1.4em 0.7em 0 0.7em;
+	left: -.1em;
+	top: -.6em;
+	margin: 0 .5em 0 0;
+	height: 2.2em;
+	min-width: 30px;
+	text-align: center;
+	border-radius: 4px 0 0 4px;
+	-webkit-user-select: none; /* Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+	user-select: none;
+}
+
+.disabled {
+	background-color: #c0c0c0 !important;
+	color: black !important;
 }
 
 .entry .name {
 	display: inline-block;
-	width: 100%;
+	position: relative;
+	top: -.4em;
+	width: 75%;
 }

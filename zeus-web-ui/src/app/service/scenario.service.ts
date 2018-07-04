@@ -19,4 +19,40 @@ export class ScenarioService {
   findAll(): Observable<Scenario[]> {
     return this.httpClient.get<Scenario[]>(`${environment.zeusServerScenarioApiBaseUri}/scenarios`);
   }
+
+  toggleEnabling(scenario: Scenario): Observable<Scenario> {
+    let message;
+    return this.httpClient.post<Scenario>(`${environment.zeusServerScenarioApiBaseUri}/scenarios/${scenario.id}!toggleEnabling`,
+      {headers: new HttpHeaders().set('If-Match', `${scenario.version}`)})
+      .catch((error: HttpErrorResponse) => {
+        switch (error.status) {
+          case PRECONDITION_FAILED:
+            this.translateService.get('Data has not been updated due to concurent modifications.')
+              .subscribe(result => message = result);
+            this.messageService.displayError(message);
+            const reloadedScenario: Scenario = error.error;
+            reloadedScenario.$error = true;
+            return Observable.of(reloadedScenario);
+          default:
+            this.translateService.get('Sorry, an unexpected error happend !')
+              .subscribe(result => message = result);
+            this.messageService.displayError(message);
+            scenario.$error = true;
+            return Observable.of(scenario);
+        }
+      })
+      .pipe(tap(reloadedScenario => {/*
+        scenario.$editing = false;
+        if (!reloadedScenario.$error) {
+          if (reloadedScenario.enabled) {
+            this.translateService.get('The scenario \'{name}\' has been enabled.', {name: scenario.name})
+              .subscribe(result => message = result);
+          } else {
+            this.translateService.get('The scenario \'{name}\' has been disabled.', {name: scenario.name})
+              .subscribe(result => message = result);
+          }
+          this.messageService.displayInfo(message);
+        }*/
+      }));
+  }
 }

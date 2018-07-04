@@ -2,6 +2,9 @@
   <li
     class="entry"
     *ngFor="let scenario of scenarios">
+    <span
+      class="state" [@state-changed]="getState(scenario)"
+      (click)="toggleEnabling(scenario)">{{scenario.enabled ? 'O' : 'X'}}</span>
     <app-editable-label
       class="name"
       [value]="scenario.name"

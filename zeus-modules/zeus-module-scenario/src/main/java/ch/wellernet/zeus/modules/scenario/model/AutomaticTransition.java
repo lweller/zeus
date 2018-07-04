@@ -15,7 +15,8 @@ import lombok.NoArgsConstructor;
 public class AutomaticTransition extends Transition {
 
 	@Builder
-	protected AutomaticTransition(final UUID id, final String name, final Set<Arc> arcs, final Set<Action> actions) {
-		super(id, name, true, arcs, actions);
+	protected AutomaticTransition(final UUID id, final String name, final Scenario scenario, final Set<Arc> arcs,
+			final Set<Action> actions) {
+		super(id, name, scenario, true, arcs, actions);
 	}
 }

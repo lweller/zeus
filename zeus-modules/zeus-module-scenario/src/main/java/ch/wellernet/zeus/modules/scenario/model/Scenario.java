@@ -26,14 +26,17 @@ public class Scenario {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
-	private @OneToMany(cascade = ALL, orphanRemoval = true) Set<State> states;
-	private @OneToMany(cascade = ALL, orphanRemoval = true) Set<Transition> transitions;
+	private boolean enabled;
+	private @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "scenario") Set<State> states;
+	private @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "scenario") Set<Transition> transitions;
 	private @Version long version;
 
 	@Builder
-	protected Scenario(final UUID id, final String name, final Set<State> states, final Set<Transition> transitions) {
+	protected Scenario(final UUID id, final String name, final Boolean enabled, final Set<State> states,
+			final Set<Transition> transitions) {
 		this.id = id;
 		this.name = name;
+		this.enabled = enabled == null ? true : enabled;
 		this.states = states == null ? new HashSet<>() : states;
 		this.transitions = transitions == null ? new HashSet<>() : transitions;
 	}

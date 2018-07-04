@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +29,8 @@ import ch.wellernet.zeus.modules.scenario.model.Scenario;
 import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepository;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
 @CrossOrigin
@@ -61,5 +64,30 @@ public class ScenarioController implements ScenarioApiV1Controller {
 	@ExceptionHandler({ OptimisticLockException.class })
 	public ResponseEntity<Device> handleOptimisticLockException(final OptimisticLockException exception) {
 		return ResponseEntity.status(PRECONDITION_FAILED).body((Device) exception.getEntity());
+	}
+
+	@ApiOperation("Toggles enabling state of scenario, i.e. disable it if it is enabling and vice versa.")
+	@ApiResponses(@ApiResponse(code = 412, message = "Concurent modification"))
+	@PostMapping("/{id}!toggleEnabling")
+	public ResponseEntity<Scenario> toggleEnabling(
+			@ApiParam(value = "Scenario UUID", required = true) @PathVariable(required = true) final UUID id)
+			throws NoSuchElementException, OptimisticLockException {
+		final Scenario scenario = findScenario(id);
+		scenario.setEnabled(!scenario.isEnabled());
+		scenarioRepository.save(scenario);
+
+		return ResponseEntity.status(OK).body(scenario);
+	}
+
+	private Scenario findScenario(final UUID id) {
+		return findScenario(id, null);
+	}
+
+	private Scenario findScenario(final UUID id, final Long version) throws OptimisticLockException {
+		final Scenario scenario = scenarioRepository.findById(id).get();
+		if (version != null && scenario.getVersion() != version) {
+			throw new OptimisticLockException(scenario);
+		}
+		return scenario;
 	}
 }

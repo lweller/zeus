@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
@@ -16,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,5 +104,35 @@ public class ScenarioControllerTest {
 
 		// then
 		assertThat(response.getStatusCode(), is(NOT_FOUND));
+	}
+
+	@Test
+	public void toggleEnablingShouldDisableScenarioWhenIfItIsEnabled() {
+		final UUID scenarioId = UUID.randomUUID();
+		final Scenario scenario = Scenario.builder().id(randomUUID()).name("Enabled scenario").id(scenarioId)
+				.enabled(true).build();
+		given(scenarioRepository.findById(scenarioId)).willReturn(Optional.of(scenario));
+
+		// when
+		final ResponseEntity<Scenario> response = scenarioController.toggleEnabling(scenarioId);
+
+		// then
+		verify(scenarioRepository).save(scenario);
+		assertThat(response.getBody().isEnabled(), is(false));
+	}
+
+	@Test
+	public void toggleEnablingShouldEnableScenarioWhenIfItIsDisabled() {
+		final UUID scenarioId = UUID.randomUUID();
+		final Scenario scenario = Scenario.builder().id(randomUUID()).name("Disabled scenario").id(scenarioId)
+				.enabled(false).build();
+		given(scenarioRepository.findById(scenarioId)).willReturn(Optional.of(scenario));
+
+		// when
+		final ResponseEntity<Scenario> response = scenarioController.toggleEnabling(scenarioId);
+
+		// then
+		verify(scenarioRepository).save(scenario);
+		assertThat(response.getBody().isEnabled(), is(true));
 	}
 }

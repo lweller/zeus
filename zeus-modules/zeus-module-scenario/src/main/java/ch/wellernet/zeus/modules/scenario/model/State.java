@@ -1,6 +1,10 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
 import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
@@ -10,6 +14,7 @@ import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
 
@@ -27,6 +32,7 @@ public class State {
 
 	private @Id @Setter(PRIVATE) UUID id;
 	private String name;
+	private @ManyToOne(cascade = { PERSIST, MERGE, REFRESH, DETACH }) @JsonIgnore Scenario scenario;
 	private @OneToMany(cascade = ALL, mappedBy = "state") @JsonIgnore Set<Arc> arcs;
 	private int maxCount;
 	private int initialCount;
@@ -34,9 +40,11 @@ public class State {
 	private @Version long version;
 
 	@Builder
-	protected State(final UUID id, final String name, final Set<Arc> arcs, final int maxCount, final int initialCount) {
+	protected State(final UUID id, final String name, final Scenario scenario, final Set<Arc> arcs, final int maxCount,
+			final int initialCount) {
 		this.id = id;
 		this.name = name;
+		this.scenario = scenario;
 		this.arcs = arcs == null ? new HashSet<>() : arcs;
 		this.arcs.forEach(arc -> {
 			arc.setState(this);
