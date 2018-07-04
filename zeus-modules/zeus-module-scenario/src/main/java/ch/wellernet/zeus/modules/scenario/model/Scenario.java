@@ -38,6 +38,8 @@ public class Scenario {
 		this.name = name;
 		this.enabled = enabled == null ? true : enabled;
 		this.states = states == null ? new HashSet<>() : states;
+		this.states.forEach(state -> state.setScenario(this));
 		this.transitions = transitions == null ? new HashSet<>() : transitions;
+		this.transitions.forEach(transition -> transition.setScenario(this));
 	}
 }
