@@ -33,7 +33,9 @@ import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.DeviceService;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -46,6 +48,9 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
 public class DeviceController implements DeviceApiV1Controller {
+	static final int COMMUNICATION_NOT_SUCCESSFUL = 901;
+	static final int COMMUNICATION_INTERRUPTED = 902;
+
 	static final String API_PATH = API_ROOT_PATH + "/devices";
 
 	private @Autowired DeviceRepository deviceRepository;
@@ -68,6 +73,18 @@ public class DeviceController implements DeviceApiV1Controller {
 		return ResponseEntity.status(OK).body(deviceRepository.findById(id).get());
 	}
 
+	@ExceptionHandler({ CommunicationInterruptedException.class })
+	public ResponseEntity<String> handleCommunicationInterruptedException(
+			final CommunicationInterruptedException exception) {
+		return ResponseEntity.status(COMMUNICATION_INTERRUPTED).body(exception.getMessage());
+	}
+
+	@ExceptionHandler({ CommunicationNotSuccessfulException.class })
+	public ResponseEntity<String> handleCommunicationNotSuccessfulException(
+			final CommunicationNotSuccessfulException exception) {
+		return ResponseEntity.status(COMMUNICATION_NOT_SUCCESSFUL).body(exception.getMessage());
+	}
+
 	@ExceptionHandler({ NoSuchElementException.class })
 	public ResponseEntity<String> handleNoSuchElementException() {
 		return ResponseEntity.status(NOT_FOUND).body("cannot find device");
@@ -84,13 +101,17 @@ public class DeviceController implements DeviceApiV1Controller {
 	}
 
 	@ApiOperation("Executes a command for a given device.")
-	@ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
+	@ApiResponses({ @ApiResponse(code = 400, message = "Operation is invalid"),
+			@ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Sommunitation with device was not successful, but devices is still in a "
+					+ "well defined state. For example this can happen, when deviced is not reachable"),
+			@ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communitation could not terminated leaving device possibly in a undefined state.") })
 	@PostMapping(value = "/{id}!sendCommand")
 	public ResponseEntity<Device> sendCommand(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
 			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) final Command command)
-			throws NoSuchElementException, UndefinedCommandException {
-		return ResponseEntity.status(OK).body(deviceService.sendCommand(findDevice(id), command));
+			throws NoSuchElementException, UndefinedCommandException, CommunicationInterruptedException {
+		final Device updatedDevice = deviceService.sendCommand(findDevice(id), command);
+		return ResponseEntity.status(OK.value()).body(updatedDevice);
 	}
 
 	@ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")

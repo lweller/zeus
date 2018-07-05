@@ -6,7 +6,6 @@ import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 
 public interface CommunicationService {
 
@@ -14,5 +13,6 @@ public interface CommunicationService {
 
 	public Collection<Device> scanDevices(ControlUnit controlUnit);
 
-	public State sendCommand(Device device, Command command, String data) throws UndefinedCommandException;
+	public State sendCommand(Device device, Command command, String data)
+			throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException;
 }

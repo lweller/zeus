@@ -1,4 +1,4 @@
-package ch.wellernet.zeus.modules.device.service.communication.integrated.drivers;
+package ch.wellernet.zeus.modules.device.service.communication;
 
 public class UndefinedCommandException extends Exception {
 

@@ -1,5 +1,7 @@
 package ch.wellernet.zeus.modules.device.controller;
 
+import static ch.wellernet.zeus.modules.device.controller.DeviceController.COMMUNICATION_INTERRUPTED;
+import static ch.wellernet.zeus.modules.device.controller.DeviceController.COMMUNICATION_NOT_SUCCESSFUL;
 import static ch.wellernet.zeus.modules.device.model.BuiltInDeviceType.GENERIC_SWITCH;
 import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
 import static ch.wellernet.zeus.modules.device.model.State.ON;
@@ -36,9 +38,11 @@ import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.DeviceService;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationServiceRegistry;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 
 @SpringBootTest(classes = DeviceController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
@@ -116,6 +120,30 @@ public class DeviceControllerTest {
 	}
 
 	@Test
+	public void handleCommunicationInterruptedExceptionShouldReturnCommunicationInterruptedStatus() {
+		// given nothing special
+
+		// when
+		final ResponseEntity<String> response = deviceController.handleCommunicationInterruptedException(
+				new CommunicationInterruptedException("something went terribly wrong!"));
+
+		// then
+		assertThat(response.getStatusCodeValue(), is(COMMUNICATION_INTERRUPTED));
+	}
+
+	@Test
+	public void handleCommunicationNotSuccessfulExceptionShouldReturnCommunicationNotSuccessfulStatus() {
+		// given nothing special
+
+		// when
+		final ResponseEntity<String> response = deviceController.handleCommunicationNotSuccessfulException(
+				new CommunicationNotSuccessfulException("can't do it, sorry", ON));
+
+		// then
+		assertThat(response.getStatusCodeValue(), is(COMMUNICATION_NOT_SUCCESSFUL));
+	}
+
+	@Test
 	public void handleNoSuchElementExceptionShouldReturnNotFoundStatus() {
 		// given nothing special
 
@@ -138,7 +166,8 @@ public class DeviceControllerTest {
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void sendCommandShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists() throws UndefinedCommandException {
+	public void sendCommandShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
@@ -150,7 +179,8 @@ public class DeviceControllerTest {
 	}
 
 	@Test
-	public void sendCommandShouldTransmitCommandToCommunicationService() throws UndefinedCommandException {
+	public void sendCommandShouldTransmitCommandToCommunicationService()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
 

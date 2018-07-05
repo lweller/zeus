@@ -12,8 +12,8 @@ import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 import lombok.Value;
 
 public class IntegratedCommunicationService implements CommunicationService {

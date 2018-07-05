@@ -18,9 +18,11 @@ import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.ControlUnitAddress;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationServiceRegistry;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 
 @SpringBootTest(classes = DeviceService.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
@@ -41,7 +43,8 @@ public class DeviceServiceTest {
 	private @MockBean CommunicationServiceRegistry communicationServiceRegistry;
 
 	@Test
-	public void sendCommandShouldTransmitCommandWithDataToCommunicationService() throws UndefinedCommandException {
+	public void sendCommandShouldTransmitCommandWithDataToCommunicationService()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 		final String data = "some data";
@@ -55,7 +58,8 @@ public class DeviceServiceTest {
 	}
 
 	@Test
-	public void sendCommandShouldTransmitCommandWithoutDataToCommunicationService() throws UndefinedCommandException {
+	public void sendCommandShouldTransmitCommandWithoutDataToCommunicationService()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
 

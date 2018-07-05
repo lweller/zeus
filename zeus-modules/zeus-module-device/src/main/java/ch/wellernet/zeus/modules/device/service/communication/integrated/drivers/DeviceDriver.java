@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.State;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 
 public interface DeviceDriver {
 

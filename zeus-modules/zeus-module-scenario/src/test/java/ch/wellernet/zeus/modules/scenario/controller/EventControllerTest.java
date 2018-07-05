@@ -27,7 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.CronEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.service.EventService;

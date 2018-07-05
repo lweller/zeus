@@ -21,8 +21,10 @@ import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,15 +34,15 @@ public class TcpCommunicationService implements CommunicationService {
 
 	@Value
 	static class Response {
-		private TcpState state;
-		private String data;
+		private TcpState tcpState;
+		private State deviceState;
 	}
 
 	static enum TcpState {
 		OK, NOK;
 	}
 
-	private static final Pattern RESPONSE_PATTERN = Pattern.compile("([^\\s]+)(\\s+(.*)\\s*)?");
+	private static final Pattern RESPONSE_PATTERN = Pattern.compile("(OK|NOK)(\\s+(.*?)\\s*)?");
 
 	public static final String NAME = "serivce.communication.tcp";
 
@@ -56,60 +58,94 @@ public class TcpCommunicationService implements CommunicationService {
 
 	@Override
 	public State sendCommand(final Device device, final Command command, final String data)
-			throws UndefinedCommandException {
+			throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
+		log.info("sending command {} to device '{}'", command, device.getName());
+		if (!device.getType().getSupportedCommands().contains(command)) {
+			log.warn("command {} is undefined for device type {}", command, device.getType());
+			throw new UndefinedCommandException(
+					format("command %s is undefined for device type '%s'", command, device.getType()));
+		}
 		if (!(device.getControlUnit().getAddress() instanceof TcpControlUnitAddress)) {
 			throw new IllegalStateException("TcpCommunicationSerice requires a TcpContrlUnitAddress");
 		}
 		final TcpControlUnitAddress address = (TcpControlUnitAddress) device.getControlUnit().getAddress();
-		State state = UNKNOWN;
 		Response response = null;
 		try {
-			response = send(address,
-					format("%s %s %s", command, device.getId(), Optional.ofNullable(data).orElse("")).trim());
-			if (response.getState() == TcpState.NOK) {
-				log.warn("execution of command {} was not successful for device '{}'", command, device);
-			}
-			if (response.getData() != null) {
-				state = State.valueOf(response.getData());
-			}
-		} catch (final IllegalArgumentException exception) {
-			log.warn("{} is an invalid device state", response.getData());
-		} catch (final IOException exception) {
-			log.warn("unexpected error", exception);
-		}
-		return state;
-	}
-
-	private Response parseResponse(final String response) {
-		final Matcher matcher = RESPONSE_PATTERN.matcher(response);
-		TcpState state = null;
-		String data = null;
-		if (matcher.matches()) {
+			Socket socket = null;
 			try {
-				state = TcpState.valueOf(matcher.group(1));
-			} catch (final IllegalArgumentException exception) {
-				if (state == null) {
-					log.warn("reponse must begin either wit OK or NOK and not {}", matcher.group(1));
-					state = TcpState.NOK;
+				try {
+					socket = createSocket(address);
+				} catch (final IOException exception) {
+					log.warn("failed to open socket", exception);
+					throw new CommunicationNotSuccessfulException("failed to open socket", device.getState());
+				}
+				if (socket == null) {
+					throw new CommunicationNotSuccessfulException("could not enter in communication with device",
+							device.getState());
+				} else {
+					response = send(socket,
+							format("%s %s %s", command, device.getId(), Optional.ofNullable(data).orElse("")).trim());
+				}
+			} finally {
+				if (socket != null) {
+					socket.close();
 				}
 			}
-			data = matcher.group(3);
-		} else {
-			log.warn("response is invalid");
-			state = TcpState.NOK;
+			log.info("command was executed and returned {} as current state", response.getDeviceState());
+			return response.getDeviceState();
+		} catch (final IOException exception) {
+			log.error("error while communicating over TCP", exception);
+			throw new RuntimeException("error while communicating over TCP");
 		}
-		return new Response(state, data);
+	}
+
+	private final Response parseResponse(final String response)
+			throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		final Matcher matcher = RESPONSE_PATTERN.matcher(response);
+		TcpState tcpState = null;
+		if (matcher.matches()) {
+			tcpState = TcpState.valueOf(matcher.group(1));
+		} else {
+			log.error("response '{}' is invalid", response);
+			throw new CommunicationInterruptedException(format("response '%s' is invalid", response));
+		}
+
+		final String data = matcher.group(3);
+		if (data == null) {
+			log.error("no device state in response");
+			throw new CommunicationInterruptedException("no device state in response");
+		}
+
+		State deviceState = null;
+		try {
+			deviceState = State.valueOf(data);
+		} catch (final IllegalArgumentException exception) {
+			log.error("{} is an invalid device state", data);
+			throw new CommunicationInterruptedException(format("%s is an invalid device state", data));
+		}
+
+		if (deviceState == UNKNOWN) {
+			log.error("no device state in response");
+			throw new CommunicationInterruptedException("device state in reponse is UNKNOWN");
+		}
+
+		if (tcpState == TcpState.NOK) {
+			log.warn("received NOK response  indicating a possible failure");
+			throw new CommunicationNotSuccessfulException("received NOK response  indicating a possible failure",
+					deviceState);
+		}
+
+		return new Response(tcpState, deviceState);
 	}
 
 	Socket createSocket(final TcpControlUnitAddress address) throws IOException {
+		log.debug("opening soeckt to {}", address);
 		return new Socket(address.getHost(), address.getPort());
 	}
 
-	Response send(final TcpControlUnitAddress address, final String request) throws IOException {
-		log.debug("sending request '{}' to {}", request, address);
-		Socket socket = null;
+	Response send(final Socket socket, final String request)
+			throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		try {
-			socket = createSocket(address);
 			final DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 			dataOutputStream.writeBytes(request);
 			if (request.endsWith("\\n")) {
@@ -117,10 +153,9 @@ public class TcpCommunicationService implements CommunicationService {
 			}
 			dataOutputStream.flush();
 			return parseResponse(new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine());
-		} finally {
-			if (socket != null) {
-				socket.close();
-			}
+		} catch (final IOException exception) {
+			log.error("an unexpected error happend during communication witrh device", exception);
+			throw new CommunicationInterruptedException("an unexpected error happend during communication witrh device");
 		}
 	}
 }

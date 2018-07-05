@@ -29,8 +29,8 @@ import com.pi4j.io.gpio.PinState;
 
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.State;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.DeviceDriver;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

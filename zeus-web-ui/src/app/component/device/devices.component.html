@@ -2,7 +2,7 @@
   <li class="entry" *ngFor="let device of devices">
     <span
       class="state"
-      (click)="sendCommand(device)">{{device.state}}</span>
+      (click)="sendCommand(device)">{{device.state === 'UNKNOWN' ? '???' : device.state}}</span>
     <app-editable-label
       class="name"
       [value]="device.name"

@@ -1,16 +1,21 @@
 package ch.wellernet.zeus.modules.device.service.communication.tcp;
 
+import static ch.wellernet.zeus.modules.device.model.BuiltInDeviceType.GENERIC_SWITCH;
 import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON;
+import static ch.wellernet.zeus.modules.device.model.Command.TOGGLE_SWITCH;
 import static ch.wellernet.zeus.modules.device.model.State.OFF;
 import static ch.wellernet.zeus.modules.device.model.State.ON;
-import static ch.wellernet.zeus.modules.device.model.State.UNKNOWN;
+import static ch.wellernet.zeus.modules.device.service.communication.tcp.TcpCommunicationService.TcpState.NOK;
+import static ch.wellernet.zeus.modules.device.service.communication.tcp.TcpCommunicationService.TcpState.OK;
 import static java.lang.String.format;
 import static java.lang.System.arraycopy;
 import static java.util.Arrays.fill;
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
@@ -23,10 +28,11 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -37,13 +43,16 @@ import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.IntegratedControlUnitAddress;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.device.service.communication.tcp.TcpCommunicationService.Response;
-import ch.wellernet.zeus.modules.device.service.communication.tcp.TcpCommunicationService.TcpState;
 
 @SpringBootTest(classes = TcpCommunicationService.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class TcpCommunicationServiceTest {
+
+	public @Rule ExpectedException thrown = ExpectedException.none();
 
 	private @Mock Socket socket;
 
@@ -53,33 +62,15 @@ public class TcpCommunicationServiceTest {
 	private @SpyBean TcpCommunicationService tcpCommunicationService;
 
 	@Test
-	public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponse()
-			throws UndefinedCommandException, IOException {
-		// given
-		final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
-		final UUID deviceId = UUID.randomUUID();
-		final Device device = Device.builder().id(deviceId).controlUnit(controlUnit).build();
-		final Command command = SWITCH_ON;
-		doReturn(new TcpCommunicationService.Response(TcpState.OK, "ON")).when(tcpCommunicationService).send(any(),
-				Mockito.eq(format("%s %s", command, deviceId)));
-
-		// when
-		final State state = tcpCommunicationService.sendCommand(device, command, null);
-
-		// then
-		assertThat(state, is(ON));
-	}
-
-	@Test
 	public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequetsIsNok()
-			throws UndefinedCommandException, IOException {
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
 		final UUID deviceId = UUID.randomUUID();
-		final Device device = Device.builder().id(deviceId).controlUnit(controlUnit).build();
+		final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
 		final Command command = SWITCH_ON;
-		doReturn(new TcpCommunicationService.Response(TcpState.NOK, "OFF")).when(tcpCommunicationService).send(any(),
-				Mockito.eq(format("%s %s", command, deviceId)));
+		doReturn(new TcpCommunicationService.Response(NOK, OFF)).when(tcpCommunicationService).send(any(),
+				eq(format("%s %s", command, deviceId)));
 
 		// when
 		final State state = tcpCommunicationService.sendCommand(device, command, null);
@@ -89,152 +80,119 @@ public class TcpCommunicationServiceTest {
 	}
 
 	@Test
-	public void sendCommandShouldSendCorrectRequestAndreturnUnknownDeviceStateWhenRequetsContainsUnknownState()
-			throws UndefinedCommandException, IOException {
+	public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequetsIsOk()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
 		final UUID deviceId = UUID.randomUUID();
-		final Device device = Device.builder().id(deviceId).controlUnit(controlUnit).build();
+		final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
 		final Command command = SWITCH_ON;
-		doReturn(new TcpCommunicationService.Response(TcpState.NOK, null)).when(tcpCommunicationService).send(any(),
-				Mockito.eq(format("%s %s", command, deviceId)));
+		doReturn(new TcpCommunicationService.Response(OK, ON)).when(tcpCommunicationService).send(any(),
+				eq(format("%s %s", command, deviceId)));
 
 		// when
 		final State state = tcpCommunicationService.sendCommand(device, command, null);
 
 		// then
-		assertThat(state, is(UNKNOWN));
-	}
-
-	@Test
-	public void sendCommandShouldSendCorrectRequestAndreturnUnknownDeviceStateWhenRequetsIsNokWithoutData()
-			throws UndefinedCommandException, IOException {
-		// given
-		final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
-		final UUID deviceId = UUID.randomUUID();
-		final Device device = Device.builder().id(deviceId).controlUnit(controlUnit).build();
-		final Command command = SWITCH_ON;
-		doReturn(new TcpCommunicationService.Response(TcpState.OK, "???")).when(tcpCommunicationService).send(any(),
-				Mockito.eq(format("%s %s", command, deviceId)));
-
-		// when
-		final State state = tcpCommunicationService.sendCommand(device, command, null);
-
-		// then
-		assertThat(state, is(UNKNOWN));
+		assertThat(state, is(ON));
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void sendCommandShouldThrowExceptionWhenAddressHasWrongType() throws UndefinedCommandException, IOException {
+	public void sendCommandShouldThrowExceptionWhenAddressHasWrongType()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		final ControlUnit controlUnit = ControlUnit.builder().address(new IntegratedControlUnitAddress()).build();
 		final UUID deviceId = UUID.randomUUID();
-		final Device device = Device.builder().id(deviceId).controlUnit(controlUnit).build();
+		final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
 		final Command command = SWITCH_ON;
 
 		// when
 		tcpCommunicationService.sendCommand(device, command, null);
 
-		// then an exception is expected
+		// then
+		thrown.expect(IllegalStateException.class);
+	}
+
+	@Test(expected = CommunicationInterruptedException.class)
+	public void sendShouldThrowExceptionWhenResponseContainsInvalidDeviceState()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		response("OK BLABLA");
+
+		// when
+		tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
+
+		// then
+		thrown.expect(CommunicationInterruptedException.class);
+	}
+
+	@Test(expected = CommunicationInterruptedException.class)
+	public void sendShouldThrowExceptionWhenResponseContainsInvalidTcpState()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		response("BLABLA ON");
+
+		// when
+		tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
+
+		// then
+		thrown.expect(CommunicationInterruptedException.class);
+	}
+
+	@Test(expected = CommunicationInterruptedException.class)
+	public void sendShouldThrowExceptionWhenResponseContainsNoState()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		response("OK");
+
+		// when
+		tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
+
+		// then
+		thrown.expect(CommunicationInterruptedException.class);
+	}
+
+	@Test(expected = CommunicationNotSuccessfulException.class)
+	public void sendShouldThrowExceptionWhenResponseContainsStateButIsNok()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		response("NOK OFF");
+
+		// when
+		tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
+
+		// then
+		thrown.expect(CommunicationNotSuccessfulException.class);
+		thrown.expect(hasProperty("state", is(OFF)));
+	}
+
+	@Test(expected = CommunicationInterruptedException.class)
+	public void sendShouldThrowExceptionWhenResponseContainsUnknownDeviceState()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		response("NOK UNKNOWN");
+
+		// when
+		tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
+
+		// then
+		thrown.expect(CommunicationInterruptedException.class);
 	}
 
 	@Test
-	public void sendShouldSendRequestStringOverSocketAndParseValidNokResponseWithoutData()
-			throws UndefinedCommandException, IOException {
+	public void sendShouldTransmitCorrectRequestAndParseTcpAndDeviceStateWhenResponseIsValid()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
-		final String request = "TEST_COMMAND foo=bar";
-		response(TcpState.NOK.name(), null);
+		final String request = format("%s %s", TOGGLE_SWITCH, randomUUID());
+		response("OK ON");
 
 		// when
-		final Response response = tcpCommunicationService.send(TcpControlUnitAddress.builder().build(), request);
+		final Response response = tcpCommunicationService.send(socket, request);
 
 		// then
 		assertThat(new String(outputStream.toByteArray()), is(request));
-		assertThat(response.getState(), is(TcpState.NOK));
-		assertThat(response.getData(), is(nullValue()));
-	}
-
-	@Test
-	public void sendShouldSendRequestStringOverSocketAndParseValidNokResponseWithtDataContainingLeadingSpaces()
-			throws UndefinedCommandException, IOException {
-		// given
-		final String request = "   TEST_COMMAND foo=bar";
-		final String data = "good=everything";
-		response(TcpState.NOK.name(), data);
-
-		// when
-		final Response response = tcpCommunicationService.send(TcpControlUnitAddress.builder().build(), request);
-
-		// then
-		assertThat(new String(outputStream.toByteArray()), is(request));
-		assertThat(response.getState(), is(TcpState.NOK));
-		assertThat(response.getData(), is(data));
-	}
-
-	@Test
-	public void sendShouldSendRequestStringOverSocketAndParseValidOkResponseWithDataContaingTailingSpaces()
-			throws UndefinedCommandException, IOException {
-		// given
-		final String request = "TEST_COMMAND foo=bar   ";
-		final String data = "good=everything";
-		response(TcpState.OK.name(), data);
-
-		// when
-		final Response response = tcpCommunicationService.send(TcpControlUnitAddress.builder().build(), request);
-
-		// then
-		assertThat(new String(outputStream.toByteArray()), is(request));
-		assertThat(response.getState(), is(TcpState.OK));
-		assertThat(response.getData(), is(data));
-	}
-
-	@Test
-	public void sendShouldSendRequestStringOverSocketAndParseValidOkResponseWithoutData()
-			throws UndefinedCommandException, IOException {
-		// given
-		final String request = "TEST_COMMAND foo=bar";
-		response(TcpState.OK.name(), null);
-
-		// when
-		final Response response = tcpCommunicationService.send(TcpControlUnitAddress.builder().build(), request);
-
-		// then
-		assertThat(new String(outputStream.toByteArray()), is(request));
-		assertThat(response.getState(), is(TcpState.OK));
-		assertThat(response.getData(), is(nullValue()));
-	}
-
-	@Test
-	public void sendShouldSendRequestStringOverSocketAndReturnNokWithDataWhenResponseIsInvalid()
-			throws UndefinedCommandException, IOException {
-		// given
-		final String request = "TEST_COMMAND foo=bar";
-		final String data = "good=everything";
-		response("???", data);
-
-		// when
-		final Response response = tcpCommunicationService.send(TcpControlUnitAddress.builder().build(), request);
-
-		// then
-		assertThat(new String(outputStream.toByteArray()), is(request));
-		assertThat(response.getState(), is(TcpState.NOK));
-		assertThat(response.getData(), is(data));
-	}
-
-	@Test
-	public void sendShouldSendRequestStringOverSocketAndReturnNokWithEmptyResponse()
-			throws UndefinedCommandException, IOException {
-		// given
-		final String request = "TEST_COMMAND foo=bar";
-		response("", null);
-
-		// when
-		final Response response = tcpCommunicationService.send(TcpControlUnitAddress.builder().build(), request);
-
-		// then
-		assertThat(new String(outputStream.toByteArray()), is(request));
-		assertThat(response.getState(), is(TcpState.NOK));
-		assertThat(response.getData(), is(nullValue()));
+		assertThat(response.getTcpState(), is(OK));
+		assertThat(response.getDeviceState(), is(ON));
 	}
 
 	@PostConstruct
@@ -244,9 +202,8 @@ public class TcpCommunicationServiceTest {
 		doReturn(socket).when(tcpCommunicationService).createSocket(any());
 	}
 
-	private void response(final String state, final String data) throws IOException {
-		final String response = state + (data == null ? "" : " " + data) + "\n";
+	private void response(final String response) {
 		fill(inputStreamBuffer, (byte) 0);
-		arraycopy(response.getBytes(), 0, inputStreamBuffer, 0, response.length());
+		arraycopy((response + "\n").getBytes(), 0, inputStreamBuffer, 0, response.length() + 1);
 	}
 }

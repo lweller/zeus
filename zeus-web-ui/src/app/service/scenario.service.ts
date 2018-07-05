@@ -10,7 +10,6 @@ import {Scenario} from '../model/scenario';
 import {environment} from '../../environments/environment';
 import {MessageService} from './message.service';
 
-
 @Injectable()
 export class ScenarioService {
 
@@ -41,7 +40,7 @@ export class ScenarioService {
             return Observable.of(scenario);
         }
       })
-      .pipe(tap(reloadedScenario => {/*
+      .pipe(tap(reloadedScenario => {
         scenario.$editing = false;
         if (!reloadedScenario.$error) {
           if (reloadedScenario.enabled) {
@@ -52,7 +51,7 @@ export class ScenarioService {
               .subscribe(result => message = result);
           }
           this.messageService.displayInfo(message);
-        }*/
+        }
       }));
   }
 }

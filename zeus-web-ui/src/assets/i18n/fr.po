@@ -5,22 +5,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "1 hour"
-msgstr "1 heure	"
+msgstr "1 heure\t"
 
 msgid "1 minute"
 msgstr "1 minute"
 
+msgid ""
+"Command has been sent to device, but ened up with a failure, leaving device "
+"possibly in an undefined state."
+msgstr ""
+"La commande a été envoyée à l'appareil, mais s'est terminée par une erreur "
+"laissant le dispositif peut-être dans un état indéfini."
+
 msgid "Command has been successfully executed."
 msgstr "La command a été executé avec succès."
 
+msgid "Could not communicate with device, may be it's not reachable."
+msgstr ""
+"La communication avec l'appareil a échouée, peut-être parce qu'il n'est pas "
+"atteignable."
+
 msgid "Data has not been updated due to concurent modifications."
 msgstr "La mise à jour n'a pas pu être effecutée, due à une modification concurante."
+
+msgid "Event has successfully been fired."
+msgstr "L'événement a été déclenché avec succès."
 
 msgid "Sorry, an unexpected error happend !"
 msgstr "Désolé, une erreur inattendue est survenue !"
 
 msgid "The device '{name}' has been updated."
 msgstr "Le dispositif '{name}' a été actualité."
+
+msgid "The scenario '{name}' has been disabled."
+msgstr "Le scénario '{name} ' a été désactivé."
+
+msgid "The scenario '{name}' has been enabled."
+msgstr "Le scénario '{name} ' a été activé."
 
 msgid "and"
 msgstr "et"
@@ -48,4 +69,3 @@ msgstr "{hours} heures"
 
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
-

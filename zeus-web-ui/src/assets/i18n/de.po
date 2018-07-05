@@ -10,17 +10,38 @@ msgstr "1 Strunde"
 msgid "1 minute"
 msgstr "1 Minute"
 
+msgid ""
+"Command has been sent to device, but ened up with a failure, leaving device "
+"possibly in an undefined state."
+msgstr ""
+"Befehl wurde an das Gerät gesendet, aber hat zu einem Fehler geführt, "
+"wasmöglicherweise einen undefinierten Zustand zur Folge haben kann."
+
 msgid "Command has been successfully executed."
 msgstr "Der Befehl wurde erfolgreich ausgeführt."
 
+msgid "Could not communicate with device, may be it's not reachable."
+msgstr ""
+"Kann nicht mit dem Gerät kommunizieren, da es möglicherweise nciht "
+"erreichbar ist."
+
 msgid "Data has not been updated due to concurent modifications."
 msgstr "Konnte wegen gleichzeitier Veränderung die Daten nicht aktualisieren."
+
+msgid "Event has successfully been fired."
+msgstr "Das Ereignis wurde erfolgreich abgefeuert."
 
 msgid "Sorry, an unexpected error happend !"
 msgstr "Entschuldigung, es ist ein unerwarterter fehler aufgetreten !"
 
 msgid "The device '{name}' has been updated."
 msgstr "Das Gerät '{name}' wurde aktualisiert."
+
+msgid "The scenario '{name}' has been disabled."
+msgstr "Das Szenario '{name}' wurde aktiviert."
+
+msgid "The scenario '{name}' has been enabled."
+msgstr "Das Szenario '{name}' wurde deaktiviert."
 
 msgid "and"
 msgstr "und"
@@ -48,4 +69,3 @@ msgstr "{hours} Stunden"
 
 msgid "{minutes} minutes"
 msgstr "{minutes} Minuten"
-

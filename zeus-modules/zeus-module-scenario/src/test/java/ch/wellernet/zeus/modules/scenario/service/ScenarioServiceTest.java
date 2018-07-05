@@ -26,7 +26,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.service.DeviceService;
-import ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.UndefinedCommandException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.Arc;
 import ch.wellernet.zeus.modules.scenario.model.AutomaticTransition;
 import ch.wellernet.zeus.modules.scenario.model.EventDrivenTransition;
@@ -337,7 +339,8 @@ public class ScenarioServiceTest {
 	}
 
 	@Test(expected = RuntimeException.class)
-	public void fireTransitionShouldThrowRuntimeExceptionWhenActionFails() throws UndefinedCommandException {
+	public void fireTransitionShouldThrowRuntimeExceptionWhenActionFails()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		doReturn(true).when(scenarioService).canFireTransition(any());
 		final State inputState = State.builder().initialCount(2).build();
@@ -361,7 +364,7 @@ public class ScenarioServiceTest {
 
 	@Test
 	public void fireTransitionShouldTransferTokensAndExecuteActionsAndRecusivelyFireIfItCanFire()
-			throws UndefinedCommandException {
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		// given
 		final Transition nextAutomaticTransition = AutomaticTransition.builder().build();
 		final Transition nextEventDrivenTransisiton = EventDrivenTransition.builder().build();
