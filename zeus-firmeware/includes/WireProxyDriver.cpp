@@ -40,7 +40,7 @@ String WireProxyDriver::executeCommand(String* command, String* data) {
 	Wire.beginTransmission(this->address);
 	Wire.println();
 	Wire.endTransmission();
-	delay(100);
+	delay(200);
 	Wire.requestFrom(this->address, 10);
 	String response = "";
 	while (Wire.available()) {
