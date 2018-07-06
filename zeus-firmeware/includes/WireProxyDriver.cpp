@@ -46,6 +46,9 @@ String WireProxyDriver::executeCommand(String* command, String* data) {
 	while (Wire.available()) {
 		char c = Wire.read();
 		response += c;
+		if (c == '\n') {
+			break;
+		}
 	}
 	unsigned int index0 = nextArgument(&response, 0);
 	if (response.substring(0, index0).equals("OK")) {
@@ -54,6 +57,7 @@ String WireProxyDriver::executeCommand(String* command, String* data) {
 		state.trim();
 		return state;
 	} else {
-		return "";
+		response.trim();
+		return response;
 	}
 }
