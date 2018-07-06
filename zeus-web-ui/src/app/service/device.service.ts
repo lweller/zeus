@@ -26,8 +26,6 @@ export class DeviceService {
   sendCommand(device: Device): Observable<Device> {
     let message;
     let updatedDevice: Device = null;
-    this.translateService.get('Command has been successfully executed.')
-      .subscribe(result => message = result);
     return this.httpClient.post<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${device.id}!sendCommand`, {})
       .catch((error: HttpErrorResponse) => {
         switch (error.status) {
@@ -55,7 +53,7 @@ export class DeviceService {
       .pipe(tap(reloadedDevice => {
         device.$editing = false;
         if (!reloadedDevice.$error) {
-          this.translateService.get('The device \'{name}\' has been updated.', {name: device.name})
+          this.translateService.get('Command has been successfully executed.', {name: device.name})
             .subscribe(result => message = result);
           this.messageService.displayInfo(message);
         }
@@ -72,7 +70,7 @@ export class DeviceService {
           case PRECONDITION_FAILED:
             this.translateService.get('Data has not been updated due to concurent modifications.')
               .subscribe(result => message = result);
-            this.messageService.displayError(message);
+            this.messageService.displayWarning(message);
             updatedDevice = error.error;
             updatedDevice.$error = true;
             return Observable.of(updatedDevice);

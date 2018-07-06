@@ -28,7 +28,7 @@ export class ScenarioService {
           case PRECONDITION_FAILED:
             this.translateService.get('Data has not been updated due to concurent modifications.')
               .subscribe(result => message = result);
-            this.messageService.displayError(message);
+            this.messageService.displayWarning(message);
             const reloadedScenario: Scenario = error.error;
             reloadedScenario.$error = true;
             return Observable.of(reloadedScenario);
