@@ -11,7 +11,7 @@ import {DeviceService} from '../../service/device.service';
     trigger('state-changed', [
       state('enabled', style({'background-color': '#4782e2', color: 'white'})),
       state('disabled', style({'background-color': '#c0c0c0', color: 'black'})),
-      transition('enabled <=> disabled', animate('0.2s'))
+      transition('enabled <=> disabled', animate('0.5s'))
     ])
   ]
 })
@@ -31,12 +31,12 @@ export class DevicesComponent implements OnInit {
 
   sendCommand(device: Device) {
     this.deviceService.sendCommand(device).subscribe(updatedDevice =>
-      this.devices[this.devices.indexOf(device)] = updatedDevice);
+      Object.assign(this.devices[this.devices.indexOf(device)], updatedDevice));
   }
 
   update(device: Device) {
     this.deviceService.update(device).subscribe(updatedDevice =>
-      this.devices[this.devices.indexOf(device)] = updatedDevice);
+      Object.assign(this.devices[this.devices.indexOf(device)], updatedDevice));
   }
 
   getState(device: Device): string {

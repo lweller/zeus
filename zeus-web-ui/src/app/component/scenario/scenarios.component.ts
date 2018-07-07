@@ -12,7 +12,7 @@ import {ScenarioService} from '../../service/scenario.service';
     trigger('state-changed', [
       state('enabled', style({'background-color': '#4782e2', color: 'white'})),
       state('disabled', style({'background-color': '#c0c0c0', color: 'black'})),
-      transition('enabled <=> disabled', animate('0.2s'))
+      transition('enabled <=> disabled', animate('0.5s'))
     ])
   ]
 })
@@ -35,7 +35,7 @@ export class ScenariosComponent implements OnInit {
 
   toggleEnabling(scenario: Scenario): void {
     this.scnearioService.toggleEnabling(scenario).subscribe(updatedScenario =>
-      this.scenarios[this.scenarios.indexOf(scenario)] = updatedScenario);
+      Object.assign(this.scenarios[this.scenarios.indexOf(scenario)], updatedScenario));
   }
 
   getState(scenario: Scenario): string {
