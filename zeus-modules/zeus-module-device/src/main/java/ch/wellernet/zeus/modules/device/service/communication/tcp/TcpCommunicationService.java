@@ -1,19 +1,28 @@
 package ch.wellernet.zeus.modules.device.service.communication.tcp;
 
 import static ch.wellernet.zeus.modules.device.model.State.UNKNOWN;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
+import static javax.transaction.Transactional.TxType.REQUIRED;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import ch.wellernet.zeus.modules.device.model.Command;
@@ -21,6 +30,7 @@ import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
+import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
@@ -46,6 +56,9 @@ public class TcpCommunicationService implements CommunicationService {
 
 	public static final String NAME = "serivce.communication.tcp";
 
+	private @Autowired DeviceRepository deviceRepository;
+	private @Autowired TaskScheduler taskScheduler;
+
 	@Override
 	public String getName() {
 		return NAME;
@@ -69,9 +82,9 @@ public class TcpCommunicationService implements CommunicationService {
 			throw new IllegalStateException("TcpCommunicationSerice requires a TcpContrlUnitAddress");
 		}
 		final TcpControlUnitAddress address = (TcpControlUnitAddress) device.getControlUnit().getAddress();
-		Response response = null;
 		try {
 			Socket socket = null;
+			Response response = null;
 			try {
 				try {
 					socket = createSocket(address);
@@ -85,6 +98,20 @@ public class TcpCommunicationService implements CommunicationService {
 				} else {
 					response = send(socket,
 							format("%s %s %s", command, device.getId(), Optional.ofNullable(data).orElse("")).trim());
+
+					// work around to update switch state with timer command
+					if (command == Command.SWITCH_ON_W_TIMER/* && response.getDeviceState() == ON */) {
+						final String[] agrs = data.split("\\s");
+						final long timer;
+						if (agrs.length > 0) {
+							timer = parseLong(agrs[0]);
+						} else {
+							timer = 0;
+						}
+						taskScheduler.schedule((Runnable) () -> {
+							updateDeviceStateWhenAfterTimerEnded(device.getId(), address);
+						}, Instant.now().plus(timer + 5, SECONDS));
+					}
 				}
 			} finally {
 				if (socket != null) {
@@ -138,6 +165,35 @@ public class TcpCommunicationService implements CommunicationService {
 		return new Response(tcpState, deviceState);
 	}
 
+	@Transactional(REQUIRED)
+	private void updateDeviceStateWhenAfterTimerEnded(final UUID deviceId, final TcpControlUnitAddress address) {
+		log.info("updating state after timmer ended");
+		Socket socket = null;
+		try {
+			socket = createSocket(address);
+			final Response response = send(socket, format("GET_SWITCH_STATE %s", deviceId));
+			if (response.getTcpState() == TcpState.OK) {
+				final Optional<Device> device2 = deviceRepository.findById(deviceId);
+				if (device2.isPresent()) {
+					device2.get().setState(response.getDeviceState());
+					deviceRepository.save(device2.get());
+				}
+			}
+		} catch (IOException | CommunicationInterruptedException | CommunicationNotSuccessfulException exception) {
+			log.error("error while communicating over TCP", exception);
+			throw new RuntimeException("error while communicating over TCP");
+		} finally {
+			if (socket != null) {
+				try {
+					socket.close();
+				} catch (final IOException exception) {
+					log.error("error while communicating over TCP", exception);
+					throw new RuntimeException("error while communicating over TCP");
+				}
+			}
+		}
+	}
+
 	Socket createSocket(final TcpControlUnitAddress address) throws IOException {
 		log.debug("opening soeckt to {}", address);
 		return new Socket(address.getHost(), address.getPort());
@@ -155,7 +211,8 @@ public class TcpCommunicationService implements CommunicationService {
 			return parseResponse(new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine());
 		} catch (final IOException exception) {
 			log.error("an unexpected error happend during communication witrh device", exception);
-			throw new CommunicationInterruptedException("an unexpected error happend during communication witrh device");
+			throw new CommunicationInterruptedException(
+					"an unexpected error happend during communication witrh device");
 		}
 	}
 }

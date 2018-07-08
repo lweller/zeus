@@ -34,7 +34,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import ch.wellernet.zeus.modules.device.model.Command;
@@ -43,6 +45,7 @@ import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.IntegratedControlUnitAddress;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
+import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
@@ -54,6 +57,8 @@ public class TcpCommunicationServiceTest {
 
 	public @Rule ExpectedException thrown = ExpectedException.none();
 
+	private @MockBean DeviceRepository deviceRepository;
+	private @MockBean TaskScheduler taskScheduler;
 	private @Mock Socket socket;
 
 	private byte[] inputStreamBuffer;
