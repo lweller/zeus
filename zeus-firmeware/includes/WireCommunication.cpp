@@ -8,6 +8,7 @@
 
 String requestMessage = "";
 String responseMessage = "";
+boolean requestAvailable = false;
 
 void receiveEvent(int count) {
 	if (count > 0) {
@@ -15,6 +16,8 @@ void receiveEvent(int count) {
 			char c = Wire.read();
 			requestMessage += c;
 			if (c == '\n') {
+				delay(10);
+				requestAvailable=true;
 				break;
 			}
 		}
@@ -43,12 +46,13 @@ WireCommunication::WireCommunication(int address) {
 
 Request* WireCommunication::receive() {
 	Request* request = NULL;
-	if (requestMessage.endsWith("\n")) {
+	if (requestAvailable) {
 		unsigned int index0 = nextArgument(&requestMessage, 0);
 		unsigned int index1 = nextArgument(&requestMessage, index0);
 		request = new WireRequest(this, requestMessage.substring(0, index0), requestMessage.substring(index0, index1),
 				requestMessage.substring(index1));
 		requestMessage = "";
+		requestAvailable = false;
 	}
 	return request;
 }
