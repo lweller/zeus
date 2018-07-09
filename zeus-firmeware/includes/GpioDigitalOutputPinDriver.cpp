@@ -1,4 +1,4 @@
-#include "GpioOutputDriver.h"
+#include "GpioDigitalOutputPinDriver.h"
 
 #include "Arduino.h"
 
@@ -6,42 +6,50 @@
 
 #include "Driver.h"
 
-GpioOutputDriver::GpioOutputDriver(String id, byte pin, byte activeState) :
+GpioDigitalOutputPinDriver::GpioDigitalOutputPinDriver(String id, byte pin, byte activeState) :
 		Driver(id) {
 	this->pin = pin;
 	this->activeState = activeState;
 }
 
-void GpioOutputDriver::init() {
+void GpioDigitalOutputPinDriver::init() {
 	pinMode(this->pin, OUTPUT);
 	digitalWrite(this->pin, this->activeState ^ HIGH);
 }
 
-String GpioOutputDriver::executeCommand(String* command, String* data) {
+String GpioDigitalOutputPinDriver::executeCommand(String* command, String* data) {
 	if ((*command).equals("GET_SWITCH_STATE")) {
 	} else if ((*command).equals("SWITCH_ON")) {
+		this->lastSwitchedOnAt = millis();
+		this->timer = 0;
 		digitalWrite(this->pin, this->activeState);
 	} else if ((*command).equals("SWITCH_ON_W_TIMER")) {
+		this->lastSwitchedOnAt = millis();
 		unsigned int index = nextArgument(data, 0);
 		this->timer = data->substring(0, index).toInt() * 1000;
 		digitalWrite(this->pin, this->activeState);
 	} else if ((*command).equals("SWITCH_OFF")) {
+		this->timer = 0;
 		digitalWrite(this->pin, this->activeState ^ HIGH);
 	} else if ((*command).equals("TOGGLE_SWITCH")) {
+		if (digitalRead(this->pin) != this->activeState) {
+			this->lastSwitchedOnAt = millis();
+		}
+		this->timer = 0;
 		digitalWrite(this->pin, !digitalRead(this->pin));
 	} else {
 		return "";
 	}
 	if (digitalRead(this->pin) == this->activeState) {
-		this->switchedOnAt = millis();
 		return "ON";
 	} else {
 		return "OFF";
 	}
 }
 
-void GpioOutputDriver::check() {
-	if (this->timer > 0 && (millis() - this->switchedOnAt) > this->timer) {
+void GpioDigitalOutputPinDriver::check() {
+	if (this->timer > 0 && (millis() - this->lastSwitchedOnAt) > this->timer) {
+		Serial.println("switching off after timer ended");
 		digitalWrite(this->pin, this->activeState ^ HIGH);
 		this->timer = 0;
 	}
