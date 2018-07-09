@@ -110,7 +110,7 @@ public class TcpCommunicationService implements CommunicationService {
 						}
 						taskScheduler.schedule((Runnable) () -> {
 							updateDeviceStateWhenAfterTimerEnded(device.getId(), address);
-						}, Instant.now().plus(timer + 5, SECONDS));
+						}, Instant.now().plus(timer + 30, SECONDS));
 					}
 				}
 			} finally {
