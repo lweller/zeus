@@ -7,6 +7,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -202,13 +203,19 @@ public class TcpCommunicationService implements CommunicationService {
 	Response send(final Socket socket, final String request)
 			throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
 		try {
-			final DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+			final DataOutputStream dataOutputStream = new DataOutputStream(
+					new BufferedOutputStream(socket.getOutputStream()));
+			log.trace("start sending data");
 			dataOutputStream.writeBytes(request);
 			if (request.endsWith("\\n")) {
 				dataOutputStream.writeBytes("\\n");
 			}
 			dataOutputStream.flush();
-			return parseResponse(new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine());
+			log.trace("finished sending data, waiting for response");
+			final Response response = parseResponse(
+					new BufferedReader(new InputStreamReader(socket.getInputStream())).readLine());
+			log.trace("received response");
+			return response;
 		} catch (final IOException exception) {
 			log.error("an unexpected error happend during communication witrh device", exception);
 			throw new CommunicationInterruptedException(
