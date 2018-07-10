@@ -49,7 +49,6 @@ String GpioDigitalOutputPinDriver::executeCommand(String* command, String* data)
 
 void GpioDigitalOutputPinDriver::check() {
 	if (this->timer > 0 && (millis() - this->lastSwitchedOnAt) > this->timer) {
-		Serial.println("switching off after timer ended");
 		digitalWrite(this->pin, this->activeState ^ HIGH);
 		this->timer = 0;
 	}
