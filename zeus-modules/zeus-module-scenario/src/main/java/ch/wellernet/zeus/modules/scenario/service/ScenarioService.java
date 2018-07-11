@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import ch.wellernet.zeus.modules.device.service.DeviceService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.Action;
 import ch.wellernet.zeus.modules.scenario.model.Arc;
@@ -92,7 +93,8 @@ public class ScenarioService {
 					public void execute(final SendCommandAction action) {
 						try {
 							deviceService.sendCommand(action.getDevice(), action.getCommand(), action.getData());
-						} catch (final UndefinedCommandException | CommunicationInterruptedException exception) {
+						} catch (final UndefinedCommandException | CommunicationNotSuccessfulException
+								| CommunicationInterruptedException exception) {
 							throw new RuntimeException(exception);
 						}
 					}

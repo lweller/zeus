@@ -109,7 +109,8 @@ public class DeviceController implements DeviceApiV1Controller {
 	public ResponseEntity<Device> sendCommand(
 			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
 			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) final Command command)
-			throws NoSuchElementException, UndefinedCommandException, CommunicationInterruptedException {
+			throws NoSuchElementException, UndefinedCommandException, CommunicationNotSuccessfulException,
+			CommunicationInterruptedException {
 		final Device updatedDevice = deviceService.sendCommand(findDevice(id), command);
 		return ResponseEntity.status(OK.value()).body(updatedDevice);
 	}

@@ -26,12 +26,12 @@ public class DeviceService {
 	private @Autowired CommunicationServiceRegistry communicationServiceRegistry;
 
 	public Device sendCommand(final Device device, final Command command)
-			throws UndefinedCommandException, CommunicationInterruptedException {
+			throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
 		return sendCommand(device, command, null);
 	}
 
 	public Device sendCommand(final Device device, Command command, final String data)
-			throws UndefinedCommandException, CommunicationInterruptedException {
+			throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
 		if (command == null) {
 			command = device.getType().getMainCommand();
 		}
@@ -45,6 +45,7 @@ public class DeviceService {
 		} catch (final CommunicationNotSuccessfulException exception) {
 			log.error("command has not been executed successfully, but devices is in a well defined state", exception);
 			device.setState(exception.getState());
+			throw exception;
 		} catch (final CommunicationInterruptedException exception) {
 			log.error(
 					"command was sent to device but did not complete successfully, so device may be in an undefied state",
