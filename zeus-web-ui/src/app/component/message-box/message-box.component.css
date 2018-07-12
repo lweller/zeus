@@ -1,5 +1,6 @@
 .message-box {
 	margin: 0 10px 0 10px;
+	padding: 0 2px 0 2px;
 	color: #777777;
 	border-color: #777777;
 	border-style: solid;
@@ -8,19 +9,32 @@
 	background-color: #eaeaea;
 }
 
-.message-box div {
+.left {
+	display: table-cell;
 	position: relative;
+	width: 100%;
 	height: 2.4em;
 	max-height: 2.4em;
-	margin: 0.2em 0 0.2em 0.5em;
+	margin: 0.2em 0.2em 0.2em 0.5em;
 	font-size: small;
+	vertical-align: middle;
 }
 
-.message-box div span {
+.left span {
 	position: absolute;
 	top: 50%;
 	transform: translate(0, -50%);
 	max-height: inherit;
+}
+
+.right {
+	display: table-cell;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.right span {
+	cursor: pointer;
 }
 
 .scroll-vertical {

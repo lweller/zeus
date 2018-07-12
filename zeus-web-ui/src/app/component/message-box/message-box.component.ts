@@ -11,7 +11,7 @@ import {MessageService} from '../../service/message.service';
     trigger('visibility-changed', [
       state('shown', style({opacity: 1})),
       state('hidden', style({opacity: 0})),
-      transition('hidden <=> shown', animate('1.5s 50ms ease-in-out')),
+      transition('hidden <=> shown', animate('1s 100ms ease-in-out')),
     ])
   ]
 })
@@ -24,6 +24,10 @@ export class MessageBoxComponent implements OnInit {
   ngOnInit() {
     this.messageService.getCurrentMessage().
       subscribe(currentMessage => this.currentMessage = currentMessage);
+  }
+
+  close() {
+    this.messageService.reset();
   }
 
   getVisibility() {
