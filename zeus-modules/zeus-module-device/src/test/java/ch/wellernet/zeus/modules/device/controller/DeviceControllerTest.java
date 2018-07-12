@@ -70,6 +70,32 @@ public class DeviceControllerTest {
 	private @MockBean CommunicationServiceRegistry communicationServiceRegistry;
 
 	@Test
+	public void executeCommandShouldTransmitCommandToCommunicationService()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
+
+		final ResponseEntity<Device> response = deviceController.executeCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
+
+		// then
+		verify(deviceService).sendCommand(DEVICE_1, GET_SWITCH_STATE);
+		assertThat(response.getStatusCode(), is(OK));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void executeCommandThrowNoSuchElementExceptionWhenDeviceDoesNotExists()
+			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+		// given
+		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
+		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
+
+		// when
+		deviceController.executeCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
+
+		// then an exception is expected
+	}
+
+	@Test
 	public void findAllShouldReturnCollectionOfDevices() {
 		// given
 		given(deviceRepository.findAll()).willReturn(DEVICES);
@@ -163,32 +189,6 @@ public class DeviceControllerTest {
 
 		// then
 		assertThat(response.getStatusCode(), is(NOT_ACCEPTABLE));
-	}
-
-	@Test(expected = NoSuchElementException.class)
-	public void sendCommandShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists()
-			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
-		// given
-		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
-		given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
-
-		// when
-		deviceController.sendCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
-
-		// then an exception is expected
-	}
-
-	@Test
-	public void sendCommandShouldTransmitCommandToCommunicationService()
-			throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
-		// given
-		given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
-
-		final ResponseEntity<Device> response = deviceController.sendCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
-
-		// then
-		verify(deviceService).sendCommand(DEVICE_1, GET_SWITCH_STATE);
-		assertThat(response.getStatusCode(), is(OK));
 	}
 
 	@Test(expected = NoSuchElementException.class)

@@ -29,13 +29,18 @@ export class DevicesComponent implements OnInit {
     this.deviceService.findAll().subscribe(devices => this.devices = devices);
   }
 
-  sendCommand(device: Device) {
-    this.deviceService.sendCommand(device).subscribe(updatedDevice =>
+  executeMainCommand(device: Device) {
+    this.deviceService.executeCommand(device).subscribe(updatedDevice =>
       Object.assign(this.devices[this.devices.indexOf(device)], updatedDevice));
   }
 
   update(device: Device) {
     this.deviceService.update(device).subscribe(updatedDevice =>
+      Object.assign(this.devices[this.devices.indexOf(device)], updatedDevice));
+  }
+
+  refresh(device: Device) {
+    this.deviceService.refresh(device).subscribe(updatedDevice =>
       Object.assign(this.devices[this.devices.indexOf(device)], updatedDevice));
   }
 

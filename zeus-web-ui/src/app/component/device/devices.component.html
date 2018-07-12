@@ -1,11 +1,21 @@
 <ul class="list">
-  <li class="entry" *ngFor="let device of devices">
-    <span
-      class="state" [@state-changed]="getState(device)"
-      (click)="sendCommand(device)">{{device.state === 'UNKNOWN' ? '???' : device.state}}</span>
-    <app-editable-label
-      class="name"
-      [value]="device.name"
-      (finishedEditing)="device.name = $event; update(device)"></app-editable-label>
+  <li
+    class="entry"
+    *ngFor="let device of devices">
+    <div class="left">
+      <span
+        class="state"
+        [@state-changed]="getState(device)"
+        (click)="executeMainCommand(device)">{{device.state === 'UNKNOWN' ? '???' : device.state}}</span>
+      <app-editable-label
+        class="name"
+        [value]="device.name"
+        (finishedEditing)="device.name = $event; update(device)"></app-editable-label>
+    </div>
+    <div class="right">
+      <span
+        class="menu-button"
+        (click)="refresh(device)"> </span>
+    </div>
   </li>
 </ul>

@@ -5,7 +5,9 @@ import {Observable, of} from 'rxjs';
 import {tap, catchError} from 'rxjs/operators';
 import {Device} from '../model/device';
 import {environment} from '../../environments/environment';
+import {Command} from '../model/command';
 import {MessageService} from './message.service';
+import {HttpParams} from '@angular/common/http';
 import {TranslateService} from '@ngx-translate/core';
 
 const COMMUNICATION_NOT_SUCCESSFUL = 901;
@@ -21,10 +23,18 @@ export class DeviceService {
     return this.httpClient.get<Device[]>(`${environment.zeusServerDeviceApiBaseUri}/devices`);
   }
 
-  sendCommand(device: Device): Observable<Device> {
+  refresh(device: Device): Observable<Device> {
+    return this.executeCommand(device, Command.GET_SWITCH_STATE);
+  }
+
+  executeCommand(device: Device, command: Command = null): Observable<Device> {
     let message;
     let updatedDevice: Device = null;
-    return this.httpClient.post<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${device.id}!sendCommand`, {})
+
+    const url = `${environment.zeusServerDeviceApiBaseUri}/devices/${device.id}/`
+      + (command == null ? 'main-command' : `commands/${command}`) + '!execute';
+
+    return this.httpClient.post<Device>(url, {})
       .pipe(catchError((error: HttpErrorResponse) => {
         switch (error.status) {
           case COMMUNICATION_NOT_SUCCESSFUL:

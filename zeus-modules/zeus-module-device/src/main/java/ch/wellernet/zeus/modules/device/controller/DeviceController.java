@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.wellernet.zeus.modules.device.model.Command;
@@ -55,6 +54,34 @@ public class DeviceController implements DeviceApiV1Controller {
 
 	private @Autowired DeviceRepository deviceRepository;
 	private @Autowired DeviceService deviceService;
+
+	@ApiOperation("Executes main command for a given device.")
+	@ApiResponses({ @ApiResponse(code = 400, message = "Operation is invalid"),
+			@ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Sommunitation with device was not successful, but devices is still in a "
+					+ "well defined state. For example this can happen, when deviced is not reachable"),
+			@ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communitation could not terminated leaving device possibly in a undefined state.") })
+	@PostMapping(value = "/{id}/main-command!execute")
+	public ResponseEntity<Device> executeCommand(
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
+			throws NoSuchElementException, UndefinedCommandException, CommunicationNotSuccessfulException,
+			CommunicationInterruptedException {
+		return executeCommand(id, null);
+	}
+
+	@ApiOperation("Executes a command for a given device.")
+	@ApiResponses({ @ApiResponse(code = 400, message = "Operation is invalid"),
+			@ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Sommunitation with device was not successful, but devices is still in a "
+					+ "well defined state. For example this can happen, when deviced is not reachable"),
+			@ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communitation could not terminated leaving device possibly in a undefined state.") })
+	@PostMapping(value = "/{id}/commands/{command}!execute")
+	public ResponseEntity<Device> executeCommand(
+			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
+			@ApiParam(value = "Command name", required = false) @PathVariable(required = true) final Command command)
+			throws NoSuchElementException, UndefinedCommandException, CommunicationNotSuccessfulException,
+			CommunicationInterruptedException {
+		final Device updatedDevice = deviceService.sendCommand(findDevice(id), command);
+		return ResponseEntity.status(OK.value()).body(updatedDevice);
+	}
 
 	@ApiOperation("Finds all registrered devices.")
 	@GetMapping
@@ -98,21 +125,6 @@ public class DeviceController implements DeviceApiV1Controller {
 	@ExceptionHandler({ UndefinedCommandException.class })
 	public ResponseEntity<String> handleUndefinedCommandException() {
 		return ResponseEntity.status(NOT_ACCEPTABLE).body("undefined command");
-	}
-
-	@ApiOperation("Executes a command for a given device.")
-	@ApiResponses({ @ApiResponse(code = 400, message = "Operation is invalid"),
-			@ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Sommunitation with device was not successful, but devices is still in a "
-					+ "well defined state. For example this can happen, when deviced is not reachable"),
-			@ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communitation could not terminated leaving device possibly in a undefined state.") })
-	@PostMapping(value = "/{id}!sendCommand")
-	public ResponseEntity<Device> sendCommand(
-			@ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
-			@ApiParam(value = "Command name", required = false) @RequestParam(required = false) final Command command)
-			throws NoSuchElementException, UndefinedCommandException, CommunicationNotSuccessfulException,
-			CommunicationInterruptedException {
-		final Device updatedDevice = deviceService.sendCommand(findDevice(id), command);
-		return ResponseEntity.status(OK.value()).body(updatedDevice);
 	}
 
 	@ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")
