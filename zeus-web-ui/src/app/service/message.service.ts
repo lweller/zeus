@@ -22,8 +22,16 @@ export class MessageService {
   displayWarning(message: string) {
     this.displayMessage(message, LEVEL_WARNING);
   }
+
   displayError(message: string) {
     this.displayMessage(message, LEVEL_ERROR);
+  }
+
+  reset() {
+    if (this.stateTrigger != null) {
+      this.stateTrigger.unsubscribe();
+    }
+    this.currentMessage.state = STATE_DONE;
   }
 
   private displayMessage(message: string, level: string) {

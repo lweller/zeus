@@ -1,4 +1,6 @@
+import {MessageService} from './service/message.service';
 import {Component} from '@angular/core';
+import {Router, Event, NavigationStart} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
 
 @Component({
@@ -9,10 +11,15 @@ import {TranslateService} from '@ngx-translate/core';
 export class AppComponent {
   title = 'Zeus Web';
 
-  constructor(private translateService: TranslateService) {
+  constructor(private translateService: TranslateService, private messageService: MessageService, private router: Router) {
     translateService.addLangs(['en', 'de', 'fr']);
     translateService.setDefaultLang('en');
     const browserLang = translateService.getBrowserLang();
     translateService.use(browserLang.match(/en|de|fr/) ? browserLang : 'en');
+    router.events.subscribe((event: Event) => {
+      if (event instanceof NavigationStart) {
+        messageService.reset();
+      }
+    });
   }
 }
