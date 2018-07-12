@@ -158,6 +158,7 @@
 					</manifest>
 					<archive>
 						<manifestEntries>
+							<Implementation-Version>${project.version}</Implementation-Version>
 							<Build-Number>${build.number}</Build-Number>
 							<Build-Time>${maven.build.timestamp}</Build-Time>
 							<Build-Host>${agent.name}</Build-Host>
