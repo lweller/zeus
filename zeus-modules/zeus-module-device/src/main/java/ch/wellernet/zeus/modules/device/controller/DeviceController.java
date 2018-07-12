@@ -101,15 +101,15 @@ public class DeviceController implements DeviceApiV1Controller {
 	}
 
 	@ExceptionHandler({ CommunicationInterruptedException.class })
-	public ResponseEntity<String> handleCommunicationInterruptedException(
+	public ResponseEntity<Device> handleCommunicationInterruptedException(
 			final CommunicationInterruptedException exception) {
-		return ResponseEntity.status(COMMUNICATION_INTERRUPTED).body(exception.getMessage());
+		return ResponseEntity.status(COMMUNICATION_INTERRUPTED).body(exception.getDevice());
 	}
 
 	@ExceptionHandler({ CommunicationNotSuccessfulException.class })
-	public ResponseEntity<String> handleCommunicationNotSuccessfulException(
+	public ResponseEntity<Device> handleCommunicationNotSuccessfulException(
 			final CommunicationNotSuccessfulException exception) {
-		return ResponseEntity.status(COMMUNICATION_NOT_SUCCESSFUL).body(exception.getMessage());
+		return ResponseEntity.status(COMMUNICATION_NOT_SUCCESSFUL).body(exception.getDevice());
 	}
 
 	@ExceptionHandler({ NoSuchElementException.class })

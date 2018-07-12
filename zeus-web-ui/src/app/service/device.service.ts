@@ -18,6 +18,9 @@ export class DeviceService {
 
   constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {}
 
+  findById(id: string): Observable<Device> {
+    return this.httpClient.get<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${id}`);
+  }
 
   findAll(): Observable<Device[]> {
     return this.httpClient.get<Device[]>(`${environment.zeusServerDeviceApiBaseUri}/devices`);
@@ -48,8 +51,9 @@ export class DeviceService {
             this.translateService.get('Command has been sent to device, but ened up with a failure, leaving device possibly in an undefined state.')
               .subscribe(result => message = result);
             this.messageService.displayError(message);
-            device.$error = true;
-            return of(device);
+            updatedDevice = error.error;
+            updatedDevice.$error = true;
+            return of(updatedDevice);
           default:
             this.translateService.get('Sorry, an unexpected error happend !')
               .subscribe(result => message = result);

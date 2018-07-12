@@ -150,7 +150,7 @@ public class DeviceControllerTest {
 		// given nothing special
 
 		// when
-		final ResponseEntity<String> response = deviceController.handleCommunicationInterruptedException(
+		final ResponseEntity<Device> response = deviceController.handleCommunicationInterruptedException(
 				new CommunicationInterruptedException("something went terribly wrong!"));
 
 		// then
@@ -162,7 +162,7 @@ public class DeviceControllerTest {
 		// given nothing special
 
 		// when
-		final ResponseEntity<String> response = deviceController.handleCommunicationNotSuccessfulException(
+		final ResponseEntity<Device> response = deviceController.handleCommunicationNotSuccessfulException(
 				new CommunicationNotSuccessfulException("can't do it, sorry", ON));
 
 		// then
