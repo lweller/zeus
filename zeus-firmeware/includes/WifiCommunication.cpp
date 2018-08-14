@@ -29,7 +29,17 @@ Request* WifiCommunication::receive() {
 	Request* request = NULL;
 	WiFiClient client = this->server->available();
 	if (client) {
-		String message = client.readStringUntil('\n');
+		while (!client.available()) {
+			delay(10);
+		}
+		String message = "";
+		while (client.available()) {
+			char c = client.read();
+			message += c;
+			if (c == '\n') {
+				break;
+			}
+		}
 		unsigned int index0 = nextArgument(&message, 0);
 		unsigned int index1 = nextArgument(&message, index0);
 		request = new WifiRequest(this, client, message.substring(0, index0), message.substring(index0, index1), message.substring(index1));
@@ -39,5 +49,6 @@ Request* WifiCommunication::receive() {
 
 void WifiCommunication::send(Request* request, String message) {
 	((WifiRequest*) request)->client.println(message);
+	((WifiRequest*) request)->client.flush();
+	delay(10);
 }
-
