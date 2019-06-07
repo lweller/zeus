@@ -154,10 +154,10 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<manifest>
-						<addDefaultImplementationEntries>false</addDefaultImplementationEntries>
-					</manifest>
 					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>false</addDefaultImplementationEntries>
+						</manifest>
 						<manifestEntries>
 							<Implementation-Version>${project.version}</Implementation-Version>
 							<Build-Number>${build.number}</Build-Number>
