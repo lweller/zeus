@@ -7,8 +7,6 @@ import {
   TranslateModule, TranslateLoader, TranslateService, TranslateDefaultParser,
   TranslateParser, MissingTranslationHandler, MissingTranslationHandlerParams
 } from '@ngx-translate/core';
-import {TranslatePoHttpLoader} from '@biesbjerg/ngx-translate-po-http-loader';
-import {Http} from '@angular/http';
 import {registerLocaleData} from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeDe from '@angular/common/locales/de';
@@ -25,6 +23,7 @@ import {ScenarioService} from './service/scenario.service';
 import {MessageService} from './service/message.service';
 import {NavigationBarComponent} from './component/navigation-bar/navigation-bar.component';
 import {EditableLabelComponent} from './component/editable-label/editable-label.component';
+import {TranslatePoHttpLoader} from "./translate-po-http-loader";
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
