@@ -41,6 +41,6 @@ export class MessageService {
     this.currentMessage.message = message;
     this.currentMessage.level = level;
     this.currentMessage.state = STATE_NEW;
-    this.stateTrigger = interval(5000).pipe(take(1)).subscribe(_ => this.currentMessage.state = STATE_DONE);
+    this.stateTrigger = interval(5000).pipe(take(1)).subscribe(() => this.currentMessage.state = STATE_DONE);
   }
 }

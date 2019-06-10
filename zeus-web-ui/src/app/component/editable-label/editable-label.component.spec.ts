@@ -10,7 +10,7 @@ describe('EditableLabelComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ EditableLabelComponent ]
     })
-    .compileComponents();
+    .compileComponents().then();
   }));
 
   beforeEach(() => {
@@ -19,7 +19,7 @@ describe('EditableLabelComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should be created', () => {
     expect(component).toBeTruthy();
   });
 });

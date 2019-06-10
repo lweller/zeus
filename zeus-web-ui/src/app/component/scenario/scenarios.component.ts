@@ -31,6 +31,7 @@ export class ScenariosComponent implements OnInit {
   }
 
   update(scenario: Scenario): void {
+    Object.assign(this.scenarios[this.scenarios.indexOf(scenario)], event);
   }
 
   toggleEnabling(scenario: Scenario): void {

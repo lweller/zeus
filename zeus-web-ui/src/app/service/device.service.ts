@@ -7,7 +7,6 @@ import {Device} from '../model/device';
 import {environment} from '../../environments/environment';
 import {Command} from '../model/command';
 import {MessageService} from './message.service';
-import {HttpParams} from '@angular/common/http';
 import {TranslateService} from '@ngx-translate/core';
 
 const COMMUNICATION_NOT_SUCCESSFUL = 901;
@@ -17,10 +16,6 @@ const COMMUNICATION_INTERRUPTED = 902;
 export class DeviceService {
 
   constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {}
-
-  findById(id: string): Observable<Device> {
-    return this.httpClient.get<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${id}`);
-  }
 
   findAll(): Observable<Device[]> {
     return this.httpClient.get<Device[]>(`${environment.zeusServerDeviceApiBaseUri}/devices`);
@@ -48,14 +43,14 @@ export class DeviceService {
             updatedDevice.$error = true;
             return of(updatedDevice);
           case COMMUNICATION_INTERRUPTED:
-            this.translateService.get('Command has been sent to device, but ened up with a failure, leaving device possibly in an undefined state.')
+            this.translateService.get('Command has been sent to device, but ended up with a failure, leaving device possibly in an undefined state.')
               .subscribe(result => message = result);
             this.messageService.displayError(message);
             updatedDevice = error.error;
             updatedDevice.$error = true;
             return of(updatedDevice);
           default:
-            this.translateService.get('Sorry, an unexpected error happend !')
+            this.translateService.get('Sorry, an unexpected error happened !')
               .subscribe(result => message = result);
             this.messageService.displayError(message);
             device.$error = true;
@@ -78,20 +73,19 @@ export class DeviceService {
     return this.httpClient.post<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices/${device.id}!update`, device,
       {headers: new HttpHeaders().set('If-Match', `${device.version}`)})
       .pipe(catchError((error: HttpErrorResponse) => {
-        switch (error.status) {
-          case PRECONDITION_FAILED:
-            this.translateService.get('Data has not been updated due to concurent modifications.')
-              .subscribe(result => message = result);
-            this.messageService.displayWarning(message);
-            updatedDevice = error.error;
-            updatedDevice.$error = true;
-            return of(updatedDevice);
-          default:
-            this.translateService.get('Sorry, an unexpected error happend !')
-              .subscribe(result => message = result);
-            this.messageService.displayError(message);
-            device.$error = true;
-            return of(device);
+        if (error.status === PRECONDITION_FAILED) {
+          this.translateService.get('Data has not been updated due to concurrent modifications.')
+            .subscribe(result => message = result);
+          this.messageService.displayWarning(message);
+          updatedDevice = error.error;
+          updatedDevice.$error = true;
+          return of(updatedDevice);
+        } else {
+          this.translateService.get('Sorry, an unexpected error happened !')
+            .subscribe(result => message = result);
+          this.messageService.displayError(message);
+          device.$error = true;
+          return of(device);
         }
       }))
       .pipe(tap(reloadedDevice => {

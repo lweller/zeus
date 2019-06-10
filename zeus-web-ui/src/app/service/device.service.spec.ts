@@ -1,15 +1,20 @@
-import { TestBed, inject } from '@angular/core/testing';
+import {inject, TestBed} from '@angular/core/testing';
 
-import { MessageService } from './message.service';
+import {DeviceService} from "./device.service";
+import {TranslateService} from "@ngx-translate/core";
+import {TranslateMockService} from "./translate.service.mock";
+import {MessageService} from "./message.service";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
-describe('MessageService', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [MessageService]
+describe('DeviceService', () => {
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            imports: [HttpClientTestingModule],
+            providers: [DeviceService, {provide: TranslateService, useClass: TranslateMockService}, MessageService]
+        });
     });
-  });
 
-  it('should be created', inject([MessageService], (service: MessageService) => {
-    expect(service).toBeTruthy();
-  }));
+    it('should be created', inject([DeviceService], (service: DeviceService) => {
+        expect(service).toBeTruthy();
+    }));
 });

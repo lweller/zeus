@@ -8,7 +8,7 @@
         [value]="event.name"
         (finishedEditing)="event.name = $event; update(event)"></app-editable-label>
       <span class="next-firing">
-        <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">{{'will fire in {duration}' | translate:{duration:buildNextOccurenceExpression(event)} }}</span>
+        <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">{{'will fire in {duration}' | translate:{duration:buildNextOccurrenceExpression(event)} }}</span>
         <ng-template #nextOccurrenceUnknown> <span>{{'time of next occurrence is unknown' | translate}}</span> </ng-template>
       </span>
     </div>

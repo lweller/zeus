@@ -4,7 +4,6 @@
 
 .button {
 	display: inline-block;
-	cursor: hand;
 	cursor: pointer;
 	position: relative;
 	width: 40px;
@@ -13,9 +12,6 @@
 	font-weight: bold;
 	margin: 0 0 0 4px;
 	background-color: #eeeeee;
-	font-size: x-large;
-	height: 40px;
-	width: 40px;
 	border: medium;
 	-webkit-user-select: none; /* Safari */
 	-moz-user-select: none; /* Firefox */

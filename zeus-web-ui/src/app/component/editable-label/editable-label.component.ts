@@ -1,63 +1,56 @@
-import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-editable-label',
-  templateUrl: './editable-label.component.html',
-  styleUrls: ['./editable-label.component.css']
+    selector: 'app-editable-label',
+    templateUrl: './editable-label.component.html',
+    styleUrls: ['./editable-label.component.css']
 })
 export class EditableLabelComponent implements OnInit {
 
-  @Input() value: string;
+    @Input() value: string;
 
-  @Output() startedEditing = new EventEmitter();
-  @Output() canceledEditing = new EventEmitter();
-  @Output() finishedEditing = new EventEmitter<String>();
+    @Output() startedEditing = new EventEmitter();
+    @Output() canceledEditing = new EventEmitter();
+    @Output() finishedEditing = new EventEmitter<String>();
 
-  editing: boolean;
+    editing: boolean;
 
-  constructor() {}
-
-  ngOnInit() {
-    this.editing = false;
-  }
-
-  startEditing(inputfield) {
-    if (!this.editing) {
-      this.editing = true;
-      this.setCaretPosition(inputfield, 0, inputfield.value.length);
-      this.startedEditing.emit();
+    constructor() {
     }
-  }
 
-  cancelEditing(inputfield) {
-    if (this.editing) {
-      inputfield.value = this.value;
-      this.editing = false;
-      this.canceledEditing.emit();
+    ngOnInit() {
+        this.editing = false;
     }
-  }
 
-  finishEditing(inputfield) {
-    if (this.editing) {
-      this.editing = false;
-      this.value = inputfield.value;
-      this.setCaretPosition(inputfield, 0, 0);
-      this.finishedEditing.emit(this.value);
-    }
-  }
-
-  setCaretPosition(elem, caretStartPos, caretEndPos) {
-    if (elem !== null) {
-      if (elem.createTextRange) {
-        const range = elem.createTextRange();
-        range.move('character', caretStartPos, caretEndPos);
-        range.select();
-      } else {
-        if (elem.setSelectionRange) {
-          elem.focus();
-          elem.setSelectionRange(caretStartPos, caretEndPos);
+    startEditing(inputField) {
+        if (!this.editing) {
+            this.editing = true;
+            EditableLabelComponent.setCaretPosition(inputField, 0, inputField.value.length);
+            this.startedEditing.emit();
         }
-      }
     }
-  }
+
+    cancelEditing(inputField) {
+        if (this.editing) {
+            inputField.value = this.value;
+            this.editing = false;
+            this.canceledEditing.emit();
+        }
+    }
+
+    finishEditing(inputField) {
+        if (this.editing) {
+            this.editing = false;
+            this.value = inputField.value;
+            EditableLabelComponent.setCaretPosition(inputField, 0, 0);
+            this.finishedEditing.emit(this.value);
+        }
+    }
+
+    static setCaretPosition(elem, caretStartPos, caretEndPos) {
+        if (elem !== null) {
+            elem.focus();
+            elem.setSelectionRange(caretStartPos, caretEndPos);
+        }
+    }
 }

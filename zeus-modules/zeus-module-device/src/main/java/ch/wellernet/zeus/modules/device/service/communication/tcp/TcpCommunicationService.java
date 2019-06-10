@@ -181,9 +181,9 @@ public class TcpCommunicationService implements CommunicationService {
       log.trace("received response");
       return response;
     } catch (final IOException exception) {
-      log.error("an unexpected error happen during communication with device", exception);
+      log.error("an unexpected error happened during communication with device", exception);
       throw new CommunicationInterruptedException(
-          "an unexpected error happen during communication with device");
+          "an unexpected error happened during communication with device");
     }
   }
 

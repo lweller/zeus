@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
-import {PRECONDITION_FAILED} from 'http-status-codes';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
@@ -23,6 +22,6 @@ export class EventService {
     this.translateService.get('Event has successfully been fired.')
       .subscribe(result => message = result);
     return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}!fire`, {})
-      .pipe(tap(x => this.messageService.displayInfo(message)));
+      .pipe(tap(() => this.messageService.displayInfo(message)));
   }
 }

@@ -1,25 +1,29 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { MessageFieldComponent } from './message-field.component';
+import {MessageBoxComponent} from './message-box.component';
+import {MessageService} from "../../service/message.service";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
-describe('MessageFieldComponent', () => {
-  let component: MessageFieldComponent;
-  let fixture: ComponentFixture<MessageFieldComponent>;
+describe('MessageBoxComponent', () => {
+    let component: MessageBoxComponent;
+    let fixture: ComponentFixture<MessageBoxComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ MessageFieldComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [MessageBoxComponent],
+            imports: [BrowserAnimationsModule],
+            providers: [MessageService]
+        })
+            .compileComponents().then();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(MessageFieldComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(MessageBoxComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(component).toBeTruthy();
+    });
 });

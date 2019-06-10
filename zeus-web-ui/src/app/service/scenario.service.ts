@@ -22,20 +22,19 @@ export class ScenarioService {
     return this.httpClient.post<Scenario>(`${environment.zeusServerScenarioApiBaseUri}/scenarios/${scenario.id}!toggleEnabling`,
       {headers: new HttpHeaders().set('If-Match', `${scenario.version}`)})
       .pipe(catchError((error: HttpErrorResponse) => {
-        switch (error.status) {
-          case PRECONDITION_FAILED:
-            this.translateService.get('Data has not been updated due to concurent modifications.')
-              .subscribe(result => message = result);
-            this.messageService.displayWarning(message);
-            const reloadedScenario: Scenario = error.error;
-            reloadedScenario.$error = true;
-            return of(reloadedScenario);
-          default:
-            this.translateService.get('Sorry, an unexpected error happend !')
-              .subscribe(result => message = result);
-            this.messageService.displayError(message);
-            scenario.$error = true;
-            return of(scenario);
+        if (error.status === PRECONDITION_FAILED) {
+          this.translateService.get('Data has not been updated due to concurrent modifications.')
+            .subscribe(result => message = result);
+          this.messageService.displayWarning(message);
+          const reloadedScenario: Scenario = error.error;
+          reloadedScenario.$error = true;
+          return of(reloadedScenario);
+        } else {
+          this.translateService.get('Sorry, an unexpected error happened !')
+            .subscribe(result => message = result);
+          this.messageService.displayError(message);
+          scenario.$error = true;
+          return of(scenario);
         }
       }))
       .pipe(tap(reloadedScenario => {

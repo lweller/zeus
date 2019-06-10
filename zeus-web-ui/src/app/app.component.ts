@@ -9,8 +9,6 @@ import {TranslateService} from '@ngx-translate/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'Zeus Web';
-
   constructor(private translateService: TranslateService, private messageService: MessageService, private router: Router) {
     translateService.addLangs(['en', 'de', 'fr']);
     translateService.setDefaultLang('en');

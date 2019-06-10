@@ -45,7 +45,6 @@
 }
 
 .fire-button {
-	cursor: hand;
 	cursor: pointer;
 	display: inline-block;
 	position: absolute;

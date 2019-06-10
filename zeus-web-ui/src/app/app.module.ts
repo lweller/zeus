@@ -33,7 +33,6 @@ export class InterpolatedTranslateParser extends TranslateDefaultParser {
   public templateMatcher: RegExp = /{\s?([^{}\s]*)\s?}/g;
 }
 export class InterpolatedMissingTranslationHandler implements MissingTranslationHandler {
-  public parser: TranslateParser = createTranslateParser();
   public handle(params: MissingTranslationHandlerParams) {
     return params.translateService.parser.interpolate(params.key, params.interpolateParams);
     // Workaround until this PR is merged: https://github.com/ocombe/ng2-translate/pull/348
