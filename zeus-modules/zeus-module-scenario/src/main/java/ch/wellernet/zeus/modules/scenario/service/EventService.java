@@ -5,7 +5,11 @@ import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
-import ch.wellernet.zeus.modules.scenario.scheduling.*;
+import ch.wellernet.zeus.modules.scenario.scheduling.HighNoonTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.Location;
+import ch.wellernet.zeus.modules.scenario.scheduling.MidnightTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.SunriseTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.SunsetTrigger;
 import com.luckycatlabs.sunrisesunset.Zenith;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -23,7 +27,12 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
 import static com.google.common.collect.Lists.newArrayList;

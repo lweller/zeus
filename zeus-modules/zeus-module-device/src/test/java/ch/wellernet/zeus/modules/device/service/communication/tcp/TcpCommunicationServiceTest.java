@@ -1,6 +1,11 @@
 package ch.wellernet.zeus.modules.device.service.communication.tcp;
 
-import ch.wellernet.zeus.modules.device.model.*;
+import ch.wellernet.zeus.modules.device.model.Command;
+import ch.wellernet.zeus.modules.device.model.ControlUnit;
+import ch.wellernet.zeus.modules.device.model.Device;
+import ch.wellernet.zeus.modules.device.model.IntegratedControlUnitAddress;
+import ch.wellernet.zeus.modules.device.model.State;
+import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;

@@ -1,6 +1,10 @@
 package ch.wellernet.zeus.modules.scenario.service;
 
-import ch.wellernet.zeus.modules.scenario.model.*;
+import ch.wellernet.zeus.modules.scenario.model.CronEvent;
+import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
+import ch.wellernet.zeus.modules.scenario.model.Event;
+import ch.wellernet.zeus.modules.scenario.model.EventDrivenTransition;
+import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
 import ch.wellernet.zeus.modules.scenario.scheduling.HighNoonTrigger;
 import ch.wellernet.zeus.modules.scenario.scheduling.MidnightTrigger;
@@ -19,10 +23,18 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
-import static ch.wellernet.zeus.modules.scenario.model.SunEvent.*;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.HIGH_NOON;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.MIDNIGHT;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNRISE;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNSET;
 import static ch.wellernet.zeus.modules.scenario.model.SunEventDefinition.OFFICIAL;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -30,12 +42,17 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 

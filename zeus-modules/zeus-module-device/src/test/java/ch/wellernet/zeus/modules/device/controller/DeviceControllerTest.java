@@ -6,7 +6,11 @@ import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.DeviceService;
-import ch.wellernet.zeus.modules.device.service.communication.*;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationService;
+import ch.wellernet.zeus.modules.device.service.communication.CommunicationServiceRegistry;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +39,9 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 @SpringBootTest(classes = DeviceController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)

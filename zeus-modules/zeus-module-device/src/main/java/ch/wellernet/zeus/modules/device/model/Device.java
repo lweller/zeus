@@ -1,6 +1,10 @@
 package ch.wellernet.zeus.modules.device.model;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
@@ -10,7 +14,10 @@ import javax.persistence.Version;
 import java.util.UUID;
 
 import static ch.wellernet.zeus.modules.device.model.State.UNKNOWN;
-import static javax.persistence.CascadeType.*;
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 
 @Entity

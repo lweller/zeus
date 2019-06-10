@@ -5,7 +5,11 @@ import lombok.Getter;
 
 import java.util.Set;
 
-import static ch.wellernet.zeus.modules.device.model.Command.*;
+import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
+import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_OFF;
+import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON;
+import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON_W_TIMER;
+import static ch.wellernet.zeus.modules.device.model.Command.TOGGLE_SWITCH;
 import static ch.wellernet.zeus.modules.device.model.State.OFF;
 import static com.google.common.collect.Sets.immutableEnumSet;
 

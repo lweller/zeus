@@ -17,7 +17,10 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 
-import static ch.wellernet.zeus.modules.device.model.Command.*;
+import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
+import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_OFF;
+import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON;
+import static ch.wellernet.zeus.modules.device.model.Command.TOGGLE_SWITCH;
 import static ch.wellernet.zeus.modules.device.model.State.OFF;
 import static ch.wellernet.zeus.modules.device.model.State.ON;
 import static com.google.common.collect.Sets.immutableEnumSet;

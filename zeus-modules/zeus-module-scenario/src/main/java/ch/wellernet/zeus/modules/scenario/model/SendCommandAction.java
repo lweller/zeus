@@ -11,7 +11,10 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.util.UUID;
 
-import static javax.persistence.CascadeType.*;
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 
 @Entity

@@ -1,6 +1,10 @@
 package ch.wellernet.zeus.modules.device.service.communication.tcp;
 
-import ch.wellernet.zeus.modules.device.model.*;
+import ch.wellernet.zeus.modules.device.model.Command;
+import ch.wellernet.zeus.modules.device.model.ControlUnit;
+import ch.wellernet.zeus.modules.device.model.Device;
+import ch.wellernet.zeus.modules.device.model.State;
+import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
@@ -14,7 +18,11 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.Collection;
