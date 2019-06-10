@@ -7,9 +7,12 @@ import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
 import ch.wellernet.zeus.modules.scenario.scheduling.*;
 import com.luckycatlabs.sunrisesunset.Zenith;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.support.CronTrigger;
@@ -33,14 +36,16 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 @Transactional(MANDATORY)
 @Slf4j
 @EnableConfigurationProperties(Location.class)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class EventService {
 
-  private @Autowired(required = false) final ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
-  private @Autowired EventRepository eventRepository;
-  private @Autowired PlatformTransactionManager transactionManager;
-  private @Autowired ScenarioService scenarioService;
-  private @Autowired Location location;
-  private @Autowired TaskScheduler taskScheduler;
+  // injected dependencies
+  private @Setter(onMethod_ = @Autowired(required = false)) ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
+  private final EventRepository eventRepository;
+  private final PlatformTransactionManager transactionManager;
+  private final ScenarioService scenarioService;
+  private final Location location;
+  private final TaskScheduler taskScheduler;
 
   public void cancelEvent(final UUID eventId) {
     final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
@@ -79,27 +84,25 @@ public class EventService {
   }
 
   public void scheduleAllExistingEvents() throws IllegalArgumentException {
-    log.info(format("scheduling all existing events"));
-    eventRepository.findAll().forEach(event -> {
-      event.dispatch(new Event.Dispatcher() {
+    log.info("scheduling all existing events");
+    eventRepository.findAll().forEach(event -> event.dispatch(new Event.Dispatcher() {
 
-        @Override
-        public void execute(final CronEvent event) {
-          scheduleEvent(event);
-        }
+      @Override
+      public void execute(final CronEvent event) {
+        scheduleEvent(event);
+      }
 
-        @Override
-        public void execute(final DayTimeEvent event) {
-          scheduleEvent(event);
-        }
+      @Override
+      public void execute(final DayTimeEvent event) {
+        scheduleEvent(event);
+      }
 
-        @Override
-        public void execute(final FixedRateEvent event) {
-          scheduleEvent(event);
-        }
+      @Override
+      public void execute(final FixedRateEvent event) {
+        scheduleEvent(event);
+      }
 
-      });
-    });
+    }));
   }
 
   public void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
@@ -115,12 +118,16 @@ public class EventService {
     switch (event.getDefinition()) {
       case ASTRONOMICAL:
         zenith = Zenith.ASTRONOMICAL;
+        break;
       case CIVIL:
         zenith = Zenith.CIVIL;
+        break;
       case NAUTICAL:
         zenith = Zenith.NAUTICAL;
+        break;
       case OFFICIAL:
         zenith = Zenith.OFFICIAL;
+        break;
     }
     switch (event.getSunEvent()) {
       case MIDNIGHT:
@@ -151,14 +158,12 @@ public class EventService {
   }
 
   private Runnable createRunnableToFireEvent(final Event event) {
-    return () -> {
-      new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-        @Override
-        protected void doInTransactionWithoutResult(final TransactionStatus status) {
-          fireEvent(event.getId());
-        }
-      });
-    };
+    return () -> new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final @NonNull TransactionStatus status) {
+        fireEvent(event.getId());
+      }
+    });
   }
 
   void updateNextFiringDate(final Event event) {
@@ -173,15 +178,15 @@ public class EventService {
   static class ScheduledEventRegistrar {
     private final Map<UUID, ScheduledFuture<?>> scheduledEvents = new HashMap<>();
 
-    public ScheduledFuture<?> add(final UUID eventId, final ScheduledFuture<?> scheduledFuture) {
-      return scheduledEvents.put(eventId, scheduledFuture);
+    void add(final UUID eventId, final ScheduledFuture<?> scheduledFuture) {
+      scheduledEvents.put(eventId, scheduledFuture);
     }
 
-    public ScheduledFuture<?> get(final UUID eventId) {
+    ScheduledFuture<?> get(final UUID eventId) {
       return scheduledEvents.get(eventId);
     }
 
-    public ScheduledFuture<?> remove(final UUID eventId) {
+    ScheduledFuture<?> remove(final UUID eventId) {
       return scheduledEvents.remove(eventId);
     }
   }

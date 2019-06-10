@@ -32,7 +32,7 @@ import static javax.transaction.Transactional.TxType.REQUIRED;
 
 @Service(TcpCommunicationService.NAME)
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TcpCommunicationService implements CommunicationService {
 
   public static final String NAME = "service.communication.tcp";

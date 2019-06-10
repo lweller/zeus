@@ -38,15 +38,17 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
+
 @SpringBootTest(classes = EventService.class, properties = {"zeus.location.latitude=46.948877",
     "zeus.location.longitude=7.439949"}, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class EventServiceTest {
 
   // test data
   private static final Event EVENT_1 = CronEvent.builder().id(randomUUID()).name("Event 1").build();
   private static final Event EVENT_2 = CronEvent.builder().id(randomUUID()).name("Event 2").build();
-  private static final Event EVENT_3 = CronEvent.builder().id(randomUUID()).name("Enevt 3").build();
+  private static final Event EVENT_3 = CronEvent.builder().id(randomUUID()).name("Event 3").build();
   private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
@@ -119,9 +121,7 @@ public class EventServiceTest {
 
     // then
     assertThat(events, containsInAnyOrder(originalEvent1, originalEvent2, originalEvent3));
-    events.forEach(event -> {
-      assertThat(event.getNextScheduledExecution(), is(nullValue()));
-    });
+    events.forEach(event -> assertThat(event.getNextScheduledExecution(), is(nullValue())));
   }
 
   @Test
@@ -334,7 +334,8 @@ public class EventServiceTest {
     // then
     verify(eventRepository).save(fixedRateEvent);
     final ArgumentCaptor<Date> date = ArgumentCaptor.forClass(Date.class);
-    verify(taskScheduler).scheduleAtFixedRate(any(Runnable.class), date.capture(), eq(interval * 1000l));
-    assertThat(new Double(date.getValue().getTime()), is(closeTo(currentTimeMillis() + initialDelay * 1000, 50)));
+    verify(taskScheduler).scheduleAtFixedRate(any(Runnable.class), date.capture(), eq(interval * 1000L));
+    assertThat((double) date.getValue().getTime(), is(closeTo(currentTimeMillis() + initialDelay * 1000, 50)));
   }
 }
+

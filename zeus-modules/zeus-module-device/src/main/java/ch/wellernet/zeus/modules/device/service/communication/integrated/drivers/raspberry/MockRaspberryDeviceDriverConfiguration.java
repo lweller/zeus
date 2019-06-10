@@ -14,7 +14,7 @@ public class MockRaspberryDeviceDriverConfiguration {
 
   @Bean(GpioDigitalOutputPinDriver.BEAN_NAME)
   @Scope("prototype")
-  public DeviceDriver gpioDigitalOutputPin(Properties properties) {
+  public DeviceDriver gpioDigitalOutputPin(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") Properties properties) {
     return new MockGpioDigitalOutputPinDriver(properties);
   }
 }
