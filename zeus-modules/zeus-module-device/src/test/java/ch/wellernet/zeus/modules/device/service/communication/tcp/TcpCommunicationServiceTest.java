@@ -60,7 +60,7 @@ public class TcpCommunicationServiceTest {
   private @SpyBean TcpCommunicationService tcpCommunicationService;
 
   @Test
-  public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequetsIsNok()
+  public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequestIsNok()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
@@ -78,7 +78,7 @@ public class TcpCommunicationServiceTest {
   }
 
   @Test
-  public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequetsIsOk()
+  public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequestIsOk()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
@@ -102,10 +102,9 @@ public class TcpCommunicationServiceTest {
     final ControlUnit controlUnit = ControlUnit.builder().address(new IntegratedControlUnitAddress()).build();
     final UUID deviceId = UUID.randomUUID();
     final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
-    final Command command = SWITCH_ON;
 
     // when
-    tcpCommunicationService.sendCommand(device, command, null);
+    tcpCommunicationService.sendCommand(device, SWITCH_ON, null);
 
     // then
     thrown.expect(IllegalStateException.class);
@@ -113,9 +112,9 @@ public class TcpCommunicationServiceTest {
 
   @Test(expected = CommunicationInterruptedException.class)
   public void sendShouldThrowExceptionWhenResponseContainsInvalidDeviceState()
-      throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+      throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    response("OK BLABLA");
+    response("OK SOMETHING");
 
     // when
     tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
@@ -126,9 +125,9 @@ public class TcpCommunicationServiceTest {
 
   @Test(expected = CommunicationInterruptedException.class)
   public void sendShouldThrowExceptionWhenResponseContainsInvalidTcpState()
-      throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+      throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    response("BLABLA ON");
+    response("SOMETHING ON");
 
     // when
     tcpCommunicationService.send(socket, format("%s %s", TOGGLE_SWITCH, randomUUID()));
@@ -139,7 +138,7 @@ public class TcpCommunicationServiceTest {
 
   @Test(expected = CommunicationInterruptedException.class)
   public void sendShouldThrowExceptionWhenResponseContainsNoState()
-      throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+      throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     response("OK");
 
@@ -152,7 +151,7 @@ public class TcpCommunicationServiceTest {
 
   @Test(expected = CommunicationNotSuccessfulException.class)
   public void sendShouldThrowExceptionWhenResponseContainsStateButIsNok()
-      throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+      throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     response("NOK OFF");
 
@@ -166,7 +165,7 @@ public class TcpCommunicationServiceTest {
 
   @Test(expected = CommunicationInterruptedException.class)
   public void sendShouldThrowExceptionWhenResponseContainsUnknownDeviceState()
-      throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+      throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     response("NOK UNKNOWN");
 
@@ -179,7 +178,7 @@ public class TcpCommunicationServiceTest {
 
   @Test
   public void sendShouldTransmitCorrectRequestAndParseTcpAndDeviceStateWhenResponseIsValid()
-      throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
+      throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     final String request = format("%s %s", TOGGLE_SWITCH, randomUUID());
     response("OK ON");
@@ -194,10 +193,10 @@ public class TcpCommunicationServiceTest {
   }
 
   @PostConstruct
-  public void setupSocket() throws IOException {
+  public void setupSocket() throws IOException, CommunicationNotSuccessfulException {
     when(socket.getInputStream()).thenReturn(new ByteArrayInputStream(inputStreamBuffer = new byte[255]));
     when(socket.getOutputStream()).thenReturn(outputStream = new ByteArrayOutputStream());
-    doReturn(socket).when(tcpCommunicationService).createSocket(any());
+    doReturn(this.socket).when(tcpCommunicationService).createSocket(any(), any());
   }
 
   private void response(final String response) {
