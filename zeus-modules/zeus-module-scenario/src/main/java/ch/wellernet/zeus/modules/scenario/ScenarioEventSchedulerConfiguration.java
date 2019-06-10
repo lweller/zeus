@@ -1,5 +1,6 @@
 package ch.wellernet.zeus.modules.scenario;
 
+import ch.wellernet.zeus.modules.scenario.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,29 +12,27 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import ch.wellernet.zeus.modules.scenario.service.EventService;
-
 @Configuration
 @EnableScheduling
 public class ScenarioEventSchedulerConfiguration {
 
-	private @Autowired EventService eventService;
-	private @Autowired PlatformTransactionManager transactionManager;
+  private @Autowired EventService eventService;
+  private @Autowired PlatformTransactionManager transactionManager;
 
-	public void initializeEvents() {
-		new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
-			@Override
-			protected void doInTransactionWithoutResult(final TransactionStatus status) {
-				eventService.scheduleAllExistingEvents();
-			}
-		});
-	}
+  public void initializeEvents() {
+    new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(final TransactionStatus status) {
+        eventService.scheduleAllExistingEvents();
+      }
+    });
+  }
 
-	@Bean
-	public TaskScheduler scenarioEventScheduler() {
-		final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-		taskScheduler.setThreadNamePrefix("scenarioEventScheduler");
-		taskScheduler.setPoolSize(1);
-		return taskScheduler;
-	}
+  @Bean
+  public TaskScheduler scenarioEventScheduler() {
+    final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+    taskScheduler.setThreadNamePrefix("scenarioEventScheduler");
+    taskScheduler.setPoolSize(1);
+    return taskScheduler;
+  }
 }

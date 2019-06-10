@@ -1,16 +1,15 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import static lombok.AccessLevel.PRIVATE;
-
-import java.util.Set;
-import java.util.UUID;
-
-import javax.persistence.Entity;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.Entity;
+import java.util.Set;
+import java.util.UUID;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @Entity
 @Data
@@ -18,17 +17,17 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class CronEvent extends Event {
 
-	private String cronExpression;
+  private String cronExpression;
 
-	@Builder
-	private CronEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
-			final String cronExpression) {
-		super(id, name, transitions);
-		this.cronExpression = cronExpression;
-	}
+  @Builder
+  private CronEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
+                    final String cronExpression) {
+    super(id, name, transitions);
+    this.cronExpression = cronExpression;
+  }
 
-	@Override
-	public void dispatch(final Dispatcher dispatcher) {
-		dispatcher.execute(this);
-	}
+  @Override
+  public void dispatch(final Dispatcher dispatcher) {
+    dispatcher.execute(this);
+  }
 }

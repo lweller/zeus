@@ -7,13 +7,13 @@ import lombok.Setter;
 
 public class CommunicationNotSuccessfulException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private @Getter final State state;
-	private @Getter @Setter Device device;
+  private @Getter final State state;
+  private @Getter @Setter Device device;
 
-	public CommunicationNotSuccessfulException(final String message, final State state) {
-		super(message);
-		this.state = state;
-	}
+  public CommunicationNotSuccessfulException(final String message, final State state) {
+    super(message);
+    this.state = state;
+  }
 }

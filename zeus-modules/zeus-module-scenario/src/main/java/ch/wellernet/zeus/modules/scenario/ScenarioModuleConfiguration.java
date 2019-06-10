@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ScenarioModuleConfiguration {
 
-	private @Autowired ScenarioEventSchedulerConfiguration scenatioEventSchedulerConfiguration;
+  private @Autowired ScenarioEventSchedulerConfiguration scenatioEventSchedulerConfiguration;
 
-	public void init() {
-		scenatioEventSchedulerConfiguration.initializeEvents();
-	}
+  public void init() {
+    scenatioEventSchedulerConfiguration.initializeEvents();
+  }
 }

@@ -1,151 +1,149 @@
 package ch.wellernet.zeus.modules.scenario.scheduling;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.junit.Test;
+import org.springframework.scheduling.TriggerContext;
+
+import java.util.Calendar;
+import java.util.Date;
+
 import static com.luckycatlabs.sunrisesunset.Zenith.OFFICIAL;
 import static java.util.Calendar.MILLISECOND;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.junit.Test;
-import org.springframework.scheduling.TriggerContext;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-
 public class HighNoonTriggerTest {
 
-	@Builder
-	@AllArgsConstructor
-	private static class SimpleTriggerContext implements TriggerContext {
+  final static Calendar BEFORE_HIGH_NOON = Calendar.getInstance();
+  final static Calendar AFTER_HIGH_NOON = Calendar.getInstance();
+  final static Calendar TODAYS_HIGH_NOON = Calendar.getInstance();
+  final static Calendar TODAYS_HIGH_NOON_WITH_OFFSET = Calendar.getInstance();
+  final static Calendar TOMORROWS_HIGH_NOON = Calendar.getInstance();
+  private static final Location BERN = new Location(46.948877, 7.439949);
+  private static final Location NORTH_POLE = new Location(90., 0.);
+  private static final int SHIFT = 15000;
 
-		private final Date lastActualExecutionTime;
-		private final Date lastCompletionTime;
-		private final Date lastScheduledExecutionTime;
+  static {
+    BEFORE_HIGH_NOON.set(2018, 2, 2, 12, 43, 0);
+    BEFORE_HIGH_NOON.set(MILLISECOND, -1);
+  }
 
-		@Override
-		public Date lastActualExecutionTime() {
-			return lastActualExecutionTime;
-		}
+  static {
+    AFTER_HIGH_NOON.set(2018, 2, 2, 12, 43, 0);
+    AFTER_HIGH_NOON.set(MILLISECOND, 1);
+  }
 
-		@Override
-		public Date lastCompletionTime() {
-			return lastCompletionTime;
-		}
+  static {
+    TODAYS_HIGH_NOON.set(2018, 2, 2, 12, 43, 0);
+    TODAYS_HIGH_NOON.set(MILLISECOND, 0);
+  }
 
-		@Override
-		public Date lastScheduledExecutionTime() {
-			return lastScheduledExecutionTime;
-		}
-	}
+  static {
+    TODAYS_HIGH_NOON_WITH_OFFSET.set(2018, 2, 2, 12, 43, 0);
+    TODAYS_HIGH_NOON_WITH_OFFSET.set(MILLISECOND, SHIFT);
+  }
 
-	private static final Location BERN = new Location(46.948877, 7.439949);
-	private static final Location NORTH_POLE = new Location(90., 0.);
+  static {
+    TOMORROWS_HIGH_NOON.set(2018, 2, 3, 12, 42, 30);
+    TOMORROWS_HIGH_NOON.set(MILLISECOND, 0);
+  }
 
-	private static final int SHIFT = 15000;
+  // class under test
+  private final DayTimeTrigger triggerForBernSitzerland = HighNoonTrigger.builder().location(BERN).zenith(OFFICIAL)
+      .build();
+  private final DayTimeTrigger triggerWithOffsetForBernSitzerland = HighNoonTrigger.builder().location(BERN)
+      .zenith(OFFICIAL).shift(SHIFT).build();
+  private final DayTimeTrigger triggerForNorthPole = HighNoonTrigger.builder().location(NORTH_POLE).zenith(OFFICIAL)
+      .build();
 
-	final static Calendar BEFORE_HIGH_NOON = Calendar.getInstance();
-	static {
-		BEFORE_HIGH_NOON.set(2018, 2, 2, 12, 43, 0);
-		BEFORE_HIGH_NOON.set(MILLISECOND, -1);
-	}
+  @Test
+  public void nextExecutionTimeForBernShouldReturnTodaysHighNoonOfSameDayWhenLastScheduledTimeIsBeforeTodaysEvent() {
+    // given
+    final TriggerContext triggerContext = SimpleTriggerContext.builder()
+        .lastScheduledExecutionTime(BEFORE_HIGH_NOON.getTime()).build();
 
-	final static Calendar AFTER_HIGH_NOON = Calendar.getInstance();
-	static {
-		AFTER_HIGH_NOON.set(2018, 2, 2, 12, 43, 0);
-		AFTER_HIGH_NOON.set(MILLISECOND, 1);
-	}
+    // when
+    final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
 
-	final static Calendar TODAYS_HIGH_NOON = Calendar.getInstance();
-	static {
-		TODAYS_HIGH_NOON.set(2018, 2, 2, 12, 43, 0);
-		TODAYS_HIGH_NOON.set(MILLISECOND, 0);
-	}
+    // then
+    assertThat(nextExecutionTime, is(TODAYS_HIGH_NOON.getTime()));
+  }
 
-	final static Calendar TODAYS_HIGH_NOON_WITH_OFFSET = Calendar.getInstance();
-	static {
-		TODAYS_HIGH_NOON_WITH_OFFSET.set(2018, 2, 2, 12, 43, 0);
-		TODAYS_HIGH_NOON_WITH_OFFSET.set(MILLISECOND, SHIFT);
-	}
+  @Test
+  public void nextExecutionTimeForBernShouldReturnTodaysSunsetWithOffsetOfSameDayWhenLastScheduledTimeIsBeforeTodaysEvent() {
+    // given
+    final TriggerContext triggerContext = SimpleTriggerContext.builder()
+        .lastScheduledExecutionTime(BEFORE_HIGH_NOON.getTime()).build();
 
-	final static Calendar TOMORROWS_HIGH_NOON = Calendar.getInstance();
-	static {
-		TOMORROWS_HIGH_NOON.set(2018, 2, 3, 12, 42, 30);
-		TOMORROWS_HIGH_NOON.set(MILLISECOND, 0);
-	}
+    // when
+    final Date nextExecutionTime = triggerWithOffsetForBernSitzerland.nextExecutionTime(triggerContext);
 
-	// class under test
-	private final DayTimeTrigger triggerForBernSitzerland = HighNoonTrigger.builder().location(BERN).zenith(OFFICIAL)
-			.build();
-	private final DayTimeTrigger triggerWithOffsetForBernSitzerland = HighNoonTrigger.builder().location(BERN)
-			.zenith(OFFICIAL).shift(SHIFT).build();
-	private final DayTimeTrigger triggerForNorthPole = HighNoonTrigger.builder().location(NORTH_POLE).zenith(OFFICIAL)
-			.build();
+    // then
+    assertThat(nextExecutionTime, is(TODAYS_HIGH_NOON_WITH_OFFSET.getTime()));
+  }
 
-	@Test
-	public void nextExecutionTimeForBernShouldReturnTodaysHighNoonOfSameDayWhenLastScheduledTimeIsBeforeTodaysEvent() {
-		// given
-		final TriggerContext triggerContext = SimpleTriggerContext.builder()
-				.lastScheduledExecutionTime(BEFORE_HIGH_NOON.getTime()).build();
+  @Test
+  public void nextExecutionTimeForBernShouldReturnTomorrowsHighNoonWhenLastScheduledTimeIsAfterTodaysEvent() {
+    // given
+    final TriggerContext triggerContext = SimpleTriggerContext.builder()
+        .lastScheduledExecutionTime(AFTER_HIGH_NOON.getTime()).build();
 
-		// when
-		final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
+    // when
+    final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
 
-		// then
-		assertThat(nextExecutionTime, is(TODAYS_HIGH_NOON.getTime()));
-	}
+    // then
+    assertThat(nextExecutionTime, is(TOMORROWS_HIGH_NOON.getTime()));
+  }
 
-	@Test
-	public void nextExecutionTimeForBernShouldReturnTodaysSunsetWithOffsetOfSameDayWhenLastScheduledTimeIsBeforeTodaysEvent() {
-		// given
-		final TriggerContext triggerContext = SimpleTriggerContext.builder()
-				.lastScheduledExecutionTime(BEFORE_HIGH_NOON.getTime()).build();
+  @Test
+  public void nextExecutionTimeForBernShouldReturnTomorrowsHighNoonWhenLastScheduledTimeIsTodaysEvent() {
+    // given
+    final TriggerContext triggerContext = SimpleTriggerContext.builder()
+        .lastScheduledExecutionTime(TODAYS_HIGH_NOON.getTime()).build();
 
-		// when
-		final Date nextExecutionTime = triggerWithOffsetForBernSitzerland.nextExecutionTime(triggerContext);
+    // when
+    final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
 
-		// then
-		assertThat(nextExecutionTime, is(TODAYS_HIGH_NOON_WITH_OFFSET.getTime()));
-	}
+    // then
+    assertThat(nextExecutionTime, is(TOMORROWS_HIGH_NOON.getTime()));
+  }
 
-	@Test
-	public void nextExecutionTimeForBernShouldReturnTomorrowsHighNoonWhenLastScheduledTimeIsAfterTodaysEvent() {
-		// given
-		final TriggerContext triggerContext = SimpleTriggerContext.builder()
-				.lastScheduledExecutionTime(AFTER_HIGH_NOON.getTime()).build();
+  @Test
+  public void nextExecutionTimeForNorthPoleShouldReturnNull() {
+    // given
+    final TriggerContext triggerContext = SimpleTriggerContext.builder()
+        .lastScheduledExecutionTime(Calendar.getInstance().getTime()).build();
 
-		// when
-		final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
+    // when
+    final Date nextExecutionTime = triggerForNorthPole.nextExecutionTime(triggerContext);
 
-		// then
-		assertThat(nextExecutionTime, is(TOMORROWS_HIGH_NOON.getTime()));
-	}
+    // then
+    assertThat(nextExecutionTime, is(nullValue()));
+  }
 
-	@Test
-	public void nextExecutionTimeForBernShouldReturnTomorrowsHighNoonWhenLastScheduledTimeIsTodaysEvent() {
-		// given
-		final TriggerContext triggerContext = SimpleTriggerContext.builder()
-				.lastScheduledExecutionTime(TODAYS_HIGH_NOON.getTime()).build();
+  @Builder
+  @AllArgsConstructor
+  private static class SimpleTriggerContext implements TriggerContext {
 
-		// when
-		final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
+    private final Date lastActualExecutionTime;
+    private final Date lastCompletionTime;
+    private final Date lastScheduledExecutionTime;
 
-		// then
-		assertThat(nextExecutionTime, is(TOMORROWS_HIGH_NOON.getTime()));
-	}
+    @Override
+    public Date lastActualExecutionTime() {
+      return lastActualExecutionTime;
+    }
 
-	@Test
-	public void nextExecutionTimeForNorthPoleShouldReturnNull() {
-		// given
-		final TriggerContext triggerContext = SimpleTriggerContext.builder()
-				.lastScheduledExecutionTime(Calendar.getInstance().getTime()).build();
+    @Override
+    public Date lastCompletionTime() {
+      return lastCompletionTime;
+    }
 
-		// when
-		final Date nextExecutionTime = triggerForNorthPole.nextExecutionTime(triggerContext);
-
-		// then
-		assertThat(nextExecutionTime, is(nullValue()));
-	}
+    @Override
+    public Date lastScheduledExecutionTime() {
+      return lastScheduledExecutionTime;
+    }
+  }
 }

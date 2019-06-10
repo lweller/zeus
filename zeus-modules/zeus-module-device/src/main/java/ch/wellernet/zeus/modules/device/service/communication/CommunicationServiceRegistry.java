@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommunicationServiceRegistry {
 
-	@Autowired
-	private ApplicationContext applicationContext;
+  @Autowired
+  private ApplicationContext applicationContext;
 
-	public CommunicationService findByName(String name) {
-		return applicationContext.getBean(name, CommunicationService.class);
-	}
+  public CommunicationService findByName(String name) {
+    return applicationContext.getBean(name, CommunicationService.class);
+  }
 }

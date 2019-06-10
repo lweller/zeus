@@ -1,33 +1,23 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import static javax.persistence.CascadeType.DETACH;
-import static javax.persistence.CascadeType.MERGE;
-import static javax.persistence.CascadeType.PERSIST;
-import static javax.persistence.CascadeType.REFRESH;
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.InheritanceType.SINGLE_TABLE;
-import static lombok.AccessLevel.PRIVATE;
-import static lombok.AccessLevel.PROTECTED;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import static javax.persistence.CascadeType.*;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.InheritanceType.SINGLE_TABLE;
+import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Inheritance(strategy = SINGLE_TABLE)
@@ -36,37 +26,36 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class Event {
-	public interface Dispatcher {
-		public default void execute(final CronEvent event) {
-		}
+  private @Id @Setter(PRIVATE) UUID id;
+  private String name;
+  private Date lastExecution;
+  private @OneToMany(cascade = {PERSIST, DETACH, MERGE,
+      REFRESH}, fetch = LAZY, mappedBy = "event") @JsonIgnore Set<EventDrivenTransition> transitions;
+  private @Version long version;
+  private @Transient Date nextScheduledExecution;
 
-		public default void execute(final DayTimeEvent event) {
-		}
+  protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
+    this.id = id;
+    this.name = name;
+    this.transitions = transitions == null ? new HashSet<>() : transitions;
+    this.transitions.forEach(transition -> {
+      transition.setEvent(this);
+    });
+  }
 
-		public default void execute(final Event event) {
-		}
+  public abstract void dispatch(Dispatcher dispatcher);
 
-		public default void execute(final FixedRateEvent event) {
-		}
-	}
+  public interface Dispatcher {
+    public default void execute(final CronEvent event) {
+    }
 
-	private @Id @Setter(PRIVATE) UUID id;
-	private String name;
-	private Date lastExecution;
-	private @OneToMany(cascade = { PERSIST, DETACH, MERGE,
-			REFRESH }, fetch = LAZY, mappedBy = "event") @JsonIgnore Set<EventDrivenTransition> transitions;
-	private @Version long version;
+    public default void execute(final DayTimeEvent event) {
+    }
 
-	private @Transient Date nextScheduledExecution;
+    public default void execute(final Event event) {
+    }
 
-	protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
-		this.id = id;
-		this.name = name;
-		this.transitions = transitions == null ? new HashSet<>() : transitions;
-		this.transitions.forEach(transition -> {
-			transition.setEvent(this);
-		});
-	}
-
-	public abstract void dispatch(Dispatcher dispatcher);
+    public default void execute(final FixedRateEvent event) {
+    }
+  }
 }

@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class CommunicationInterruptedException extends Exception {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private @Getter @Setter Device device;
+  private @Getter @Setter Device device;
 
-	public CommunicationInterruptedException(final String message) {
-		super(message);
-	}
+  public CommunicationInterruptedException(final String message) {
+    super(message);
+  }
 }

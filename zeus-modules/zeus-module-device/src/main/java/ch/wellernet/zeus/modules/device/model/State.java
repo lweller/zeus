@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum State {
-	UNKNOWN(-1), OFF(0), ON(1);
+  UNKNOWN(-1), OFF(0), ON(1);
 
-	private final int code;
+  private final int code;
 }

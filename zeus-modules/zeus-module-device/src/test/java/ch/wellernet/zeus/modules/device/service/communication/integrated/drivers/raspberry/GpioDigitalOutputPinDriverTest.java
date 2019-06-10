@@ -1,35 +1,14 @@
 package ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.raspberry;
 
-import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
-import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_OFF;
-import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON;
-import static ch.wellernet.zeus.modules.device.model.Command.TOGGLE_SWITCH;
-import static ch.wellernet.zeus.modules.device.model.State.OFF;
-import static ch.wellernet.zeus.modules.device.model.State.ON;
-import static ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.raspberry.GpioDigitalOutputPinDriver.ACTIVE_STATE_PROPERTY;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.pi4j.io.gpio.PinState.HIGH;
-import static com.pi4j.io.gpio.PinState.LOW;
-import static com.pi4j.io.gpio.PinState.getInverseState;
-import static java.lang.System.currentTimeMillis;
-import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Answers.RETURNS_MOCKS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ScheduledFuture;
-
+import ch.wellernet.zeus.modules.device.model.Command;
+import ch.wellernet.zeus.modules.device.model.State;
+import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.PinState;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import junitparams.naming.TestCaseName;
+import lombok.Value;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,206 +21,214 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.PinState;
+import java.time.Instant;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
 
-import ch.wellernet.zeus.modules.device.model.Command;
-import ch.wellernet.zeus.modules.device.model.State;
-import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
-import lombok.Value;
+import static ch.wellernet.zeus.modules.device.model.Command.*;
+import static ch.wellernet.zeus.modules.device.model.State.OFF;
+import static ch.wellernet.zeus.modules.device.model.State.ON;
+import static ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.raspberry.GpioDigitalOutputPinDriver.ACTIVE_STATE_PROPERTY;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.pi4j.io.gpio.PinState.*;
+import static java.lang.System.currentTimeMillis;
+import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Answers.RETURNS_MOCKS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @SpringBootTest(classes = GpioDigitalOutputPinDriverTest.TestGpioDigitalOutputPinDriver.class, webEnvironment = NONE)
 @RunWith(JUnitParamsRunner.class)
 public class GpioDigitalOutputPinDriverTest {
-	// make class testable
-	static class TestGpioDigitalOutputPinDriver extends GpioDigitalOutputPinDriver {
+  // activate spring
+  public static final @ClassRule SpringClassRule springClassRule = new SpringClassRule();
+  public final @Rule SpringMethodRule springMethodRule = new SpringMethodRule();
+  // object under test
+  private @Autowired TestGpioDigitalOutputPinDriver gpioDigitalOutputPinDriver;
+  private @MockBean(answer = RETURNS_MOCKS) GpioController gpioController;
+  private @MockBean TaskScheduler taskScheduler;
 
-		public TestGpioDigitalOutputPinDriver() {
-			super(new Properties() {
-				private static final long serialVersionUID = 1L;
+  @Test
+  public void executeCommandGetStateShouldNotCancelPreviousScheduledTaskWhenOneExists()
+      throws UndefinedCommandException, IllegalAccessException {
+    // given
+    final ScheduledFuture<?> timerTask = mock(ScheduledFuture.class);
+    writeField(gpioDigitalOutputPinDriver, "timerTask", timerTask, true);
 
-				{
-					setProperty(PIN_PROPERTY, "1");
-				}
-			});
-		}
+    // when
+    gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE, null);
 
-		public void reinitForTest(final Properties properties) {
-			getProperties().putAll(properties);
-			super.init();
-		}
-	}
+    // then
+    verifyZeroInteractions(timerTask);
+    assertThat(gpioDigitalOutputPinDriver.getTimerTask(), is(timerTask));
+  }
 
-	@Value
-	static class TestParameterSet {
-		private PinState activePinState;
-		private PinState initialPinState;
-		private State initialDeviceState;
+  @Test
+  @Parameters(method = "testParameterSets")
+  @TestCaseName("[{index}] {0}")
+  public void executeCommandGetStateShouldSetPinStateToInverseOfInitialState(final TestParameterSet testParameterSet)
+      throws UndefinedCommandException {
+    // given
+    final PinState activePinState = testParameterSet.getActivePinState();
+    final PinState initialPinState = testParameterSet.getInitialPinState();
+    final Properties properties = new Properties();
+    properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
+    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState);
 
-		public State getInverseInitialDeviceState() {
-			return initialDeviceState == OFF ? ON : OFF;
-		}
+    // when
+    final State state = gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE, null);
 
-		@Override
-		public String toString() {
-			return String.format("active state: %s, initial state: %s", activePinState, initialPinState);
-		}
-	}
+    // then
+    assertThat(state, is(testParameterSet.getInitialDeviceState()));
+  }
 
-	// activate spring
-	public static final @ClassRule SpringClassRule springClassRule = new SpringClassRule();
-	public final @Rule SpringMethodRule springMethodRule = new SpringMethodRule();
+  @Test
+  @Parameters(method = "testParameterSets")
+  @TestCaseName("[{index}] {0}")
+  public void executeCommandOffShouldSetPinStateToInverseOfActiveState(final TestParameterSet testParameterSet)
+      throws UndefinedCommandException {
+    // given
+    final PinState activePinState = testParameterSet.getActivePinState();
+    final PinState finalPinState = getInverseState(activePinState);
+    final Properties properties = new Properties();
+    properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
+    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
-	// object under test
-	private @Autowired TestGpioDigitalOutputPinDriver gpioDigitalOutputPinDriver;
+    // when
+    final State state = gpioDigitalOutputPinDriver.execute(SWITCH_OFF, null);
 
-	private @MockBean(answer = RETURNS_MOCKS) GpioController gpioController;
-	private @MockBean TaskScheduler taskScheduler;
+    // then
+    verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(getInverseState(activePinState));
+    assertThat(state, is(OFF));
+  }
 
-	@Test
-	public void executeCommandGetStateShouldNotCancelPreviousScheduledTaskWhenOneExists()
-			throws UndefinedCommandException, IllegalAccessException {
-		// given
-		final ScheduledFuture<?> timerTask = mock(ScheduledFuture.class);
-		writeField(gpioDigitalOutputPinDriver, "timerTask", timerTask, true);
+  @Test
+  @Parameters(method = "testParameterSets")
+  @TestCaseName("[{index}] {0}")
+  public void executeCommandOnShouldSetPinStateToActiveState(final TestParameterSet testParameterSet)
+      throws UndefinedCommandException {
+    // given
+    final PinState activePinState = testParameterSet.getActivePinState();
+    final PinState finalPinState = activePinState;
+    final Properties properties = new Properties();
+    properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
+    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
-		// when
-		gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE, null);
+    // when
+    final State state = gpioDigitalOutputPinDriver.execute(SWITCH_ON, null);
 
-		// then
-		verifyZeroInteractions(timerTask);
-		assertThat(gpioDigitalOutputPinDriver.getTimerTask(), is(timerTask));
-	}
+    // then
+    verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(activePinState);
+    assertThat(state, is(ON));
+  }
 
-	@Test
-	@Parameters(method = "testParameterSets")
-	@TestCaseName("[{index}] {0}")
-	public void executeCommandGetStateShouldSetPinStateToInverseOfInitialState(final TestParameterSet testParameterSet)
-			throws UndefinedCommandException {
-		// given
-		final PinState activePinState = testParameterSet.getActivePinState();
-		final PinState initialPinState = testParameterSet.getInitialPinState();
-		final Properties properties = new Properties();
-		properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-		gpioDigitalOutputPinDriver.reinitForTest(properties);
-		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState);
+  @Test
+  @Parameters(method = "testParameterSets")
+  @TestCaseName("[{index}] {0}")
+  public void executeCommandOnWTimerShouldSetPinStateToActiveStateAndScheduleTimer(
+      final TestParameterSet testParameterSet) throws UndefinedCommandException {
+    final long timerDelay = 1800;
+    final PinState activePinState = testParameterSet.getActivePinState();
+    final PinState finalPinState = activePinState;
+    final Properties properties = new Properties();
+    properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
+    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
-		// when
-		final State state = gpioDigitalOutputPinDriver.execute(GET_SWITCH_STATE, null);
+    // when
+    final State state = gpioDigitalOutputPinDriver.execute(Command.SWITCH_ON_W_TIMER, Long.toString(timerDelay));
 
-		// then
-		assertThat(state, is(testParameterSet.getInitialDeviceState()));
-	}
+    // then
+    verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(activePinState);
+    final ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
+    verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
+    assertThat(instantCaptor.getValue().getEpochSecond() * 1000d,
+        is(closeTo(currentTimeMillis() + timerDelay * 1000, 1000)));
+    assertThat(state, is(ON));
+  }
 
-	@Test
-	@Parameters(method = "testParameterSets")
-	@TestCaseName("[{index}] {0}")
-	public void executeCommandOffShouldSetPinStateToInverseOfActiveState(final TestParameterSet testParameterSet)
-			throws UndefinedCommandException {
-		// given
-		final PinState activePinState = testParameterSet.getActivePinState();
-		final PinState finalPinState = getInverseState(activePinState);
-		final Properties properties = new Properties();
-		properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-		gpioDigitalOutputPinDriver.reinitForTest(properties);
-		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
+  @Test
+  public void executeCommandToggleShouldCancelPreviousScheduledTaskWhenOneExists()
+      throws UndefinedCommandException, IllegalAccessException {
+    // given
+    final ScheduledFuture<?> timerTask = mock(ScheduledFuture.class);
+    writeField(gpioDigitalOutputPinDriver, "timerTask", timerTask, true);
 
-		// when
-		final State state = gpioDigitalOutputPinDriver.execute(SWITCH_OFF, null);
+    // when
+    gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH, null);
 
-		// then
-		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(getInverseState(activePinState));
-		assertThat(state, is(OFF));
-	}
+    // then
+    verify(timerTask).cancel(true);
+    assertThat(gpioDigitalOutputPinDriver.getTimerTask(), is(nullValue()));
+  }
 
-	@Test
-	@Parameters(method = "testParameterSets")
-	@TestCaseName("[{index}] {0}")
-	public void executeCommandOnShouldSetPinStateToActiveState(final TestParameterSet testParameterSet)
-			throws UndefinedCommandException {
-		// given
-		final PinState activePinState = testParameterSet.getActivePinState();
-		final PinState finalPinState = activePinState;
-		final Properties properties = new Properties();
-		properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-		gpioDigitalOutputPinDriver.reinitForTest(properties);
-		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
+  @Test
+  @Parameters(method = "testParameterSets")
+  @TestCaseName("[{index}] {0}")
+  public void executeCommandToggleShouldSetPinStateToInverseOfInitialState(final TestParameterSet testParameterSet)
+      throws UndefinedCommandException {
+    // given
+    final PinState activePinState = testParameterSet.getActivePinState();
+    final PinState initialPinState = testParameterSet.getInitialPinState();
+    final PinState finalPinState = getInverseState(initialPinState);
+    final Properties properties = new Properties();
+    properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
+    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState, finalPinState);
 
-		// when
-		final State state = gpioDigitalOutputPinDriver.execute(SWITCH_ON, null);
+    // when
+    final State state = gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH, null);
 
-		// then
-		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(activePinState);
-		assertThat(state, is(ON));
-	}
+    // then
+    verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(finalPinState);
+    assertThat(state, is(testParameterSet.getInverseInitialDeviceState()));
+  }
 
-	@Test
-	@Parameters(method = "testParameterSets")
-	@TestCaseName("[{index}] {0}")
-	public void executeCommandOnWTimerShouldSetPinStateToActiveStateAndScheduleTimer(
-			final TestParameterSet testParameterSet) throws UndefinedCommandException {
-		final long timerDelay = 1800;
-		final PinState activePinState = testParameterSet.getActivePinState();
-		final PinState finalPinState = activePinState;
-		final Properties properties = new Properties();
-		properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-		gpioDigitalOutputPinDriver.reinitForTest(properties);
-		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
+  List<TestParameterSet> testParameterSets() {
+    return newArrayList(new TestParameterSet(LOW, LOW, ON), new TestParameterSet(LOW, HIGH, OFF),
+        new TestParameterSet(HIGH, LOW, OFF), new TestParameterSet(HIGH, HIGH, ON));
+  }
 
-		// when
-		final State state = gpioDigitalOutputPinDriver.execute(Command.SWITCH_ON_W_TIMER, Long.toString(timerDelay));
+  // make class testable
+  static class TestGpioDigitalOutputPinDriver extends GpioDigitalOutputPinDriver {
 
-		// then
-		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(activePinState);
-		final ArgumentCaptor<Instant> instantCaptor = ArgumentCaptor.forClass(Instant.class);
-		verify(taskScheduler).schedule(any(Runnable.class), instantCaptor.capture());
-		assertThat(instantCaptor.getValue().getEpochSecond() * 1000d,
-				is(closeTo(currentTimeMillis() + timerDelay * 1000, 1000)));
-		assertThat(state, is(ON));
-	}
+    public TestGpioDigitalOutputPinDriver() {
+      super(new Properties() {
+        private static final long serialVersionUID = 1L;
 
-	@Test
-	public void executeCommandToggleShouldCancelPreviousScheduledTaskWhenOneExists()
-			throws UndefinedCommandException, IllegalAccessException {
-		// given
-		final ScheduledFuture<?> timerTask = mock(ScheduledFuture.class);
-		writeField(gpioDigitalOutputPinDriver, "timerTask", timerTask, true);
+        {
+          setProperty(PIN_PROPERTY, "1");
+        }
+      });
+    }
 
-		// when
-		gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH, null);
+    public void reinitForTest(final Properties properties) {
+      getProperties().putAll(properties);
+      super.init();
+    }
+  }
 
-		// then
-		verify(timerTask).cancel(true);
-		assertThat(gpioDigitalOutputPinDriver.getTimerTask(), is(nullValue()));
-	}
+  @Value
+  static class TestParameterSet {
+    private PinState activePinState;
+    private PinState initialPinState;
+    private State initialDeviceState;
 
-	@Test
-	@Parameters(method = "testParameterSets")
-	@TestCaseName("[{index}] {0}")
-	public void executeCommandToggleShouldSetPinStateToInverseOfInitialState(final TestParameterSet testParameterSet)
-			throws UndefinedCommandException {
-		// given
-		final PinState activePinState = testParameterSet.getActivePinState();
-		final PinState initialPinState = testParameterSet.getInitialPinState();
-		final PinState finalPinState = getInverseState(initialPinState);
-		final Properties properties = new Properties();
-		properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-		gpioDigitalOutputPinDriver.reinitForTest(properties);
-		given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState, finalPinState);
+    public State getInverseInitialDeviceState() {
+      return initialDeviceState == OFF ? ON : OFF;
+    }
 
-		// when
-		final State state = gpioDigitalOutputPinDriver.execute(TOGGLE_SWITCH, null);
-
-		// then
-		verify(gpioDigitalOutputPinDriver.getProvisionedPin()).setState(finalPinState);
-		assertThat(state, is(testParameterSet.getInverseInitialDeviceState()));
-	}
-
-	List<TestParameterSet> testParameterSets() {
-		return newArrayList(new TestParameterSet(LOW, LOW, ON), new TestParameterSet(LOW, HIGH, OFF),
-				new TestParameterSet(HIGH, LOW, OFF), new TestParameterSet(HIGH, HIGH, ON));
-	}
+    @Override
+    public String toString() {
+      return String.format("active state: %s, initial state: %s", activePinState, initialPinState);
+    }
+  }
 }
