@@ -1,13 +1,13 @@
 <div
-  class="message-box"
-  [class.info]="currentMessage.level === 'info'"
-  [class.warning]="currentMessage.level === 'warning'"
-  [class.error]="currentMessage.level === 'error'"
-  [@visibility-changed]="getVisibility()">
-  <div class="left">
-    <span class="scroll-vertical">{{currentMessage.message}}</span>
-  </div>
-  <div class="right">
-    <span (click)="close()">x</span>
-  </div>
+        [@visibility-changed]="getVisibility()"
+        [class.error]="currentMessage.level === 'error'"
+        [class.info]="currentMessage.level === 'info'"
+        [class.warning]="currentMessage.level === 'warning'"
+        class="message-box">
+    <div class="left">
+        <span class="scroll-vertical">{{currentMessage.message}}</span>
+    </div>
+    <div class="right">
+        <span (click)="close()">x</span>
+    </div>
 </div>

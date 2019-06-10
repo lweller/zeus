@@ -5,14 +5,15 @@ import {EventsComponent} from './component/event/events.component';
 import {ScenariosComponent} from './component/scenario/scenarios.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/devices', pathMatch: 'full'},
-  {path: 'devices', component: DevicesComponent},
-  {path: 'events', component: EventsComponent},
-  {path: 'scenarios', component: ScenariosComponent},
+    {path: '', redirectTo: '/devices', pathMatch: 'full'},
+    {path: 'devices', component: DevicesComponent},
+    {path: 'events', component: EventsComponent},
+    {path: 'scenarios', component: ScenariosComponent},
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule {
+}

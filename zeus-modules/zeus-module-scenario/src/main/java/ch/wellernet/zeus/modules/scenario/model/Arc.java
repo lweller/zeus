@@ -19,7 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Data
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 public abstract class Arc {
 
   protected static final String SEQUENCE_NAME = "SEQ_ARC";
@@ -29,6 +29,7 @@ public abstract class Arc {
   private @ManyToOne(cascade = {PERSIST, DETACH, MERGE, REFRESH}) Transition transition;
   private int weight;
   private @Version long version;
+
   protected Arc(final State state, final Transition transition, final int weight) {
     this.state = state;
     this.transition = transition;
@@ -38,19 +39,15 @@ public abstract class Arc {
   public abstract <ReturnValue> ReturnValue dispatch(Dispatcher<ReturnValue> dispatcher);
 
   public interface Dispatcher<ReturnValue> {
-    public default ReturnValue execute(final Arc event) {
+    default ReturnValue execute(final InhibitionArc event) {
       return null;
     }
 
-    public default ReturnValue execute(final InhibitionArc event) {
+    default ReturnValue execute(final InputArc event) {
       return null;
     }
 
-    public default ReturnValue execute(final InputArc event) {
-      return null;
-    }
-
-    public default ReturnValue execute(final OutputArc event) {
+    default ReturnValue execute(final OutputArc event) {
       return null;
     }
   }

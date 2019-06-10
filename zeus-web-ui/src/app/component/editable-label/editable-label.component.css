@@ -1,14 +1,14 @@
 input {
-	width: 100%;
-	font-size: large;
-	line-height: 1em;
-	cursor: default;
-	background: none;
-	border: none;
-	outline: none;
+    width: 100%;
+    font-size: large;
+    line-height: 1em;
+    cursor: default;
+    background: none;
+    border: none;
+    outline: none;
 }
 
 input.editing {
-	cursor: text;
-	border-bottom: 1px solid gray;
+    cursor: text;
+    border-bottom: 1px solid gray;
 }

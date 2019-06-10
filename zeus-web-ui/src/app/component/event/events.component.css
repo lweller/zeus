@@ -1,67 +1,67 @@
 .list {
-	margin: 0 0 2em 0;
-	list-style-type: none;
-	padding: 0;
-	width: 100%;
-	-webkit-user-select: none; /* Safari */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
+    margin: 0 0 2em 0;
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none;
 }
 
 .entry {
-	position: relative;
-	background-color: #eeeeee;
-	margin: 0.5em;
-	padding: .5em .5em;
-	min-height: 2em;
-	border-radius: 4px;
+    position: relative;
+    background-color: #eeeeee;
+    margin: 0.5em;
+    padding: .5em .5em;
+    min-height: 2em;
+    border-radius: 4px;
 }
 
 .entry .left {
-	display: table-cell;
-	width: 100%;
-	vertical-align: middle;
-	text-align: left;
+    display: table-cell;
+    width: 100%;
+    vertical-align: middle;
+    text-align: left;
 }
 
 .entry .name {
-	display: inline-block;
-	width: 100%;
+    display: inline-block;
+    width: 100%;
 }
 
 .entry .next-firing {
-	display: inline-block;
-	width: 100%;
-	font-size: small;
+    display: inline-block;
+    width: 100%;
+    font-size: small;
 }
 
 .entry .right {
-	display: table-cell;
-	position: relative;
-	min-width: 30px;
-	max-width: 30px;
-	height: 100%;
+    display: table-cell;
+    position: relative;
+    min-width: 30px;
+    max-width: 30px;
+    height: 100%;
 }
 
 .fire-button {
-	cursor: pointer;
-	display: inline-block;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 30px;
-	height: 30px;
-	background-color: #4782E2;
-	border-radius: 15px;
-	color: white;
-	font-weight: bolder;
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    background-color: #4782E2;
+    border-radius: 15px;
+    color: white;
+    font-weight: bolder;
 }
 
 .fire-button span {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

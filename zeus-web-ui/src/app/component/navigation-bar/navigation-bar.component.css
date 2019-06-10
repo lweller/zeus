@@ -1,45 +1,45 @@
 .bar {
-	padding: 3px 5px 3px 5px;
+    padding: 3px 5px 3px 5px;
 }
 
 .button {
-	display: inline-block;
-	cursor: pointer;
-	position: relative;
-	width: 40px;
-	height: 40px;
-	font-size: x-large;
-	font-weight: bold;
-	margin: 0 0 0 4px;
-	background-color: #eeeeee;
-	border: medium;
-	-webkit-user-select: none; /* Safari */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    font-size: x-large;
+    font-weight: bold;
+    margin: 0 0 0 4px;
+    background-color: #eeeeee;
+    border: medium;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none;
 }
 
 .button:focus {
-	outline: 0;
+    outline: 0;
 }
 
 .button:hover {
-	background-color: #c0c0c0;
+    background-color: #c0c0c0;
 }
 
 .active-button {
-	color: white;
-	background-color: #4782E2;
+    color: white;
+    background-color: #4782E2;
 }
 
 .active-button:hover {
-	background-color: #4782E2;
+    background-color: #4782E2;
 }
 
 .button span {
-	display: inline-block;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

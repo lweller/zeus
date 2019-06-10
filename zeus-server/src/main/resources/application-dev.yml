@@ -1,25 +1,25 @@
 spring:
   profiles:
     include:
-    - device.mock
+      - device.mock
   datasource:
     url: jdbc:h2:file:./target/zeusdb
   jpa:
     database: h2
     hibernate:
       ddl-auto: update
-      
+
 zeus:
   location:
     latitude: 46.948877
-    longitude: 7.439949 
+    longitude: 7.439949
   integrated-control-unit:
     id: 00000000-0000-0000-0000-000000000001
     driver-mappings:
-    - device-id: 00000000-0000-0000-0000-000000000002
-      device-type: GENERIC_SWITCH 
-      drivers:
-      - name: raspberry.GpioDigitalOutputPinDriver
-        properties:
-          pin: 1
-          active-state: LOW
+      - device-id: 00000000-0000-0000-0000-000000000002
+        device-type: GENERIC_SWITCH
+        drivers:
+          - name: raspberry.GpioDigitalOutputPinDriver
+            properties:
+              pin: 1
+              active-state: LOW

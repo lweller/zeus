@@ -18,6 +18,13 @@ export class EditableLabelComponent implements OnInit {
     constructor() {
     }
 
+    static setCaretPosition(elem, caretStartPos, caretEndPos) {
+        if (elem !== null) {
+            elem.focus();
+            elem.setSelectionRange(caretStartPos, caretEndPos);
+        }
+    }
+
     ngOnInit() {
         this.editing = false;
     }
@@ -44,13 +51,6 @@ export class EditableLabelComponent implements OnInit {
             this.value = inputField.value;
             EditableLabelComponent.setCaretPosition(inputField, 0, 0);
             this.finishedEditing.emit(this.value);
-        }
-    }
-
-    static setCaretPosition(elem, caretStartPos, caretEndPos) {
-        if (elem !== null) {
-            elem.focus();
-            elem.setSelectionRange(caretStartPos, caretEndPos);
         }
     }
 }

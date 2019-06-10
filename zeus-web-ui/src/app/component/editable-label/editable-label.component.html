@@ -1,10 +1,10 @@
 <label>
     <input
-      [value]="value"
-      [class.editing]="editing"
-      [readOnly]="!editing"
-      (dblclick)="startEditing($event.target)"
-      (blur)="finishEditing($event.target)"
-      (keyup.enter)="$event.target.blur()"
-      (keydown.esc)="cancelEditing($event.target)">
+            (blur)="finishEditing($event.target)"
+            (dblclick)="startEditing($event.target)"
+            (keydown.esc)="cancelEditing($event.target)"
+            (keyup.enter)="$event.target.blur()"
+            [class.editing]="editing"
+            [readOnly]="!editing"
+            [value]="value">
 </label>

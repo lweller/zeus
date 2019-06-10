@@ -1,23 +1,24 @@
 <ul class="list">
-  <li
-    class="entry"
-    *ngFor="let event of events">
-    <div class="left">
-      <app-editable-label
-        class="name"
-        [value]="event.name"
-        (finishedEditing)="event.name = $event; update(event)"></app-editable-label>
-      <span class="next-firing">
-        <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">{{'will fire in {duration}' | translate:{duration:buildNextOccurrenceExpression(event)} }}</span>
-        <ng-template #nextOccurrenceUnknown> <span>{{'time of next occurrence is unknown' | translate}}</span> </ng-template>
+    <li
+            *ngFor="let event of events"
+            class="entry">
+        <div class="left">
+            <app-editable-label
+                    (finishedEditing)="event.name = $event; update(event)"
+                    [value]="event.name"
+                    class="name"></app-editable-label>
+            <span class="next-firing">
+        <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">{{'will fire in {duration}' | translate:{duration: buildNextOccurrenceExpression(event)} }}</span>
+        <ng-template
+            #nextOccurrenceUnknown> <span>{{'time of next occurrence is unknown' | translate}}</span> </ng-template>
       </span>
-    </div>
-    <div class="right">
+        </div>
+        <div class="right">
       <span
-        class="fire-button"
-        (click)="fire(event)">
+              (click)="fire(event)"
+              class="fire-button">
         <span>&gt;</span>
       </span>
-    </div>
-  </li>
+        </div>
+    </li>
 </ul>

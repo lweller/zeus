@@ -39,13 +39,13 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class EventService {
 
-  // injected dependencies
-  private @Setter(onMethod_ = @Autowired(required = false)) ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
   private final EventRepository eventRepository;
   private final PlatformTransactionManager transactionManager;
   private final ScenarioService scenarioService;
   private final Location location;
   private final TaskScheduler taskScheduler;
+  // injected dependencies
+  private @Setter(onMethod_ = @Autowired(required = false)) ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
 
   public void cancelEvent(final UUID eventId) {
     final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);

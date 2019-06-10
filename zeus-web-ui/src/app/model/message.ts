@@ -6,7 +6,7 @@ export const LEVEL_WARNING = 'warning';
 export const LEVEL_ERROR = 'error';
 
 export class Message {
-  message = '';
-  state = STATE_DONE;
-  level: string;
+    message = '';
+    state = STATE_DONE;
+    level: string;
 }

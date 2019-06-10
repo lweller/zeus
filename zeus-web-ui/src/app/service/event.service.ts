@@ -11,17 +11,18 @@ import {MessageService} from './message.service';
 @Injectable()
 export class EventService {
 
-  constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {}
+    constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {
+    }
 
-  findAll(): Observable<Event[]> {
-    return this.httpClient.get<Event[]>(`${environment.zeusServerScenarioApiBaseUri}/events`);
-  }
+    findAll(): Observable<Event[]> {
+        return this.httpClient.get<Event[]>(`${environment.zeusServerScenarioApiBaseUri}/events`);
+    }
 
-  fire(event: Event): Observable<Event> {
-    let message;
-    this.translateService.get('Event has successfully been fired.')
-      .subscribe(result => message = result);
-    return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}!fire`, {})
-      .pipe(tap(() => this.messageService.displayInfo(message)));
-  }
+    fire(event: Event): Observable<Event> {
+        let message;
+        this.translateService.get('Event has successfully been fired.')
+            .subscribe(result => message = result);
+        return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}!fire`, {})
+            .pipe(tap(() => this.messageService.displayInfo(message)));
+    }
 }

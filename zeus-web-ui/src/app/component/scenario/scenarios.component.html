@@ -1,13 +1,13 @@
 <ul class="list">
-  <li
-    class="entry"
-    *ngFor="let scenario of scenarios">
+    <li
+            *ngFor="let scenario of scenarios"
+            class="entry">
     <span
-      class="state" [@state-changed]="getState(scenario)"
-      (click)="toggleEnabling(scenario)">{{scenario.enabled ? 'O' : 'X'}}</span>
-    <app-editable-label
-      class="name"
-      [value]="scenario.name"
-      (finishedEditing)="scenario.name = $event; update(scenario)"></app-editable-label>
-  </li>
+            (click)="toggleEnabling(scenario)" [@state-changed]="getState(scenario)"
+            class="state">{{scenario.enabled ? 'O' : 'X'}}</span>
+        <app-editable-label
+                (finishedEditing)="scenario.name = $event; update(scenario)"
+                [value]="scenario.name"
+                class="name"></app-editable-label>
+    </li>
 </ul>

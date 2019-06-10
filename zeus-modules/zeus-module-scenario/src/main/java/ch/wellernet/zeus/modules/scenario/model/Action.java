@@ -21,13 +21,14 @@ import static lombok.AccessLevel.PROTECTED;
 @Data
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 public abstract class Action {
 
   private @Id @Setter(PRIVATE) UUID id;
   private String name;
   private @Version long version;
-  public Action(final UUID id, final String name) {
+
+  Action(final UUID id, final String name) {
     this.id = id;
     this.name = name;
   }
@@ -35,10 +36,7 @@ public abstract class Action {
   public abstract void dispatch(final Dispatcher dispatcher);
 
   public interface Dispatcher {
-    public default void execute(final Action action) {
-    }
-
-    public default void execute(final SendCommandAction action) {
+    default void execute(final SendCommandAction action) {
     }
   }
 

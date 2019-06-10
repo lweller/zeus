@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader } from '@ngx-translate/core';
+import {HttpClient} from '@angular/common/http';
+import {TranslateLoader} from '@ngx-translate/core';
 import * as gettext from 'gettext-parser';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 export class TranslatePoHttpLoader implements TranslateLoader {
 
@@ -25,7 +25,7 @@ export class TranslatePoHttpLoader implements TranslateLoader {
      */
     public getTranslation(lang: string): Observable<any> {
         return this._http
-            .get(`${this._prefix}/${lang}${this._suffix}`, { responseType: 'text' })
+            .get(`${this._prefix}/${lang}${this._suffix}`, {responseType: 'text'})
             .pipe(map((contents: string) => this.parse(contents)));
     }
 
