@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import static ch.wellernet.zeus.modules.scenario.controller.EventController.API_PATH;
+import static ch.wellernet.zeus.modules.scenario.controller.ScenarioApiV1Controller.API_ROOT_PATH;
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -33,12 +33,10 @@ import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
 
 @RestController
 @CrossOrigin
-@RequestMapping(API_PATH)
+@RequestMapping(API_ROOT_PATH + "/events")
 @Transactional(REQUIRED)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class EventController implements ScenarioApiV1Controller {
-
-  static final String API_PATH = API_ROOT_PATH + "/events";
 
   // injected dependencies
   private final EventService eventService;

@@ -141,7 +141,8 @@ public class TcpCommunicationService implements CommunicationService {
   }
 
   @Transactional(REQUIRED)
-  void updateDeviceStateWhenAfterTimerEnded(final UUID deviceId, final TcpControlUnitAddress address) {
+  @SuppressWarnings("ImplicitSubclassInspection")
+  private void updateDeviceStateWhenAfterTimerEnded(final UUID deviceId, final TcpControlUnitAddress address) {
     log.info("updating state after timer ended");
     try {
       final Optional<Device> device = deviceRepository.findById(deviceId);

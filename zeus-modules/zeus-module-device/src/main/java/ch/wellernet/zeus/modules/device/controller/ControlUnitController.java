@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import static ch.wellernet.zeus.modules.device.controller.ControlUnitController.API_PATH;
+import static ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller.API_ROOT_PATH;
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -30,11 +30,10 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Api
 @RestController
 @CrossOrigin
-@RequestMapping(API_PATH)
+@RequestMapping(API_ROOT_PATH + "/controlUnits")
 @Transactional(REQUIRED)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ControlUnitController implements DeviceApiV1Controller {
-  static final String  API_PATH = API_ROOT_PATH + "/controlUnits";
 
   // injected dependencies
   private final ControlUnitRepository controlUnitRepository;

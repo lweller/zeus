@@ -11,14 +11,12 @@ import java.io.IOException;
 
 import static ch.wellernet.zeus.common.ManifestUtil.buildVersionInfo;
 import static ch.wellernet.zeus.common.ManifestUtil.findManifest;
-import static ch.wellernet.zeus.modules.device.controller.DeviceApiVersionController.API_PATH;
+import static ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller.API_ROOT_PATH;
 
 @RestController
 @CrossOrigin
-@RequestMapping(API_PATH)
+@RequestMapping(API_ROOT_PATH + "/version")
 public class DeviceApiVersionController implements DeviceApiV1Controller {
-
-  static final String API_PATH = API_ROOT_PATH + "/version";
 
   @GetMapping
   @ResponseBody

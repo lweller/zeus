@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import static ch.wellernet.zeus.modules.device.controller.DeviceController.API_PATH;
+import static ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller.API_ROOT_PATH;
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
@@ -43,14 +43,12 @@ import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
 @Api
 @RestController
 @CrossOrigin
-@RequestMapping(API_PATH)
+@RequestMapping(API_ROOT_PATH + "/devices")
 @Transactional(REQUIRED)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DeviceController implements DeviceApiV1Controller {
   static final int COMMUNICATION_NOT_SUCCESSFUL = 901;
   static final int COMMUNICATION_INTERRUPTED = 902;
-
-  static final String API_PATH = API_ROOT_PATH + "/devices";
 
   // injected dependencies
   private final DeviceRepository deviceRepository;
