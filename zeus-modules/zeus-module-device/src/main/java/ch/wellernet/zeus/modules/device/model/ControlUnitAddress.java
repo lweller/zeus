@@ -22,7 +22,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Data
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "communicationServiceName")
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 public abstract class ControlUnitAddress {
   protected static final String SEQUENCE_NAME = "SEQ_CONTROL_UNIT_ADDRESS";
 
@@ -30,7 +30,7 @@ public abstract class ControlUnitAddress {
   private @Setter(PRIVATE) String communicationServiceName;
   private @Version long version;
 
-  public ControlUnitAddress(final String communicationServiceName) {
+  protected ControlUnitAddress(final String communicationServiceName) {
     this.communicationServiceName = communicationServiceName;
   }
 }

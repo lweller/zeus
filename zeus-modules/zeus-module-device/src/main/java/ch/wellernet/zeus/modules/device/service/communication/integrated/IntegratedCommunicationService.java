@@ -18,7 +18,7 @@ import static java.util.Collections.unmodifiableMap;
 
 public class IntegratedCommunicationService implements CommunicationService {
 
-  public static final String NAME = "serivce.communication.integrated";
+  public static final String NAME = "service.communication.integrated";
   private final Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping;
 
   public IntegratedCommunicationService(final Map<DeviceCommandKey, DeviceDriver> deviceDriverMapping) {
@@ -26,6 +26,7 @@ public class IntegratedCommunicationService implements CommunicationService {
 
   }
 
+  @SuppressWarnings("unused")
   @Override
   public String getName() {
     return NAME;

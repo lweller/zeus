@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static com.luckycatlabs.sunrisesunset.Zenith.OFFICIAL;
+import static java.util.Calendar.JUNE;
 import static java.util.Calendar.MILLISECOND;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -16,95 +17,95 @@ import static org.junit.Assert.assertThat;
 
 public class SunriseTriggerTest {
 
-  final static Calendar BEFORE_SUNRISE = Calendar.getInstance();
-  final static Calendar AFTER_SUNRISE = Calendar.getInstance();
-  final static Calendar TODAYS_SUNRISE = Calendar.getInstance();
-  final static Calendar TODAYS_SUNRISE_WITH_OFFSET = Calendar.getInstance();
-  final static Calendar TOMORROWS_SUNRISE = Calendar.getInstance();
+  private final static Calendar BEFORE_SUNRISE = Calendar.getInstance();
+  private final static Calendar AFTER_SUNRISE = Calendar.getInstance();
+  private final static Calendar TODAY_SUNRISE = Calendar.getInstance();
+  private final static Calendar TODAY_SUNRISE_WITH_OFFSET = Calendar.getInstance();
+  private final static Calendar TOMORROWS_SUNRISE = Calendar.getInstance();
   private static final Location BERN = new Location(46.948877, 7.439949);
   private static final Location NORTH_POLE = new Location(90., 0.);
   private static final int SHIFT = 15000;
 
   static {
-    BEFORE_SUNRISE.set(2018, 5, 2, 5, 39, 0);
+    BEFORE_SUNRISE.set(2018, JUNE, 2, 5, 39, 0);
     BEFORE_SUNRISE.set(MILLISECOND, -1);
   }
 
   static {
-    AFTER_SUNRISE.set(2018, 5, 2, 5, 39, 0);
+    AFTER_SUNRISE.set(2018, JUNE, 2, 5, 39, 0);
     AFTER_SUNRISE.set(MILLISECOND, 1);
   }
 
   static {
-    TODAYS_SUNRISE.set(2018, 5, 2, 5, 39, 0);
-    TODAYS_SUNRISE.set(MILLISECOND, 0);
+    TODAY_SUNRISE.set(2018, JUNE, 2, 5, 39, 0);
+    TODAY_SUNRISE.set(MILLISECOND, 0);
   }
 
   static {
-    TODAYS_SUNRISE_WITH_OFFSET.set(2018, 5, 2, 5, 39, 0);
-    TODAYS_SUNRISE_WITH_OFFSET.set(MILLISECOND, SHIFT);
+    TODAY_SUNRISE_WITH_OFFSET.set(2018, JUNE, 2, 5, 39, 0);
+    TODAY_SUNRISE_WITH_OFFSET.set(MILLISECOND, SHIFT);
   }
 
   static {
-    TOMORROWS_SUNRISE.set(2018, 5, 3, 5, 38, 0);
+    TOMORROWS_SUNRISE.set(2018, JUNE, 3, 5, 38, 0);
     TOMORROWS_SUNRISE.set(MILLISECOND, 0);
   }
 
   // class under test
-  private final DayTimeTrigger triggerForBernSitzerland = SunriseTrigger.builder().location(BERN).zenith(OFFICIAL)
+  private final DayTimeTrigger triggerForBernSwitzerland = SunriseTrigger.builder().location(BERN).zenith(OFFICIAL)
       .build();
-  private final DayTimeTrigger triggerWithOffsetForBernSitzerland = SunriseTrigger.builder().location(BERN)
+  private final DayTimeTrigger triggerWithOffsetForBernSwitzerland = SunriseTrigger.builder().location(BERN)
       .zenith(OFFICIAL).shift(SHIFT).build();
   private final DayTimeTrigger triggerForNorthPole = SunriseTrigger.builder().location(NORTH_POLE).zenith(OFFICIAL)
       .build();
 
   @Test
-  public void nextExecutionTimeForBernShouldReturnTodaysSunriseOfSameDayWhenLastScheduledTimeIsBeforeTodaysEvent() {
+  public void nextExecutionTimeForBernShouldReturnTodaySunriseOfSameDayWhenLastScheduledTimeIsBeforeTodayEvent() {
     // given
     final TriggerContext triggerContext = SimpleTriggerContext.builder()
         .lastScheduledExecutionTime(BEFORE_SUNRISE.getTime()).build();
 
     // when
-    final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
+    final Date nextExecutionTime = triggerForBernSwitzerland.nextExecutionTime(triggerContext);
 
     // then
-    assertThat(nextExecutionTime, is(TODAYS_SUNRISE.getTime()));
+    assertThat(nextExecutionTime, is(TODAY_SUNRISE.getTime()));
   }
 
   @Test
-  public void nextExecutionTimeForBernShouldReturnTodaysSunriseWithOffsetOfSameDayWhenLastScheduledTimeIsBeforeTodaysEvent() {
+  public void nextExecutionTimeForBernShouldReturnTodaySunriseWithOffsetOfSameDayWhenLastScheduledTimeIsBeforeTodayEvent() {
     // given
     final TriggerContext triggerContext = SimpleTriggerContext.builder()
         .lastScheduledExecutionTime(BEFORE_SUNRISE.getTime()).build();
 
     // when
-    final Date nextExecutionTime = triggerWithOffsetForBernSitzerland.nextExecutionTime(triggerContext);
+    final Date nextExecutionTime = triggerWithOffsetForBernSwitzerland.nextExecutionTime(triggerContext);
 
     // then
-    assertThat(nextExecutionTime, is(TODAYS_SUNRISE_WITH_OFFSET.getTime()));
+    assertThat(nextExecutionTime, is(TODAY_SUNRISE_WITH_OFFSET.getTime()));
   }
 
   @Test
-  public void nextExecutionTimeForBernShouldReturnTomorrowsSunriseWhenLastScheduledTimeIsAfterTodaysEvent() {
+  public void nextExecutionTimeForBernShouldReturnTomorrowsSunriseWhenLastScheduledTimeIsAfterTodayEvent() {
     // given
     final TriggerContext triggerContext = SimpleTriggerContext.builder()
         .lastScheduledExecutionTime(AFTER_SUNRISE.getTime()).build();
 
     // when
-    final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
+    final Date nextExecutionTime = triggerForBernSwitzerland.nextExecutionTime(triggerContext);
 
     // then
     assertThat(nextExecutionTime, is(TOMORROWS_SUNRISE.getTime()));
   }
 
   @Test
-  public void nextExecutionTimeForBernShouldReturnTomorrowsSunriseWhenLastScheduledTimeWasTodaysEvent() {
+  public void nextExecutionTimeForBernShouldReturnTomorrowsSunriseWhenLastScheduledTimeWasTodayEvent() {
     // given
     final TriggerContext triggerContext = SimpleTriggerContext.builder()
-        .lastScheduledExecutionTime(TODAYS_SUNRISE.getTime()).build();
+        .lastScheduledExecutionTime(TODAY_SUNRISE.getTime()).build();
 
     // when
-    final Date nextExecutionTime = triggerForBernSitzerland.nextExecutionTime(triggerContext);
+    final Date nextExecutionTime = triggerForBernSwitzerland.nextExecutionTime(triggerContext);
 
     // then
     assertThat(nextExecutionTime, is(TOMORROWS_SUNRISE.getTime()));

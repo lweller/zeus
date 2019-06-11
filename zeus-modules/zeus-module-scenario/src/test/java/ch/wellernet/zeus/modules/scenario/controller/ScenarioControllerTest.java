@@ -29,6 +29,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
+@SuppressWarnings("ConstantConditions")
 @SpringBootTest(classes = ScenarioController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class ScenarioControllerTest {
@@ -58,7 +59,7 @@ public class ScenarioControllerTest {
   }
 
   @Test
-  public void findAllShouldReturnEmptyCollectionWhenNoeventsAreAvailable() {
+  public void findAllShouldReturnEmptyCollectionWhenNoEventsAreAvailable() {
     // given
     given(scenarioRepository.findAll()).willReturn(emptyList());
 

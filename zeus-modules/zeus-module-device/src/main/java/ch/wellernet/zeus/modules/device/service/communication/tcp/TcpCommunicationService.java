@@ -50,6 +50,7 @@ public class TcpCommunicationService implements CommunicationService {
   private final DeviceRepository deviceRepository;
   private final TaskScheduler taskScheduler;
 
+  @SuppressWarnings("unused")
   @Override
   public String getName() {
     return NAME;

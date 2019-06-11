@@ -53,7 +53,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 public class TcpCommunicationServiceTest {
 
-  public @Rule ExpectedException thrown = ExpectedException.none();
+  public @Rule final ExpectedException thrown = ExpectedException.none();
 
   private @MockBean DeviceRepository deviceRepository;
   private @MockBean TaskScheduler taskScheduler;

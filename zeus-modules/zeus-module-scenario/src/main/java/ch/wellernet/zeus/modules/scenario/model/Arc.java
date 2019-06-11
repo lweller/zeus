@@ -39,7 +39,7 @@ public abstract class Arc {
   private int weight;
   private @Version long version;
 
-  protected Arc(final State state, final Transition transition, final int weight) {
+  Arc(final State state, final Transition transition, final int weight) {
     this.state = state;
     this.transition = transition;
     this.weight = weight <= 0 ? 1 : weight;

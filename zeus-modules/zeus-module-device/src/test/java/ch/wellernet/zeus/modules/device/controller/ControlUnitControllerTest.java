@@ -65,7 +65,7 @@ public class ControlUnitControllerTest {
   }
 
   @Test
-  public void findAllShouldReturnEmptyCollectionIfNoContronUnitsAreAvailable() {
+  public void findAllShouldReturnEmptyCollectionIfNoControlUnitsAreAvailable() {
     // given
     given(controlUnitRepository.findAll()).willReturn(emptySet());
 

@@ -34,7 +34,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Transactional(REQUIRED)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ControlUnitController implements DeviceApiV1Controller {
-  static final String API_PATH = API_ROOT_PATH + "/controlUnits";
+  static final String  API_PATH = API_ROOT_PATH + "/controlUnits";
 
   // injected dependencies
   private final ControlUnitRepository controlUnitRepository;

@@ -43,6 +43,7 @@ import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
+@SuppressWarnings("ConstantConditions")
 @SpringBootTest(classes = DeviceController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class DeviceControllerTest {
@@ -65,7 +66,7 @@ public class DeviceControllerTest {
 
   private @MockBean DeviceRepository deviceRepository;
   private @MockBean DeviceService deviceService;
-  private @MockBean CommunicationService comunicationService;
+  private @MockBean CommunicationService communicationService;
   private @MockBean CommunicationServiceRegistry communicationServiceRegistry;
 
   @Test
@@ -86,7 +87,7 @@ public class DeviceControllerTest {
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
     given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
-    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
+    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(communicationService);
 
     // when
     deviceController.executeCommand(DEVICE_1.getId(), GET_SWITCH_STATE);
@@ -191,7 +192,7 @@ public class DeviceControllerTest {
   }
 
   @Test(expected = NoSuchElementException.class)
-  public void updateShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists() throws UndefinedCommandException {
+  public void updateShouldThrowNoSuchElementExceptionWhenDeviceDoesNotExists() {
     // given
     given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.empty());
 
@@ -202,10 +203,10 @@ public class DeviceControllerTest {
   }
 
   @Test
-  public void updateShouldUpdateOnlyName() throws UndefinedCommandException, InterruptedException {
+  public void updateShouldUpdateOnlyName() {
     // given
     given(deviceRepository.findById(DEVICE_1.getId())).willReturn(Optional.of(DEVICE_1));
-    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
+    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(communicationService);
     final State originalState = DEVICE_1.getState();
     final Device updatedDevice = Device.builder().name("Renamed device").type(GENERIC_SWITCH).build();
     // change state to verify it will not updated

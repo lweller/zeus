@@ -9,8 +9,10 @@ import java.util.Collection;
 
 public interface CommunicationService {
 
+  @SuppressWarnings("unused")
   String getName();
 
+  @SuppressWarnings("unused")
   Collection<Device> scanDevices(ControlUnit controlUnit);
 
   State sendCommand(Device device, Command command, String data)

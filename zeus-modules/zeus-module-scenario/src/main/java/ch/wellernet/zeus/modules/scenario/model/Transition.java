@@ -39,16 +39,14 @@ public class Transition {
 
   private @Setter(PRIVATE) @Transient boolean firingAutomatically;
 
-  protected Transition(final UUID id, final String name, final Scenario scenario, final boolean firingAutomatically,
-                       final Set<Arc> arcs, final Set<Action> actions) {
+  Transition(final UUID id, final String name, final Scenario scenario, final boolean firingAutomatically,
+             final Set<Arc> arcs, final Set<Action> actions) {
     this.id = id;
     this.name = name;
     this.scenario = scenario;
     this.firingAutomatically = firingAutomatically;
     this.arcs = arcs == null ? new HashSet<>() : arcs;
-    this.arcs.forEach(arc -> {
-      arc.setTransition(this);
-    });
+    this.arcs.forEach(arc -> arc.setTransition(this));
     this.actions = actions == null ? new HashSet<>() : actions;
   }
 }

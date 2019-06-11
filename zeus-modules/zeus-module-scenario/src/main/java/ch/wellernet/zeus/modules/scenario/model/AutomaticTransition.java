@@ -7,10 +7,10 @@ import javax.persistence.Entity;
 import java.util.Set;
 import java.util.UUID;
 
-import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PACKAGE;
 
 @Entity
-@NoArgsConstructor(access = PRIVATE)
+@NoArgsConstructor(access = PACKAGE)
 public class AutomaticTransition extends Transition {
 
   @Builder

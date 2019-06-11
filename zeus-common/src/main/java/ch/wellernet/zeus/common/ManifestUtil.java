@@ -20,7 +20,7 @@ public final class ManifestUtil {
   private ManifestUtil() {
   }
 
-  public static JSONObject buildVersionInfo(final Manifest manifest) throws IOException {
+  public static JSONObject buildVersionInfo(final Manifest manifest) {
     final JSONObject result = new JSONObject();
 
     if (manifest != null) {

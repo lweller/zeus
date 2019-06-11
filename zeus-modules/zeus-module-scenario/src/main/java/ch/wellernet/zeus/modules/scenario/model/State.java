@@ -44,9 +44,7 @@ public class State {
     this.name = name;
     this.scenario = scenario;
     this.arcs = arcs == null ? new HashSet<>() : arcs;
-    this.arcs.forEach(arc -> {
-      arc.setState(this);
-    });
+    this.arcs.forEach(arc -> arc.setState(this));
     this.maxCount = maxCount <= 0 ? 1 : maxCount;
     this.initialCount = initialCount;
     count = initialCount;

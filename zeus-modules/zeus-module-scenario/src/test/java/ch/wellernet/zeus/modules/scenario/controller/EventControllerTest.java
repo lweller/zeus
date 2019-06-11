@@ -1,6 +1,5 @@
 package ch.wellernet.zeus.modules.scenario.controller;
 
-import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.CronEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
@@ -38,7 +37,7 @@ public class EventControllerTest {
   // test data
   private static final Event EVENT_1 = CronEvent.builder().id(randomUUID()).name("Event 1").build();
   private static final Event EVENT_2 = CronEvent.builder().id(randomUUID()).name("Event 2").build();
-  private static final Event EVENT_3 = CronEvent.builder().id(randomUUID()).name("Enevt 3").build();
+  private static final Event EVENT_3 = CronEvent.builder().id(randomUUID()).name("Event 3").build();
   private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
@@ -60,7 +59,7 @@ public class EventControllerTest {
   }
 
   @Test
-  public void findAllShouldReturnEmptyCollectionWhenNoeventsAreAvailable() {
+  public void findAllShouldReturnEmptyCollectionWhenNoEventsAreAvailable() {
     // given
     given(eventService.findAll()).willReturn(emptyList());
 
@@ -97,7 +96,7 @@ public class EventControllerTest {
   }
 
   @Test
-  public void fireShouldFireImmediately() throws NoSuchElementException, UndefinedCommandException {
+  public void fireShouldFireImmediately() throws NoSuchElementException {
     // given
     final UUID eventId = EVENT_1.getId();
     given(eventService.fireEvent(eventId)).willReturn(EVENT_1);

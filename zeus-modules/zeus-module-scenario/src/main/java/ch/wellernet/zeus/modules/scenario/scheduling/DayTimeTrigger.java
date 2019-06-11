@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static java.util.Calendar.DATE;
+import static java.util.Objects.requireNonNull;
 import static lombok.AccessLevel.PROTECTED;
 
 @AllArgsConstructor(access = PROTECTED)
@@ -27,7 +28,7 @@ public abstract class DayTimeTrigger implements Trigger {
     if (triggerContext.lastScheduledExecutionTime() == null) {
       lastExecutionCalendar = now;
     } else {
-      lastExecutionCalendar.setTime(triggerContext.lastScheduledExecutionTime());
+      lastExecutionCalendar.setTime(requireNonNull(triggerContext.lastScheduledExecutionTime()));
     }
     final Calendar nextExecutionCalendar = (Calendar) lastExecutionCalendar.clone();
     Calendar nextSunrise = computeEvent(nextExecutionCalendar);

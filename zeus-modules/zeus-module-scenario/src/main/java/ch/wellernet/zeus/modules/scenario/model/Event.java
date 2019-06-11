@@ -42,7 +42,7 @@ public abstract class Event {
   private @Version long version;
   private @Transient Date nextScheduledExecution;
 
-  protected Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
+  Event(final UUID id, final String name, final Set<EventDrivenTransition> transitions) {
     this.id = id;
     this.name = name;
     this.transitions = transitions == null ? new HashSet<>() : transitions;
@@ -52,9 +52,6 @@ public abstract class Event {
   public abstract void dispatch(Dispatcher dispatcher);
 
   public interface Dispatcher {
-    default void execute() {
-    }
-
     default void execute(final CronEvent event) {
     }
 
