@@ -87,7 +87,7 @@ public class GpioDigitalOutputPinDriverTest {
     final PinState initialPinState = testParameterSet.getInitialPinState();
     final Properties properties = new Properties();
     properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    gpioDigitalOutputPinDriver.reinitializeForTest(properties);
     given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState);
 
     // when
@@ -107,7 +107,7 @@ public class GpioDigitalOutputPinDriverTest {
     final PinState finalPinState = getInverseState(activePinState);
     final Properties properties = new Properties();
     properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    gpioDigitalOutputPinDriver.reinitializeForTest(properties);
     given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
     // when
@@ -125,10 +125,10 @@ public class GpioDigitalOutputPinDriverTest {
       throws UndefinedCommandException {
     // given
     final PinState activePinState = testParameterSet.getActivePinState();
-    final PinState finalPinState = activePinState;
+    @SuppressWarnings("UnnecessaryLocalVariable") final PinState finalPinState = activePinState;
     final Properties properties = new Properties();
     properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    gpioDigitalOutputPinDriver.reinitializeForTest(properties);
     given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
     // when
@@ -146,10 +146,10 @@ public class GpioDigitalOutputPinDriverTest {
       final TestParameterSet testParameterSet) throws UndefinedCommandException {
     final long timerDelay = 1800;
     final PinState activePinState = testParameterSet.getActivePinState();
-    final PinState finalPinState = activePinState;
+    @SuppressWarnings("UnnecessaryLocalVariable") final PinState finalPinState = activePinState;
     final Properties properties = new Properties();
     properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    gpioDigitalOutputPinDriver.reinitializeForTest(properties);
     given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(finalPinState);
 
     // when
@@ -190,7 +190,7 @@ public class GpioDigitalOutputPinDriverTest {
     final PinState finalPinState = getInverseState(initialPinState);
     final Properties properties = new Properties();
     properties.setProperty(ACTIVE_STATE_PROPERTY, activePinState.getName());
-    gpioDigitalOutputPinDriver.reinitForTest(properties);
+    gpioDigitalOutputPinDriver.reinitializeForTest(properties);
     given(gpioDigitalOutputPinDriver.getProvisionedPin().getState()).willReturn(initialPinState, finalPinState);
 
     // when
@@ -201,6 +201,7 @@ public class GpioDigitalOutputPinDriverTest {
     assertThat(state, is(testParameterSet.getInverseInitialDeviceState()));
   }
 
+  @SuppressWarnings("unused")
   List<TestParameterSet> testParameterSets() {
     return newArrayList(new TestParameterSet(LOW, LOW, ON), new TestParameterSet(LOW, HIGH, OFF),
         new TestParameterSet(HIGH, LOW, OFF), new TestParameterSet(HIGH, HIGH, ON));
@@ -209,17 +210,17 @@ public class GpioDigitalOutputPinDriverTest {
   // make class testable
   static class TestGpioDigitalOutputPinDriver extends GpioDigitalOutputPinDriver {
 
-    public TestGpioDigitalOutputPinDriver() {
-      super(new Properties() {
+    public TestGpioDigitalOutputPinDriver(TaskScheduler taskScheduler, GpioController gpioController) {
+      super(taskScheduler, new Properties() {
         private static final long serialVersionUID = 1L;
 
         {
           setProperty(PIN_PROPERTY, "1");
         }
-      });
+      }, gpioController);
     }
 
-    public void reinitForTest(final Properties properties) {
+    void reinitializeForTest(final Properties properties) {
       getProperties().putAll(properties);
       super.init();
     }
@@ -231,7 +232,7 @@ public class GpioDigitalOutputPinDriverTest {
     private PinState initialPinState;
     private State initialDeviceState;
 
-    public State getInverseInitialDeviceState() {
+    State getInverseInitialDeviceState() {
       return initialDeviceState == OFF ? ON : OFF;
     }
 

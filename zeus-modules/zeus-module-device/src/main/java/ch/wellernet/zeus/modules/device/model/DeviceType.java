@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.Set;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 public interface DeviceType {
-  public State getInitialState();
+  State getInitialState();
 
-  public Command getMainCommand();
+  Command getMainCommand();
 
-  public Set<Command> getSupportedCommands();
+  Set<Command> getSupportedCommands();
 }

@@ -20,7 +20,6 @@ import static lombok.AccessLevel.PRIVATE;
 @EqualsAndHashCode(callSuper = true)
 public class EventDrivenTransition extends Transition {
   private @ManyToOne(cascade = {DETACH, REFRESH}) Event event;
-  ;
 
   @Builder
   protected EventDrivenTransition(final UUID id, final String name, final Scenario scenario, final Event event,

@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface ControlUnitRepository extends CrudRepository<ControlUnit, UUID> {
 
   @Query("SELECT c FROM ControlUnit c JOIN c.address a WHERE TYPE(a) = IntegratedControlUnitAddress")
-  public Optional<ControlUnit> findIntegrated();
+  Optional<ControlUnit> findIntegrated();
 }

@@ -32,7 +32,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Data
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
 public abstract class Event {
   private @Id @Setter(PRIVATE) UUID id;
   private String name;
@@ -46,24 +46,22 @@ public abstract class Event {
     this.id = id;
     this.name = name;
     this.transitions = transitions == null ? new HashSet<>() : transitions;
-    this.transitions.forEach(transition -> {
-      transition.setEvent(this);
-    });
+    this.transitions.forEach(transition -> transition.setEvent(this));
   }
 
   public abstract void dispatch(Dispatcher dispatcher);
 
   public interface Dispatcher {
-    public default void execute(final CronEvent event) {
+    default void execute() {
     }
 
-    public default void execute(final DayTimeEvent event) {
+    default void execute(final CronEvent event) {
     }
 
-    public default void execute(final Event event) {
+    default void execute(final DayTimeEvent event) {
     }
 
-    public default void execute(final FixedRateEvent event) {
+    default void execute(final FixedRateEvent event) {
     }
   }
 }

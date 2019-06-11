@@ -50,10 +50,10 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
   private final TaskScheduler taskScheduler;
   private @Getter final Properties properties;
 
-  GpioDigitalOutputPinDriver(final GpioController gpioController, final TaskScheduler taskScheduler, final Properties properties) {
-    this.gpioController = gpioController;
+  GpioDigitalOutputPinDriver(final TaskScheduler taskScheduler, final Properties properties, final GpioController gpioController) {
     this.taskScheduler = taskScheduler;
     this.properties = properties;
+    this.gpioController = gpioController;
     supportedCommands = immutableEnumSet(SWITCH_ON, SWITCH_OFF, TOGGLE_SWITCH, GET_SWITCH_STATE);
   }
 

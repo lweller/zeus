@@ -9,10 +9,10 @@ import java.util.Collection;
 
 public interface CommunicationService {
 
-  public String getName();
+  String getName();
 
-  public Collection<Device> scanDevices(ControlUnit controlUnit);
+  Collection<Device> scanDevices(ControlUnit controlUnit);
 
-  public State sendCommand(Device device, Command command, String data)
+  State sendCommand(Device device, Command command, String data)
       throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException;
 }
