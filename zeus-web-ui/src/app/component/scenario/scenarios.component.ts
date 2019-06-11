@@ -20,7 +20,7 @@ export class ScenariosComponent implements OnInit {
 
     scenarios: Scenario[];
 
-    constructor(private translateService: TranslateService, private scnearioService: ScenarioService) {
+    constructor(private translateService: TranslateService, private scenariosService: ScenarioService) {
     }
 
     ngOnInit() {
@@ -28,7 +28,7 @@ export class ScenariosComponent implements OnInit {
     }
 
     load(): void {
-        this.scnearioService.findAll().subscribe(scenarios => this.scenarios = scenarios);
+        this.scenariosService.findAll().subscribe(scenarios => this.scenarios = scenarios);
     }
 
     update(scenario: Scenario): void {
@@ -36,7 +36,7 @@ export class ScenariosComponent implements OnInit {
     }
 
     toggleEnabling(scenario: Scenario): void {
-        this.scnearioService.toggleEnabling(scenario).subscribe(updatedScenario =>
+        this.scenariosService.toggleEnabling(scenario).subscribe(updatedScenario =>
             Object.assign(this.scenarios[this.scenarios.indexOf(scenario)], updatedScenario));
     }
 

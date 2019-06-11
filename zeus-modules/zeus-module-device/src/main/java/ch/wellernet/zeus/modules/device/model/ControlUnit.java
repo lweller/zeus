@@ -31,7 +31,7 @@ public class ControlUnit {
   private @Id @Setter(PRIVATE) UUID id;
   private @OneToOne(cascade = ALL) ControlUnitAddress address;
   private @OneToMany(cascade = ALL, mappedBy = "controlUnit") @Setter(PRIVATE) @JsonIgnore List<Device> devices;
-  private @Version long versison;
+  private @Version long version;
 
   @Builder
   public ControlUnit(final UUID id, final ControlUnitAddress address, final List<Device> devices) {

@@ -38,21 +38,21 @@ public class DeviceServiceTest {
   private @Autowired DeviceService deviceService;
 
   private @MockBean DeviceRepository deviceRepository;
-  private @MockBean CommunicationService comunicationService;
+  private @MockBean CommunicationService communicationService;
   private @MockBean CommunicationServiceRegistry communicationServiceRegistry;
 
   @Test
   public void sendCommandShouldTransmitCommandWithDataToCommunicationService()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
+    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(communicationService);
     final String data = "some data";
 
     // when
     deviceService.sendCommand(DEVICE, GET_SWITCH_STATE, data);
 
     // then
-    verify(comunicationService).sendCommand(DEVICE, GET_SWITCH_STATE, data);
+    verify(communicationService).sendCommand(DEVICE, GET_SWITCH_STATE, data);
     verify(deviceRepository).save(DEVICE);
   }
 
@@ -60,13 +60,13 @@ public class DeviceServiceTest {
   public void sendCommandShouldTransmitCommandWithoutDataToCommunicationService()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(comunicationService);
+    given(communicationServiceRegistry.findByName(COMMUNICATION_SERVICE_NAME)).willReturn(communicationService);
 
     // when
     deviceService.sendCommand(DEVICE, GET_SWITCH_STATE);
 
     // then
-    verify(comunicationService).sendCommand(DEVICE, GET_SWITCH_STATE, null);
+    verify(communicationService).sendCommand(DEVICE, GET_SWITCH_STATE, null);
     verify(deviceRepository).save(DEVICE);
   }
 }

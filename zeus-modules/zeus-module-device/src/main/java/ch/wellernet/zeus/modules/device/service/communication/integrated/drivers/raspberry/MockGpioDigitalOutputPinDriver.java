@@ -9,7 +9,6 @@ import com.pi4j.io.gpio.PinState;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
@@ -58,7 +57,7 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
    * java.lang.String)
    */
   @Override
-  public synchronized State execute(final Command command, final String data) throws UndefinedCommandException, NotImplementedException {
+  public synchronized State execute(final Command command, final String data) throws UndefinedCommandException {
     switch (command) {
       case SWITCH_ON:
         setPinState(activePinState);
@@ -84,10 +83,8 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
         break;
       case GET_SWITCH_STATE:
       case REBOOT:
-        throw new NotImplementedException();
       default:
-        throw new UndefinedCommandException(
-            format("Command %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
+        throw new UndefinedCommandException(format("Command %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
     }
     return currentState == activePinState ? ON : OFF;
   }
