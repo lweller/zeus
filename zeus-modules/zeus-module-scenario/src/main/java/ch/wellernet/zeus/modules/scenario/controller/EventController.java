@@ -1,13 +1,13 @@
 package ch.wellernet.zeus.modules.scenario.controller;
 
 import ch.wellernet.zeus.modules.device.model.Device;
-import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,13 +35,15 @@ import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
 @CrossOrigin
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class EventController implements ScenarioApiV1Controller {
 
   static final String API_PATH = API_ROOT_PATH + "/events";
 
-  private @Autowired EventService eventService;
+  // injected dependencies
+  private final EventService eventService;
 
-  @ApiOperation("Finds all registrered events.")
+  @ApiOperation("Finds all registered events.")
   @GetMapping
   public ResponseEntity<Collection<Event>> findAll() {
     return ResponseEntity.status(OK).body(newArrayList(eventService.findAll()));
@@ -50,17 +52,17 @@ public class EventController implements ScenarioApiV1Controller {
   @ApiOperation("Finds event by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<Event> findById(
-      @ApiParam(value = "Event UUID", required = true) @PathVariable(required = true) final UUID id)
+      @ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id)
       throws NoSuchElementException {
-    return ResponseEntity.status(OK).body(eventService.findById(id).get());
+    return ResponseEntity.status(OK).body(eventService.findById(id).orElseThrow(NoSuchElementException::new));
   }
 
-  @ApiOperation("Fires immediatly an event.")
+  @ApiOperation("Fires immediately an event.")
   @ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
   @PostMapping(value = "/{id}!fire")
   public ResponseEntity<Event> fire(
-      @ApiParam(value = "Event UUID", required = true) @PathVariable(required = true) final UUID id)
-      throws NoSuchElementException, UndefinedCommandException {
+      @ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id)
+      throws NoSuchElementException {
     return ResponseEntity.status(OK).body(eventService.fireEvent(id));
   }
 

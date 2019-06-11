@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -44,23 +45,25 @@ import static org.springframework.http.HttpStatus.PRECONDITION_FAILED;
 @CrossOrigin
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DeviceController implements DeviceApiV1Controller {
   static final int COMMUNICATION_NOT_SUCCESSFUL = 901;
   static final int COMMUNICATION_INTERRUPTED = 902;
 
   static final String API_PATH = API_ROOT_PATH + "/devices";
 
-  private @Autowired DeviceRepository deviceRepository;
-  private @Autowired DeviceService deviceService;
+  // injected dependencies
+  private final DeviceRepository deviceRepository;
+  private final DeviceService deviceService;
 
   @ApiOperation("Executes main command for a given device.")
   @ApiResponses({@ApiResponse(code = 400, message = "Operation is invalid"),
-      @ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Sommunitation with device was not successful, but devices is still in a "
-          + "well defined state. For example this can happen, when deviced is not reachable"),
-      @ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communitation could not terminated leaving device possibly in a undefined state.")})
+      @ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Communication with device was not successful, but devices is still in a "
+          + "well defined state. For example this can happen, when device is not reachable"),
+      @ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communication could not terminated leaving device possibly in a undefined state.")})
   @PostMapping(value = "/{id}/main-command!execute")
   public ResponseEntity<Device> executeCommand(
-      @ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
+      @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id)
       throws NoSuchElementException, UndefinedCommandException, CommunicationNotSuccessfulException,
       CommunicationInterruptedException {
     return executeCommand(id, null);
@@ -68,20 +71,20 @@ public class DeviceController implements DeviceApiV1Controller {
 
   @ApiOperation("Executes a command for a given device.")
   @ApiResponses({@ApiResponse(code = 400, message = "Operation is invalid"),
-      @ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Sommunitation with device was not successful, but devices is still in a "
-          + "well defined state. For example this can happen, when deviced is not reachable"),
-      @ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communitation could not terminated leaving device possibly in a undefined state.")})
+      @ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Communication with device was not successful, but devices is still in a "
+          + "well defined state. For example this can happen, when device is not reachable"),
+      @ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communication could not terminated leaving device possibly in a undefined state.")})
   @PostMapping(value = "/{id}/commands/{command}!execute")
   public ResponseEntity<Device> executeCommand(
-      @ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
-      @ApiParam(value = "Command name", required = false) @PathVariable(required = true) final Command command)
+      @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id,
+      @ApiParam(value = "Command name") @PathVariable final Command command)
       throws NoSuchElementException, UndefinedCommandException, CommunicationNotSuccessfulException,
       CommunicationInterruptedException {
     final Device updatedDevice = deviceService.sendCommand(findDevice(id), command);
     return ResponseEntity.status(OK.value()).body(updatedDevice);
   }
 
-  @ApiOperation("Finds all registrered devices.")
+  @ApiOperation("Finds all registered devices.")
   @GetMapping
   public ResponseEntity<Collection<Device>> findAll() {
     final ArrayList<Device> devices = newArrayList(deviceRepository.findAll());
@@ -93,9 +96,9 @@ public class DeviceController implements DeviceApiV1Controller {
   @ApiOperation("Finds device by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<Device> findById(
-      @ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
+      @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id)
       throws NoSuchElementException {
-    return ResponseEntity.status(OK).body(deviceRepository.findById(id).get());
+    return ResponseEntity.status(OK).body(deviceRepository.findById(id).orElseThrow(NoSuchElementException::new));
   }
 
   @ExceptionHandler({CommunicationInterruptedException.class})
@@ -125,13 +128,13 @@ public class DeviceController implements DeviceApiV1Controller {
     return ResponseEntity.status(NOT_ACCEPTABLE).body("undefined command");
   }
 
-  @ApiOperation("Updates a device. Only descriptif attributes (name) will be updated.")
-  @ApiResponses(@ApiResponse(code = 412, message = "Concurent modification"))
+  @ApiOperation("Updates a device. Only descriptive attributes (name) will be updated.")
+  @ApiResponses(@ApiResponse(code = 412, message = "Concurrent modification"))
   @PostMapping("/{id}!update")
   public ResponseEntity<Device> update(
-      @ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id,
+      @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id,
       @ApiParam(value = "Device data", required = true) @RequestBody final Device device,
-      @ApiParam(value = "ETag (i.e.) version attribute for optimistic locking", required = true) @RequestHeader(value = "If-Match", required = true) final long version)
+      @ApiParam(value = "ETag (i.e.) version attribute for optimistic locking", required = true) @RequestHeader(value = "If-Match") final long version)
       throws NoSuchElementException, OptimisticLockException {
     final Device currentDevice = findDevice(id, version);
     currentDevice.setName(device.getName());
@@ -145,7 +148,7 @@ public class DeviceController implements DeviceApiV1Controller {
   }
 
   private Device findDevice(final UUID id, final Long version) throws OptimisticLockException {
-    final Device device = deviceRepository.findById(id).get();
+    final Device device = deviceRepository.findById(id).orElseThrow(NoSuchElementException::new);
     if (version != null && device.getVersion() != version) {
       throw new OptimisticLockException(device);
     }

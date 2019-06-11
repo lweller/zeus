@@ -5,6 +5,7 @@ import ch.wellernet.zeus.modules.device.repository.ControlUnitRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +32,14 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @CrossOrigin
 @RequestMapping(API_PATH)
 @Transactional(REQUIRED)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ControlUnitController implements DeviceApiV1Controller {
   static final String API_PATH = API_ROOT_PATH + "/controlUnits";
 
-  @Autowired
-  private ControlUnitRepository controlUnitRepository;
+  // injected dependencies
+  private final ControlUnitRepository controlUnitRepository;
 
-  @ApiOperation("Finds all registrered control units.")
+  @ApiOperation("Finds all registered control units.")
   @GetMapping
   public ResponseEntity<Collection<ControlUnit>> findAll() {
     return ResponseEntity.status(HttpStatus.OK).body(newArrayList(controlUnitRepository.findAll()));
@@ -46,15 +48,15 @@ public class ControlUnitController implements DeviceApiV1Controller {
   @ApiOperation("Finds control unit by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<ControlUnit> findById(
-      @ApiParam(value = "Device UUID", required = true) @PathVariable(required = true) final UUID id)
+      @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id)
       throws NoSuchElementException {
-    return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findById(id).get());
+    return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findById(id).orElseThrow(NoSuchElementException::new));
   }
 
-  @ApiOperation("Finds intgegrated control unit.")
+  @ApiOperation("Finds integrated control unit.")
   @GetMapping("/integrated")
   public ResponseEntity<ControlUnit> findIntegrated() throws NoSuchElementException {
-    return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findIntegrated().get());
+    return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findIntegrated().orElseThrow(NoSuchElementException::new));
   }
 
   @ExceptionHandler({NoSuchElementException.class})
@@ -62,7 +64,7 @@ public class ControlUnitController implements DeviceApiV1Controller {
     return ResponseEntity.status(NOT_FOUND).body("cannot find control unit");
   }
 
-  @ApiOperation("Scans intgegrated control unit for devices.")
+  @ApiOperation("Scans integrated control unit for devices.")
   @PostMapping("/integrated!scanDevices")
   public ResponseEntity<Void> scanIntegrated() throws NoSuchElementException {
     // TODO: fetch current states form devices

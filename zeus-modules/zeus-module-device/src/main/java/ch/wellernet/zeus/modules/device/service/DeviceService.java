@@ -8,6 +8,7 @@ import ch.wellernet.zeus.modules.device.service.communication.CommunicationInter
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationServiceRegistry;
 import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,12 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 @Service
 @Transactional(value = MANDATORY)
 @Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DeviceService {
-  private @Autowired DeviceRepository deviceRepository;
-  private @Autowired CommunicationServiceRegistry communicationServiceRegistry;
+
+  // injected dependencies
+  private final DeviceRepository deviceRepository;
+  private final CommunicationServiceRegistry communicationServiceRegistry;
 
   public Device sendCommand(final Device device, final Command command)
       throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
@@ -49,7 +53,7 @@ public class DeviceService {
       throw exception;
     } catch (final CommunicationInterruptedException exception) {
       log.error(
-          "command was sent to device but did not complete successfully, so device may be in an undefied state",
+          "command was sent to device but did not complete successfully, so device may be in an undefined state",
           exception);
       device.setState(UNKNOWN);
       exception.setDevice(device);

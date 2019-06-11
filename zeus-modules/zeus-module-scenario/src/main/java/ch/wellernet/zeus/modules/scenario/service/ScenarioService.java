@@ -9,13 +9,12 @@ import ch.wellernet.zeus.modules.scenario.model.Arc;
 import ch.wellernet.zeus.modules.scenario.model.InhibitionArc;
 import ch.wellernet.zeus.modules.scenario.model.InputArc;
 import ch.wellernet.zeus.modules.scenario.model.OutputArc;
-import ch.wellernet.zeus.modules.scenario.model.Scenario;
 import ch.wellernet.zeus.modules.scenario.model.SendCommandAction;
 import ch.wellernet.zeus.modules.scenario.model.State;
 import ch.wellernet.zeus.modules.scenario.model.Transition;
-import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepository;
 import ch.wellernet.zeus.modules.scenario.repository.StateRepository;
 import ch.wellernet.zeus.modules.scenario.repository.TransitionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,20 +26,17 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 
 @Service
 @Transactional(MANDATORY)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ScenarioService {
 
-  private @Autowired ScenarioRepository scenarioRepository;
-  private @Autowired TransitionRepository transitionRepository;
-  private @Autowired StateRepository stateRepository;
+  // injected dependencies
+  private final TransitionRepository transitionRepository;
+  private final StateRepository stateRepository;
 
-  private @Autowired DeviceService deviceService;
-
-  public void create(final Scenario scenario) {
-    scenarioRepository.save(scenario);
-  }
+  private final DeviceService deviceService;
 
   public void fireTransition(final UUID transitionId) throws NoSuchElementException {
-    fireTransition(transitionRepository.findById(transitionId).get());
+    fireTransition(transitionRepository.findById(transitionId).orElseThrow(NoSuchElementException::new));
   }
 
   boolean canFireInhibitionArc(final InhibitionArc inhibitionArc) {
@@ -85,47 +81,41 @@ public class ScenarioService {
 
   void fireTransition(final Transition transition) {
     if (canFireTransition(transition)) {
-      transition.getActions().forEach(action -> {
-        action.dispatch(new Action.Dispatcher() {
-          @Override
-          public void execute(final SendCommandAction action) {
-            try {
-              deviceService.sendCommand(action.getDevice(), action.getCommand(), action.getData());
-            } catch (final UndefinedCommandException | CommunicationNotSuccessfulException
-                | CommunicationInterruptedException exception) {
-              throw new RuntimeException(exception);
+      transition.getActions().forEach(action -> action.dispatch(new Action.Dispatcher() {
+        @Override
+        public void execute(final SendCommandAction action) {
+          try {
+            deviceService.sendCommand(action.getDevice(), action.getCommand(), action.getData());
+          } catch (final UndefinedCommandException | CommunicationNotSuccessfulException
+              | CommunicationInterruptedException exception) {
+            throw new RuntimeException(exception);
+          }
+        }
+      }));
+      transition.getArcs().forEach(arc -> arc.dispatch(new Arc.Dispatcher<Void>() {
+
+        @Override
+        public Void execute(final InputArc arc) {
+          final State state = arc.getState();
+          state.setCount(state.getCount() - arc.getWeight());
+          stateRepository.save(state);
+          return null;
+        }
+
+        @Override
+        public Void execute(final OutputArc arc) {
+          final State state = arc.getState();
+          state.setCount(state.getCount() + arc.getWeight());
+          stateRepository.save(state);
+          state.getArcs().stream().filter(nextArc -> nextArc instanceof InputArc).forEach(inputArc -> {
+            if (inputArc.getTransition().isFiringAutomatically()) {
+              fireTransition(inputArc.getTransition());
             }
-          }
-        });
-      });
-      transition.getArcs().forEach(arc -> {
-        arc.dispatch(new Arc.Dispatcher<Void>() {
+          });
+          return null;
+        }
 
-          @Override
-          public Void execute(final InputArc arc) {
-            final State state = arc.getState();
-            state.setCount(state.getCount() - arc.getWeight());
-            stateRepository.save(state);
-            return null;
-          }
-
-          @Override
-          public Void execute(final OutputArc arc) {
-            final State state = arc.getState();
-            state.setCount(state.getCount() + arc.getWeight());
-            stateRepository.save(state);
-            state.getArcs().stream().filter(nextArc -> {
-              return nextArc instanceof InputArc;
-            }).forEach(inputArc -> {
-              if (inputArc.getTransition().isFiringAutomatically()) {
-                fireTransition(inputArc.getTransition());
-              }
-            });
-            return null;
-          }
-
-        });
-      });
+      }));
     }
   }
 }

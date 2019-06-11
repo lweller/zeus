@@ -6,6 +6,7 @@ import ch.wellernet.zeus.modules.device.repository.DeviceRepositoryConfiguration
 import ch.wellernet.zeus.modules.scenario.ScenarioModuleConfiguration;
 import ch.wellernet.zeus.modules.scenario.model.ScenarioModelConfiguration;
 import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepositoryConfiguration;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,11 +24,13 @@ import javax.annotation.PostConstruct;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackageClasses = {DeviceRepositoryConfiguration.class,
     ScenarioRepositoryConfiguration.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ZeusServerApplication extends SpringBootServletInitializer {
 
-  private @Autowired DeviceModuleConfiguration deviceModuleConfiguration;
-  private @Autowired ScenarioModuleConfiguration scenarioModuleConfiguration;
-  private @Autowired ZeusServerConfiguration zeusServerConfiguration;
+  // injected dependencies
+  private final DeviceModuleConfiguration deviceModuleConfiguration;
+  private final ScenarioModuleConfiguration scenarioModuleConfiguration;
+  private final ZeusServerConfiguration zeusServerConfiguration;
 
   public static void main(final String[] args) {
     SpringApplication.run(ZeusServerApplication.class, args);

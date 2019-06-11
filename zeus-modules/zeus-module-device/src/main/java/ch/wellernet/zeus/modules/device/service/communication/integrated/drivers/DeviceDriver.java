@@ -3,14 +3,15 @@ package ch.wellernet.zeus.modules.device.service.communication.integrated.driver
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.State;
 import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
 
 public interface DeviceDriver {
 
-  public State execute(Command command, String data) throws UndefinedCommandException;
+  State execute(Command command, String data) throws UndefinedCommandException, NotImplementedException;
 
-  public Collection<Command> getSupportedCommands();
+  Collection<Command> getSupportedCommands();
 
-  public void init();
+  void init();
 }

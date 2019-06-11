@@ -10,7 +10,6 @@ import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinState;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 
 import javax.annotation.PostConstruct;
@@ -36,19 +35,24 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 @Slf4j
 public class GpioDigitalOutputPinDriver implements DeviceDriver {
 
-  public static final PinState DEFAULT_ACTIVE_STATE = LOW;
-  public static final String PIN_PROPERTY = "pin";
-  public static final String ACTIVE_STATE_PROPERTY = "active-state";
+  private static final PinState DEFAULT_ACTIVE_STATE = LOW;
+  static final String PIN_PROPERTY = "pin";
+  static final String ACTIVE_STATE_PROPERTY = "active-state";
   static final String BEAN_NAME = "deviceDriver.raspberry.GpioDigitalOutputPinDriver";
-  private @Getter final Properties properties;
+
   private @Getter final Collection<Command> supportedCommands;
-  private @Autowired GpioController gpioController;
-  private @Autowired TaskScheduler taskScheduler;
   private @Getter PinState activePinState;
   private @Getter GpioPinDigitalOutput provisionedPin;
   private @Getter ScheduledFuture<?> timerTask;
 
-  public GpioDigitalOutputPinDriver(final Properties properties) {
+  // injected dependencies
+  private final GpioController gpioController;
+  private final TaskScheduler taskScheduler;
+  private @Getter final Properties properties;
+
+  GpioDigitalOutputPinDriver(final GpioController gpioController, final TaskScheduler taskScheduler, final Properties properties) {
+    this.gpioController = gpioController;
+    this.taskScheduler = taskScheduler;
     this.properties = properties;
     supportedCommands = immutableEnumSet(SWITCH_ON, SWITCH_OFF, TOGGLE_SWITCH, GET_SWITCH_STATE);
   }
@@ -65,16 +69,14 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
         break;
       case SWITCH_ON_W_TIMER:
         setPinState(activePinState);
-        final String[] agrs = data.split("\\s");
+        final String[] args = data.split("\\s");
         final long timer;
-        if (agrs.length > 0) {
-          timer = parseLong(agrs[0]);
+        if (args.length > 0) {
+          timer = parseLong(args[0]);
         } else {
           timer = 0;
         }
-        timerTask = taskScheduler.schedule((Runnable) () -> {
-          setPinState(getInverseState(activePinState));
-        }, Instant.now().plus(timer, SECONDS));
+        timerTask = taskScheduler.schedule(() -> setPinState(getInverseState(activePinState)), Instant.now().plus(timer, SECONDS));
         break;
       case SWITCH_OFF:
         setPinState(getInverseState(activePinState));
@@ -86,7 +88,7 @@ public class GpioDigitalOutputPinDriver implements DeviceDriver {
         break;
       default:
         throw new UndefinedCommandException(
-            format("Commdand %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
+            format("Command %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
     }
     return provisionedPin.getState() == activePinState ? ON : OFF;
   }

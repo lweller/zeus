@@ -1,5 +1,6 @@
 package ch.wellernet.zeus.server.controller;
 
+import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,9 +19,11 @@ import static ch.wellernet.zeus.common.ManifestUtil.buildVersionInfo;
 @RestController
 @CrossOrigin
 @RequestMapping("/version")
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class VersionController {
 
-  private @Autowired ServletContext context;
+  // injected dependencies
+  private final ServletContext context;
 
   @RequestMapping(method = RequestMethod.GET)
   @ResponseBody
