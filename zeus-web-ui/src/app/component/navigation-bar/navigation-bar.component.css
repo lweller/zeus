@@ -17,6 +17,9 @@
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
     user-select: none;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
 }
 
 .button:focus {
@@ -27,19 +30,32 @@
     background-color: #c0c0c0;
 }
 
-.active-button {
+.button.active {
     color: white;
     background-color: #4782E2;
 }
 
-.active-button:hover {
-    background-color: #4782E2;
+.devices {
+    background-image: url('/assets/icons/devices.svg');
 }
 
-.button span {
-    display: inline-block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.devices.active {
+    background-image: url('/assets/icons/devices.active.svg');
+}
+
+.events {
+    background-image: url('/assets/icons/events.svg');
+}
+
+.events.active {
+    background-image: url('/assets/icons/events.active.svg');
+}
+
+
+.scenarios {
+    background-image: url('/assets/icons/scenarios.svg');
+}
+
+.scenarios.active {
+    background-image: url('/assets/icons/scenarios.active.svg');
 }
