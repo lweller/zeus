@@ -20,8 +20,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class ScenarioEventSchedulerConfiguration {
 
   // injected dependencies
-  private final EventService eventService;
   private final PlatformTransactionManager transactionManager;
+
+  // use field injection due to cyclic dependency
+  @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+  private @Autowired EventService eventService;
 
   void initializeEvents() {
     new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
