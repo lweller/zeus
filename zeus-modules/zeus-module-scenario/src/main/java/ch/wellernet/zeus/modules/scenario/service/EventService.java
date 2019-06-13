@@ -5,11 +5,7 @@ import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
-import ch.wellernet.zeus.modules.scenario.scheduling.HighNoonTrigger;
-import ch.wellernet.zeus.modules.scenario.scheduling.Location;
-import ch.wellernet.zeus.modules.scenario.scheduling.MidnightTrigger;
-import ch.wellernet.zeus.modules.scenario.scheduling.SunriseTrigger;
-import ch.wellernet.zeus.modules.scenario.scheduling.SunsetTrigger;
+import ch.wellernet.zeus.modules.scenario.scheduling.*;
 import com.luckycatlabs.sunrisesunset.Zenith;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -26,13 +22,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.Nonnull;
+import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -54,7 +47,8 @@ public class EventService {
   private final Location location;
   private final TaskScheduler taskScheduler;
   // injected dependencies
-  private @Setter(onMethod_ = @Autowired(required = false)) ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
+  private @Setter(onMethod_ = @Autowired(required = false))
+  ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
 
   public void cancelEvent(final UUID eventId) {
     final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
@@ -69,13 +63,25 @@ public class EventService {
     return newArrayList(events);
   }
 
-  public Optional<Event> findById(final UUID eventId) {
-    final Optional<Event> event = eventRepository.findById(eventId);
-    updateNextFiringDate(event.orElse(null));
+  public Event findById(final UUID eventId) {
+    final Event event = eventRepository.findById(eventId)
+                            .orElseThrow(
+                                () -> new NoSuchElementException(format("event with ID %s does not exists", eventId)));
+    updateNextFiringDate(event);
     return event;
   }
 
-  public Event fireEvent(final UUID eventId) {
+  public Event create(@Nonnull final Event event) throws EntityExistsException {
+    if (eventRepository.existsById(event.getId())) {
+      throw new EntityExistsException(format("event with ID %s already exists", event.getId()));
+    }
+    final Event newEvent = eventRepository.save(event);
+    scheduleEvent(newEvent);
+    updateNextFiringDate(newEvent);
+    return newEvent;
+  }
+
+  public Event fireEvent(@Nonnull final UUID eventId) {
     final Optional<Event> eventOptional = eventRepository.findById(eventId);
 
     if (eventOptional.isPresent()) {
@@ -94,7 +100,11 @@ public class EventService {
 
   public void scheduleAllExistingEvents() throws IllegalArgumentException {
     log.info("scheduling all existing events");
-    eventRepository.findAll().forEach(event -> event.dispatch(new Event.Dispatcher() {
+    eventRepository.findAll().forEach(this::scheduleEvent);
+  }
+
+  private void scheduleEvent(final Event event) {
+    event.dispatch(new Event.Dispatcher() {
 
       @Override
       public void execute(final CronEvent event) {
@@ -111,7 +121,7 @@ public class EventService {
         scheduleEvent(event);
       }
 
-    }));
+    });
   }
 
   public void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
@@ -141,7 +151,7 @@ public class EventService {
     switch (event.getSunEvent()) {
       case MIDNIGHT:
         trigger = MidnightTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000)
-            .build();
+                      .build();
         break;
       case SUNRISE:
         trigger = SunriseTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000).build();
@@ -151,7 +161,7 @@ public class EventService {
         break;
       case HIGH_NOON:
         trigger = HighNoonTrigger.builder().location(location).zenith(zenith).shift(event.getShift() * 1000)
-            .build();
+                      .build();
         break;
     }
     cancelEvent(event.getId());
@@ -183,6 +193,7 @@ public class EventService {
       }
     }
   }
+
 
   static class ScheduledEventRegistrar {
     private final Map<UUID, ScheduledFuture<?>> scheduledEvents = new HashMap<>();

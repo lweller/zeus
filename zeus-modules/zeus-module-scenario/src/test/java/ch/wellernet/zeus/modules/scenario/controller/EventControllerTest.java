@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -74,7 +73,7 @@ public class EventControllerTest {
   @Test
   public void findByIdShouldReturnEvent() {
     // given
-    given(eventService.findById(EVENT_1.getId())).willReturn(Optional.of(EVENT_1));
+    given(eventService.findById(EVENT_1.getId())).willReturn(EVENT_1);
 
     // when
     final ResponseEntity<Event> response = eventController.findById(EVENT_1.getId());
@@ -87,7 +86,7 @@ public class EventControllerTest {
   @Test(expected = NoSuchElementException.class)
   public void findByIdShouldThrowNoSuchElementExceptionIfEventDoesNotExists() {
     // given
-    given(eventService.findById(EVENT_1.getId())).willReturn(Optional.empty());
+    given(eventService.findById(EVENT_1.getId())).willThrow(NoSuchElementException.class);
 
     // when
     eventController.findById(EVENT_1.getId());
@@ -114,7 +113,7 @@ public class EventControllerTest {
   public void fireShouldThrowNoSuchElementExceptionIfEventDoesNotExists() {
     // given
     final UUID eventId = EVENT_1.getId();
-    given(eventService.findById(eventId)).willReturn(Optional.empty());
+    given(eventService.findById(eventId)).willThrow(NoSuchElementException.class);
 
     // when
     eventController.findById(eventId);

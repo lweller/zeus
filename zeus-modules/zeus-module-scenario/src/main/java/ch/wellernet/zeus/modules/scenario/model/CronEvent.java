@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,11 +19,14 @@ import static lombok.AccessLevel.PRIVATE;
 @EqualsAndHashCode(callSuper = true)
 public class CronEvent extends Event {
 
+  @NotNull
   private String cronExpression;
 
   @Builder
-  private CronEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
-                    final String cronExpression) {
+  private CronEvent(@Nonnull final UUID id,
+                    @Nonnull final String name,
+                    @Nonnull final Set<EventDrivenTransition> transitions,
+                    @Nonnull final String cronExpression) {
     super(id, name, transitions);
     this.cronExpression = cronExpression;
   }

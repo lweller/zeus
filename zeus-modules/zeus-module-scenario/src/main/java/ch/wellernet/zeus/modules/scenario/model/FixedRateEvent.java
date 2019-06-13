@@ -1,11 +1,10 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,15 +19,21 @@ public class FixedRateEvent extends Event {
   // default interval (1 day)
   private static final int DEFAULT_INTERVAL = 60 * 60 * 24;
 
-  private int initialDelay;
-  private int interval;
+  @NotNull
+  private Integer initialDelay;
+
+  @NotNull
+  private Integer interval;
 
   @Builder
-  private FixedRateEvent(final UUID id, final String name, final Set<EventDrivenTransition> transitions,
-                         final Integer initialDelay, final Integer interval) {
+  private FixedRateEvent(@NonNull final UUID id,
+                         @Nullable final String name,
+                         @Nullable final Set<EventDrivenTransition> transitions,
+                         @Nullable final Integer initialDelay,
+                         @NonNull final Integer interval) {
     super(id, name, transitions);
     this.initialDelay = initialDelay == null ? 0 : initialDelay;
-    this.interval = interval == null ? DEFAULT_INTERVAL : interval;
+    this.interval = interval;
   }
 
   @Override

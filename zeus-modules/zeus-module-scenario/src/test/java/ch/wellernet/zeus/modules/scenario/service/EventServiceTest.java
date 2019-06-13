@@ -1,10 +1,6 @@
 package ch.wellernet.zeus.modules.scenario.service;
 
-import ch.wellernet.zeus.modules.scenario.model.CronEvent;
-import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
-import ch.wellernet.zeus.modules.scenario.model.Event;
-import ch.wellernet.zeus.modules.scenario.model.EventDrivenTransition;
-import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
+import ch.wellernet.zeus.modules.scenario.model.*;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
 import ch.wellernet.zeus.modules.scenario.scheduling.HighNoonTrigger;
 import ch.wellernet.zeus.modules.scenario.scheduling.MidnightTrigger;
@@ -23,43 +19,30 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import javax.persistence.EntityExistsException;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
-import static ch.wellernet.zeus.modules.scenario.model.SunEvent.HIGH_NOON;
-import static ch.wellernet.zeus.modules.scenario.model.SunEvent.MIDNIGHT;
-import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNRISE;
-import static ch.wellernet.zeus.modules.scenario.model.SunEvent.SUNSET;
-import static ch.wellernet.zeus.modules.scenario.model.SunEventDefinition.OFFICIAL;
+import static ch.wellernet.zeus.modules.scenario.model.SunEvent.*;
+import static ch.wellernet.zeus.modules.scenario.model.SunEventDefinition.NAUTICAL;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 
 @SpringBootTest(classes = EventService.class, properties = {"zeus.location.latitude=46.948877",
     "zeus.location.longitude=7.439949"}, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class EventServiceTest {
 
   // test data
@@ -69,13 +52,19 @@ public class EventServiceTest {
   private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
-  private @SpyBean EventService eventService;
+  private @SpyBean
+  EventService eventService;
 
-  private @MockBean PlatformTransactionManager transactionManager;
-  private @MockBean ScheduledEventRegistrar scheduledEventRegistrar;
-  private @MockBean TaskScheduler taskScheduler;
-  private @MockBean EventRepository eventRepository;
-  private @MockBean ScenarioService scenarioService;
+  private @MockBean
+  PlatformTransactionManager transactionManager;
+  private @MockBean
+  ScheduledEventRegistrar scheduledEventRegistrar;
+  private @MockBean
+  TaskScheduler taskScheduler;
+  private @MockBean
+  EventRepository eventRepository;
+  private @MockBean
+  ScenarioService scenarioService;
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -104,6 +93,33 @@ public class EventServiceTest {
 
     // then
     verify(scheduledEventRegistrar).remove(eventId);
+  }
+
+  @Test
+  public void createShouldSaveNewEvent() {
+    // given
+    final CronEvent event = defaults(CronEvent.builder()).build();
+    given(eventRepository.save(event)).willReturn(event);
+
+    // when
+    final Event savedEvent = eventService.create(event);
+
+    // then
+    assertThat(savedEvent, is(event));
+    verify(eventService).scheduleEvent(event);
+    verify(eventRepository, atLeast(1)).save(event);
+  }
+
+  @Test (expected = EntityExistsException.class)
+  public void createShouldThrowAnExceptionIfEventAlreadyExists() {
+    // given
+    final CronEvent event = defaults(CronEvent.builder()).build();
+    given(eventRepository.existsById(any())).willReturn(true);
+
+    // when
+    eventService.create(event);
+
+    // then an exception is expected
   }
 
   @Test
@@ -153,16 +169,15 @@ public class EventServiceTest {
     assertThat(events, is(empty()));
   }
 
-  @Test
-  public void findByIdShouldReturnEmptyOptionWhenEventDoesNotExists() {
+  @Test(expected = NoSuchElementException.class)
+  public void findByIdShouldThrowAnExceptionWhenEventDoesNotExists() {
     // given
     given(eventRepository.findById(EVENT_1.getId())).willReturn(Optional.empty());
 
     // when
-    final Optional<Event> event = eventService.findById(EVENT_1.getId());
+    eventService.findById(EVENT_1.getId());
 
     // then an exception is expected
-    assertThat(event.isPresent(), is(false));
   }
 
   @Test
@@ -174,10 +189,10 @@ public class EventServiceTest {
     given(scheduledEventRegistrar.get(any())).willReturn(mock(ScheduledFuture.class));
 
     // when
-    final Optional<Event> event = eventService.findById(EVENT_1.getId());
+    final Event event = eventService.findById(EVENT_1.getId());
 
     // then
-    assertThat(event.orElse(null), is(EVENT_1));
+    assertThat(event, is(EVENT_1));
     verify(eventService).updateNextFiringDate(EVENT_1);
   }
 
@@ -189,11 +204,11 @@ public class EventServiceTest {
     given(scheduledEventRegistrar.get(any())).willReturn(null);
 
     // when
-    final Optional<Event> event = eventService.findById(originalEvent.getId());
+    final Event event = eventService.findById(originalEvent.getId());
 
     // then
-    assertThat(event.orElse(null), is(originalEvent));
-    assertThat(event.get().getNextScheduledExecution(), is(nullValue()));
+    assertThat(event, is(originalEvent));
+    assertThat(event.getNextScheduledExecution(), is(nullValue()));
   }
 
   @Test
@@ -216,7 +231,7 @@ public class EventServiceTest {
     final EventDrivenTransition transition1 = EventDrivenTransition.builder().id(new UUID(0, 1)).build();
     final EventDrivenTransition transition2 = EventDrivenTransition.builder().id(new UUID(0, 2)).build();
     final Set<EventDrivenTransition> transitions = newHashSet(transition1, transition2);
-    final Event event = FixedRateEvent.builder().transitions(transitions).build();
+    final Event event = defaults(FixedRateEvent.builder()).transitions(transitions).build();
     given(eventRepository.findById(event.getId())).willReturn(Optional.of(event));
     given(eventRepository.save(event)).willReturn(event);
 
@@ -234,8 +249,8 @@ public class EventServiceTest {
   @Test
   public void scheduleAllExistingEventShouldCreateTaskForEachEvent() {
     // given
-    final CronEvent cronEvent = CronEvent.builder().build();
-    final FixedRateEvent fixedRateEvent = FixedRateEvent.builder().build();
+    final CronEvent cronEvent = defaults(CronEvent.builder()).build();
+    final FixedRateEvent fixedRateEvent = defaults(FixedRateEvent.builder()).build();
     given(eventRepository.findAll()).willReturn(newHashSet(cronEvent, fixedRateEvent));
     doNothing().when(eventService).scheduleEvent(any(CronEvent.class));
     doNothing().when(eventService).scheduleEvent(any(FixedRateEvent.class));
@@ -252,7 +267,7 @@ public class EventServiceTest {
   public void scheduleCronEventShouldSaveAndCreateTaskWhenCronExpressionIsInvValid() {
     // given
     final String cronExpression = "not valid!!!";
-    final CronEvent cronEvent = CronEvent.builder().cronExpression(cronExpression).build();
+    final CronEvent cronEvent = defaults(CronEvent.builder()).cronExpression(cronExpression).build();
 
     // when
     eventService.scheduleEvent(cronEvent);
@@ -265,7 +280,7 @@ public class EventServiceTest {
     // given
     final String cronExpression = "0/5 * * * * *";
     new CronTrigger(cronExpression);
-    final CronEvent cronEvent = CronEvent.builder().cronExpression(cronExpression).build();
+    final CronEvent cronEvent = defaults(CronEvent.builder()).cronExpression(cronExpression).build();
 
     // when
     eventService.scheduleEvent(cronEvent);
@@ -280,7 +295,7 @@ public class EventServiceTest {
   @Test
   public void scheduleDayTimeEventHighNoonShouldSaveAndCreateTask() {
     // given
-    final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(HIGH_NOON).definition(OFFICIAL).build();
+    final DayTimeEvent dayTimeEvent = defaults(DayTimeEvent.builder()).sunEvent(HIGH_NOON).definition(NAUTICAL).build();
 
     // when
     eventService.scheduleEvent(dayTimeEvent);
@@ -289,13 +304,13 @@ public class EventServiceTest {
     verify(eventRepository).save(dayTimeEvent);
     final ArgumentCaptor<HighNoonTrigger> trigger = ArgumentCaptor.forClass(HighNoonTrigger.class);
     verify(taskScheduler).schedule(any(Runnable.class), trigger.capture());
-    assertThat(trigger.getValue().getZenith(), is(Zenith.OFFICIAL));
+    assertThat(trigger.getValue().getZenith(), is(Zenith.NAUTICAL));
   }
 
   @Test
   public void scheduleDayTimeEventMidnightShouldSaveAndCreateTask() {
     // given
-    final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(MIDNIGHT).definition(OFFICIAL).build();
+    final DayTimeEvent dayTimeEvent = defaults(DayTimeEvent.builder()).sunEvent(MIDNIGHT).definition(NAUTICAL).build();
 
     // when
     eventService.scheduleEvent(dayTimeEvent);
@@ -304,13 +319,13 @@ public class EventServiceTest {
     verify(eventRepository).save(dayTimeEvent);
     final ArgumentCaptor<MidnightTrigger> trigger = ArgumentCaptor.forClass(MidnightTrigger.class);
     verify(taskScheduler).schedule(any(Runnable.class), trigger.capture());
-    assertThat(trigger.getValue().getZenith(), is(Zenith.OFFICIAL));
+    assertThat(trigger.getValue().getZenith(), is(Zenith.NAUTICAL));
   }
 
   @Test
   public void scheduleDayTimeEventSunriseShouldSaveAndCreateTask() {
     // given
-    final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNRISE).definition(OFFICIAL).build();
+    final DayTimeEvent dayTimeEvent = defaults(DayTimeEvent.builder()).sunEvent(SUNRISE).definition(NAUTICAL).build();
 
     // when
     eventService.scheduleEvent(dayTimeEvent);
@@ -319,13 +334,13 @@ public class EventServiceTest {
     verify(eventRepository).save(dayTimeEvent);
     final ArgumentCaptor<SunriseTrigger> trigger = ArgumentCaptor.forClass(SunriseTrigger.class);
     verify(taskScheduler).schedule(any(Runnable.class), trigger.capture());
-    assertThat(trigger.getValue().getZenith(), is(Zenith.OFFICIAL));
+    assertThat(trigger.getValue().getZenith(), is(Zenith.NAUTICAL));
   }
 
   @Test
   public void scheduleDayTimeEventSunsetShouldSaveAndCreateTask() {
     // given
-    final DayTimeEvent dayTimeEvent = DayTimeEvent.builder().sunEvent(SUNSET).definition(OFFICIAL).build();
+    final DayTimeEvent dayTimeEvent = defaults(DayTimeEvent.builder()).sunEvent(SUNSET).definition(NAUTICAL).build();
 
     // when
     eventService.scheduleEvent(dayTimeEvent);
@@ -334,7 +349,7 @@ public class EventServiceTest {
     verify(eventRepository).save(dayTimeEvent);
     final ArgumentCaptor<SunsetTrigger> trigger = ArgumentCaptor.forClass(SunsetTrigger.class);
     verify(taskScheduler).schedule(any(Runnable.class), trigger.capture());
-    assertThat(trigger.getValue().getZenith(), is(Zenith.OFFICIAL));
+    assertThat(trigger.getValue().getZenith(), is(Zenith.NAUTICAL));
   }
 
   @Test
@@ -342,8 +357,8 @@ public class EventServiceTest {
     // given
     final int interval = 10;
     final int initialDelay = 15;
-    final FixedRateEvent fixedRateEvent = FixedRateEvent.builder().interval(interval).initialDelay(initialDelay)
-        .build();
+    final FixedRateEvent fixedRateEvent = defaults(FixedRateEvent.builder()).interval(interval).initialDelay(initialDelay)
+                                              .build();
 
     // when
     eventService.scheduleEvent(fixedRateEvent);
@@ -353,6 +368,18 @@ public class EventServiceTest {
     final ArgumentCaptor<Date> date = ArgumentCaptor.forClass(Date.class);
     verify(taskScheduler).scheduleAtFixedRate(any(Runnable.class), date.capture(), eq(interval * 1000L));
     assertThat((double) date.getValue().getTime(), is(closeTo(currentTimeMillis() + initialDelay * 1000, 50)));
+  }
+
+  private CronEvent.CronEventBuilder defaults(final CronEvent.CronEventBuilder builder) {
+    return builder.id(randomUUID()).cronExpression("0 0 0 * * *");
+  }
+
+  private DayTimeEvent.DayTimeEventBuilder defaults(final DayTimeEvent.DayTimeEventBuilder builder) {
+    return builder.id(randomUUID()).sunEvent(SUNRISE);
+  }
+
+  private FixedRateEvent.FixedRateEventBuilder defaults(final FixedRateEvent.FixedRateEventBuilder builder) {
+    return builder.id(randomUUID()).interval(1000);
   }
 }
 
