@@ -67,11 +67,11 @@ public class EventServiceTest {
   ScenarioService scenarioService;
 
   @Test
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public void cancelEventShouldCancelAlsoTask() {
     // given
     final UUID eventId = new UUID(0, 42);
     final ScheduledFuture<?> scheduledFuture = mock(ScheduledFuture.class);
+    //noinspection unchecked
     given(scheduledEventRegistrar.remove(eventId)).willReturn((ScheduledFuture) scheduledFuture);
 
     // when
@@ -99,6 +99,7 @@ public class EventServiceTest {
   public void createShouldSaveNewEvent() {
     // given
     final CronEvent event = defaults(CronEvent.builder()).build();
+    event.setVersion(42);
     given(eventRepository.save(event)).willReturn(event);
 
     // when
@@ -106,6 +107,7 @@ public class EventServiceTest {
 
     // then
     assertThat(savedEvent, is(event));
+    assertThat(savedEvent.getVersion(), is(0L));
     verify(eventService).scheduleEvent(event);
     verify(eventRepository, atLeast(1)).save(event);
   }
@@ -148,11 +150,11 @@ public class EventServiceTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void findAllShouldReturnCollectionOfEventsWithNextFiringSet() {
     // given
     doNothing().when(eventService).updateNextFiringDate(any());
     given(eventRepository.findAll()).willReturn(EVENTS);
+    //noinspection unchecked
     given(scheduledEventRegistrar.get(any())).willReturn(mock(ScheduledFuture.class));
 
     // when
@@ -206,11 +208,11 @@ public class EventServiceTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void findByIdShouldReturnEventWithNextFiringSet() {
     // given
     doNothing().when(eventService).updateNextFiringDate(any());
     given(eventRepository.findById(EVENT_1.getId())).willReturn(Optional.of(EVENT_1));
+    //noinspection unchecked
     given(scheduledEventRegistrar.get(any())).willReturn(mock(ScheduledFuture.class));
 
     // when
