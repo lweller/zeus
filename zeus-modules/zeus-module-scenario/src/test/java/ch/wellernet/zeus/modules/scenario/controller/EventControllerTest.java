@@ -11,6 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.persistence.EntityExistsException;
+import javax.persistence.OptimisticLockException;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -23,11 +25,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @SpringBootTest(classes = EventController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
@@ -40,9 +43,58 @@ public class EventControllerTest {
   private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
-  private @Autowired EventController eventController;
+  private @Autowired
+  EventController eventController;
 
-  private @MockBean EventService eventService;
+  private @MockBean
+  EventService eventService;
+
+  @Test
+  public void createShouldReturnSaveNewEvent() {
+    // given
+    given(eventService.create(EVENT_1)).willReturn(EVENT_1);
+
+    // when
+    final ResponseEntity<Event> response = eventController.create(EVENT_1);
+
+    // then
+    assertThat(response.getBody(), is(EVENT_1));
+    assertThat(response.getStatusCode(), is(OK));
+  }
+
+  @Test(expected = EntityExistsException.class)
+  public void createShouldThrowEntityExistsExceptionIfEventDoesAlreadyExists() {
+    // given
+    given(eventService.create(any())).willThrow(EntityExistsException.class);
+
+    // when
+    eventController.create(EVENT_1);
+
+    // then an exception is expected
+  }
+
+  @Test
+  public void deleteShouldRemoveExistingEvent() {
+    // given
+    final UUID eventId = randomUUID();
+
+    // when
+    eventController.delete(eventId);
+
+    // then
+    verify(eventService).delete(eventId);
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void deleteShouldThrowNoSuchElementExceptionIfEventDoesNotExists() {
+    // given
+    doThrow(NoSuchElementException.class).when(eventService).delete(any());
+
+    // when
+    eventController.delete(randomUUID());
+
+    // then an exception is expected
+  }
 
   @Test
   public void findAllShouldReturnCollectionOfEvents() {
@@ -119,6 +171,29 @@ public class EventControllerTest {
     eventController.findById(eventId);
 
     // then an exception is expected
+  }
+
+  @Test
+  public void handleEntityExistsExceptionShouldReturnConflictStatus() {
+    // given nothing special
+
+    // when
+    final ResponseEntity<String> response = eventController.handleEntityExistsException();
+
+    // then
+    assertThat(response.getStatusCode(), is(CONFLICT));
+  }
+
+  @Test
+  public void handleOptimisticLockExceptionShouldReturnConflictStatus() {
+    // given nothing special
+
+    // when
+    final ResponseEntity<Event> response = eventController.handleOptimisticLockException(new OptimisticLockException(EVENT_1));
+
+    // then
+    assertThat(response.getStatusCode(), is(PRECONDITION_FAILED));
+    assertThat(response.getBody(), is(EVENT_1));
   }
 
   @Test

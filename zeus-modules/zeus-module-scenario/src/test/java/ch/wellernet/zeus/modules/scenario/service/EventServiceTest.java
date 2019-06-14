@@ -110,7 +110,7 @@ public class EventServiceTest {
     verify(eventRepository, atLeast(1)).save(event);
   }
 
-  @Test (expected = EntityExistsException.class)
+  @Test(expected = EntityExistsException.class)
   public void createShouldThrowAnExceptionIfEventAlreadyExists() {
     // given
     final CronEvent event = defaults(CronEvent.builder()).build();
@@ -118,6 +118,31 @@ public class EventServiceTest {
 
     // when
     eventService.create(event);
+
+    // then an exception is expected
+  }
+
+  @Test
+  public void deleteShouldRemoveExistingEvent() {
+    // given
+    final UUID eventId = randomUUID();
+    given(eventRepository.existsById(any())).willReturn(true);
+
+    // when
+    eventService.delete(eventId);
+
+    // then
+    verify(eventService).cancelEvent(eventId);
+    verify(eventRepository).deleteById(eventId);
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void deleteShouldThrowAnExceptionIfEventDoesNotExist() {
+    // given
+    given(eventRepository.existsById(any())).willReturn(false);
+
+    // when
+    eventService.delete(randomUUID());
 
     // then an exception is expected
   }

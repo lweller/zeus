@@ -25,6 +25,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.Nonnull;
 import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
@@ -50,7 +51,7 @@ public class EventService {
   private @Setter(onMethod_ = @Autowired(required = false))
   ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
 
-  public void cancelEvent(final UUID eventId) {
+  void cancelEvent(final UUID eventId) {
     final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
     if (scheduledFuture != null) {
       scheduledFuture.cancel(true);
@@ -71,14 +72,24 @@ public class EventService {
     return event;
   }
 
-  public Event create(@Nonnull final Event event) throws EntityExistsException {
+  public Event create(@NotNull final Event event) throws EntityExistsException {
     if (eventRepository.existsById(event.getId())) {
       throw new EntityExistsException(format("event with ID %s already exists", event.getId()));
     }
+
+    event.setVersion(0);
     final Event newEvent = eventRepository.save(event);
     scheduleEvent(newEvent);
     updateNextFiringDate(newEvent);
     return newEvent;
+  }
+
+  public void delete(@NotNull final UUID eventId) {
+    if (!eventRepository.existsById(eventId)) {
+      throw new NoSuchElementException(format("event with ID %s does not exists", eventId));
+    }
+    cancelEvent(eventId);
+    eventRepository.deleteById(eventId);
   }
 
   public Event fireEvent(@Nonnull final UUID eventId) {
@@ -124,14 +135,14 @@ public class EventService {
     });
   }
 
-  public void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
+  void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
     cancelEvent(event.getId());
     eventRepository.save(event);
     scheduledEventRegistrar.add(event.getId(),
         taskScheduler.schedule(createRunnableToFireEvent(event), new CronTrigger(event.getCronExpression())));
   }
 
-  public void scheduleEvent(final DayTimeEvent event) {
+  void scheduleEvent(final DayTimeEvent event) {
     Trigger trigger = null;
     Zenith zenith = null;
     switch (event.getDefinition()) {
@@ -169,7 +180,7 @@ public class EventService {
     scheduledEventRegistrar.add(event.getId(), taskScheduler.schedule(createRunnableToFireEvent(event), trigger));
   }
 
-  public void scheduleEvent(final FixedRateEvent event) {
+  void scheduleEvent(final FixedRateEvent event) {
     cancelEvent(event.getId());
     eventRepository.save(event);
     scheduledEventRegistrar.add(event.getId(), taskScheduler.scheduleAtFixedRate(createRunnableToFireEvent(event),

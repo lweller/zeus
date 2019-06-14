@@ -1,6 +1,5 @@
 package ch.wellernet.zeus.modules.scenario.controller;
 
-import ch.wellernet.zeus.modules.device.model.Device;
 import ch.wellernet.zeus.modules.scenario.model.Event;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +46,13 @@ public class EventController implements ScenarioApiV1Controller {
     return ResponseEntity.status(OK).body(eventService.create(event));
   }
 
+  @ApiOperation("Deletes an existing event.")
+  @DeleteMapping(value = "/{id}")
+  public ResponseEntity<Void> delete(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
+    eventService.delete(id);
+    return ResponseEntity.status(OK).build();
+  }
+
   @ApiOperation("Finds event by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<Event> findById(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
@@ -71,7 +77,7 @@ public class EventController implements ScenarioApiV1Controller {
   }
 
   @ExceptionHandler({OptimisticLockException.class})
-  public ResponseEntity<Device> handleOptimisticLockException(final OptimisticLockException exception) {
-    return ResponseEntity.status(PRECONDITION_FAILED).body((Device) exception.getEntity());
+  public ResponseEntity<Event> handleOptimisticLockException(final OptimisticLockException exception) {
+    return ResponseEntity.status(PRECONDITION_FAILED).body((Event) exception.getEntity());
   }
 }

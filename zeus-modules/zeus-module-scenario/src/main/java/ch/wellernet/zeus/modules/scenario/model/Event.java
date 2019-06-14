@@ -12,6 +12,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.lang.String.format;
+import static java.util.Collections.emptySet;
+import static java.util.Optional.ofNullable;
 import static javax.persistence.CascadeType.*;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.InheritanceType.SINGLE_TABLE;
@@ -49,9 +52,11 @@ public abstract class Event {
         @Nullable final String name,
         @Nullable final Set<EventDrivenTransition> transitions) {
     this.id = id;
-    this.name = name == null ? "New Event" : name;
-    this.transitions = transitions == null ? new HashSet<>() : transitions;
-    this.transitions.forEach(transition -> transition.setEvent(this));
+    this.name = ofNullable(name).orElse(format("New Event (%s)", id));
+    ofNullable(transitions).orElse(emptySet()).forEach(transition -> {
+      this.transitions.add(transition);
+      transition.setEvent(this);
+    });
   }
 
   public abstract void dispatch(Dispatcher dispatcher);
