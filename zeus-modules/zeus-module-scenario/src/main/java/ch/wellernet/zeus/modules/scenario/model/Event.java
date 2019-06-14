@@ -1,6 +1,7 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 import org.springframework.lang.Nullable;
@@ -27,6 +28,11 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CronEvent.class),
+    @JsonSubTypes.Type(value = DayTimeEvent.class),
+    @JsonSubTypes.Type(value = FixedRateEvent.class)
+})
 public abstract class Event {
   @Id
   @NotNull
