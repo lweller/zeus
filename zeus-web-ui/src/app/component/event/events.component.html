@@ -1,23 +1,24 @@
-<ul class="list">
-    <li *ngFor="let event of events" class="entry">
-        <div class="left">
+<div fxLayout="column">
+    <div *ngFor="let event of events" class="entry" fxLayout="row">
+        <div fxFlex="1 1 100%" fxLayout="column">
             <app-editable-label
                     (finishedEditing)="event.name = $event; update(event)"
                     [value]="event.name"
-                    class="name"></app-editable-label>
-            <span class="next-firing">
+            ></app-editable-label>
+            <div class="next-firing">
                 <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">
                     {{'will fire in {duration}' | translate:{duration: buildNextOccurrenceExpression(event)} }}
                 </span>
                 <ng-template #nextOccurrenceUnknown>
                     <span>{{'time of next occurrence is unknown' | translate}}</span>
                 </ng-template>
-            </span>
+            </div>
         </div>
-        <div class="right">
-            <span (click)="fire(event)" class="fire-button">
-                <span>&gt;</span>
-            </span>
+        <div [matMenuTriggerFor]="menu" class="menu-button" fxFlex="0 0 20px">
+            <mat-menu #menu="matMenu" xPosition="before">
+                <button (click)="fire(event)" mat-menu-item>{{'Fire' | translate}}</button>
+                <button (click)="edit(event)" mat-menu-item>{{'Edit' | translate }}</button>
+            </mat-menu>
         </div>
-    </li>
-</ul>
+    </div>
+</div>

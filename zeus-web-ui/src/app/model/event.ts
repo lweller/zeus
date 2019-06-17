@@ -5,5 +5,6 @@ export class Event {
     version: number;
 
     // additional meta attributes
+    $editing: boolean;
     $error: boolean;
 }

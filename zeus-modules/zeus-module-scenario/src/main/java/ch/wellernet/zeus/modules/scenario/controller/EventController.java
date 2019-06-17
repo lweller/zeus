@@ -40,10 +40,29 @@ public class EventController implements ScenarioApiV1Controller {
     return ResponseEntity.status(OK).body(newArrayList(eventService.findAll()));
   }
 
+  @ApiOperation("Finds event by its UUID.")
+  @GetMapping("/{id}")
+  public ResponseEntity<Event> findById(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
+    return ResponseEntity.status(OK).body(findEvent(id));
+  }
+
   @ApiOperation("Creates a new event.")
   @PostMapping
   public ResponseEntity<Event> create(@ApiParam(value = "Event data", required = true) @Valid @RequestBody final Event event) {
     return ResponseEntity.status(OK).body(eventService.create(event));
+  }
+
+  @ApiOperation("Saves an event.")
+  @ApiResponses(@ApiResponse(code = 412, message = "Concurrent modification"))
+  @PutMapping("/{id}")
+  public ResponseEntity<Event> update(
+      @ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id,
+      @ApiParam(value = "Event data", required = true) @RequestBody final Event event,
+      @ApiParam(value = "ETag (i.e.) version attribute for optimistic locking", required = true) @RequestHeader(value = "If-Match") final long version)
+      throws NoSuchElementException, OptimisticLockException {
+    final Event currentEvent = findEvent(id, version);
+    currentEvent.setName(event.getName());
+    return ResponseEntity.status(OK).body(eventService.save(currentEvent));
   }
 
   @ApiOperation("Deletes an existing event.")
@@ -51,12 +70,6 @@ public class EventController implements ScenarioApiV1Controller {
   public ResponseEntity<Void> delete(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
     eventService.delete(id);
     return ResponseEntity.status(OK).build();
-  }
-
-  @ApiOperation("Finds event by its UUID.")
-  @GetMapping("/{id}")
-  public ResponseEntity<Event> findById(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
-    return ResponseEntity.status(OK).body(eventService.findById(id));
   }
 
   @ApiOperation("Fires immediately an event.")
@@ -79,5 +92,17 @@ public class EventController implements ScenarioApiV1Controller {
   @ExceptionHandler({OptimisticLockException.class})
   public ResponseEntity<Event> handleOptimisticLockException(final OptimisticLockException exception) {
     return ResponseEntity.status(PRECONDITION_FAILED).body((Event) exception.getEntity());
+  }
+
+  private Event findEvent(final UUID id) {
+    return findEvent(id, null);
+  }
+
+  private Event findEvent(final UUID id, final Long version) throws OptimisticLockException {
+    final Event event = eventService.findById(id);
+    if (version != null && event.getVersion() != version) {
+      throw new OptimisticLockException(event);
+    }
+    return event;
   }
 }

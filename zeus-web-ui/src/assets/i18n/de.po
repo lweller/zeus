@@ -3,37 +3,62 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"X-Generator: Poedit 2.2.3\n"
 
 msgid "1 hour"
-msgstr "1 Strunde"
+msgstr "1 Stunde"
 
 msgid "1 minute"
 msgstr "1 Minute"
 
+msgid "Cancel"
+msgstr "Abbrechen"
+
 msgid ""
-"Command has been sent to device, but ened up with a failure, leaving device "
-"possibly in an undefined state."
-msgstr "Befehl wurde an das Gerät gesendet, aber hat zu einem Fehler geführt, "
-"wasmöglicherweise einen undefinierten Zustand zur Folge haben kann."
+"Command has been sent to device, but ended up with a failure, leaving "
+"device possibly in an undefined state."
+msgstr ""
+"Befehl wurde an das Gerät gesendet, aber hat zu einem Fehler geführt, was "
+"möglicherweise einen undefinierten Zustand zur Folge haben kann."
 
 msgid "Command has been successfully executed."
 msgstr "Der Befehl wurde erfolgreich ausgeführt."
 
 msgid "Could not communicate with device, may be it's not reachable."
-msgstr "Kann nicht mit dem Gerät kommunizieren, da es möglicherweise nciht "
+msgstr ""
+"Kann nicht mit dem Gerät kommunizieren, da es möglicherweise nicht "
 "erreichbar ist."
 
-msgid "Data has not been updated due to concurent modifications."
-msgstr "Konnte wegen gleichzeitier Veränderung die Daten nicht aktualisieren."
+msgid "Data has not been updated due to concurrent modifications."
+msgstr ""
+"Konnte wegen gleichzeitiger Veränderung die Daten nicht aktualisieren."
+
+msgid "Edit"
+msgstr "Bearbeiten"
 
 msgid "Event has successfully been fired."
 msgstr "Das Ereignis wurde erfolgreich abgefeuert."
 
-msgid "Sorry, an unexpected error happend !"
-msgstr "Entschuldigung, es ist ein unerwarterter fehler aufgetreten !"
+msgid "Fire"
+msgstr "Auslösen"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Sorry, an unexpected error happened !"
+msgstr "Entschuldigung, es ist ein unerwarteter Fehler aufgetreten !"
 
 msgid "The device '{name}' has been updated."
 msgstr "Das Gerät '{name}' wurde aktualisiert."
+
+msgid "The event '{name}' has been updated."
+msgstr "Das Ereignis '{name}' wurde aktualisiert."
 
 msgid "The scenario '{name}' has been disabled."
 msgstr "Das Szenario '{name}' wurde deaktiviert."
@@ -67,4 +92,3 @@ msgstr "{hours} Stunden"
 
 msgid "{minutes} minutes"
 msgstr "{minutes} Minuten"
-

@@ -4,13 +4,13 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {
-  MissingTranslationHandler,
-  MissingTranslationHandlerParams,
-  TranslateDefaultParser,
-  TranslateLoader,
-  TranslateModule,
-  TranslateParser,
-  TranslateService
+    MissingTranslationHandler,
+    MissingTranslationHandlerParams,
+    TranslateDefaultParser,
+    TranslateLoader,
+    TranslateModule,
+    TranslateParser,
+    TranslateService
 } from '@ngx-translate/core';
 import {registerLocaleData} from '@angular/common';
 import localeEn from '@angular/common/locales/en';
@@ -29,6 +29,19 @@ import {MessageService} from './service/message.service';
 import {NavigationBarComponent} from './component/navigation-bar/navigation-bar.component';
 import {EditableLabelComponent} from './component/editable-label/editable-label.component';
 import {TranslatePoHttpLoader} from "./translate-po-http-loader";
+import {FlexLayoutModule} from "@angular/flex-layout";
+import {FormsModule} from "@angular/forms";
+import {EventEditComponent} from "./component/event/event.edit.component";
+import {
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatSelectModule,
+    MatToolbarModule
+} from "@angular/material";
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
@@ -59,12 +72,13 @@ const translations = navigator.language || 'en_US';
 @NgModule({
     declarations: [
         AppComponent,
-        DevicesComponent,
-        EventsComponent,
-        ScenariosComponent,
         MessageBoxComponent,
         NavigationBarComponent,
-        EditableLabelComponent
+        EditableLabelComponent,
+        DevicesComponent,
+        EventsComponent,
+        EventEditComponent,
+        ScenariosComponent
     ],
     imports: [
         BrowserModule,
@@ -77,7 +91,11 @@ const translations = navigator.language || 'en_US';
                 deps: [HttpClient]
             }
         }),
-        HttpClientModule
+        HttpClientModule,
+        FlexLayoutModule,
+        FormsModule,
+        MatInputModule, MatButtonModule, MatCardModule, MatCheckboxModule,
+        MatIconModule, MatMenuModule, MatSelectModule, MatToolbarModule
     ],
     providers: [
         {provide: LOCALE_ID, useValue: translations},

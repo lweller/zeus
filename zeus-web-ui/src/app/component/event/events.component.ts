@@ -2,6 +2,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {Component, OnInit} from '@angular/core';
 import {Event} from '../../model/event';
 import {EventService} from '../../service/event.service';
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
     selector: 'app-events',
@@ -12,7 +13,7 @@ export class EventsComponent implements OnInit {
 
     events: Event[];
 
-    constructor(private translateService: TranslateService, private eventService: EventService) {
+    constructor(private router: Router, private route: ActivatedRoute, private translateService: TranslateService, private eventService: EventService) {
     }
 
     ngOnInit() {
@@ -21,6 +22,10 @@ export class EventsComponent implements OnInit {
 
     load(): void {
         this.eventService.findAll().subscribe(events => this.events = events);
+    }
+
+    edit(event: Event) {
+        this.router.navigate([event.id], {relativeTo: this.route, skipLocationChange: true})
     }
 
     update(event: Event): void {

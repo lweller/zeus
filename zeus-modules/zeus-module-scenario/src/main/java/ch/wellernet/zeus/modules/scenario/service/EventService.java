@@ -84,6 +84,14 @@ public class EventService {
     return newEvent;
   }
 
+  public Event save(final Event event) {
+    final Event updatedEvent = eventRepository.save(event);
+    cancelEvent(updatedEvent.getId());
+    scheduleEvent(updatedEvent);
+    updateNextFiringDate(updatedEvent);
+    return updatedEvent;
+  }
+
   public void delete(@NotNull final UUID eventId) {
     if (!eventRepository.existsById(eventId)) {
       throw new NoSuchElementException(format("event with ID %s does not exists", eventId));
@@ -204,7 +212,6 @@ public class EventService {
       }
     }
   }
-
 
   static class ScheduledEventRegistrar {
     private final Map<UUID, ScheduledFuture<?>> scheduledEvents = new HashMap<>();
