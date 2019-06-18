@@ -19,7 +19,6 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityExistsException;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
@@ -96,35 +95,6 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createShouldSaveNewEvent() {
-    // given
-    final CronEvent event = defaults(CronEvent.builder()).build();
-    event.setVersion(42);
-    given(eventRepository.save(event)).willReturn(event);
-
-    // when
-    final Event savedEvent = eventService.create(event);
-
-    // then
-    assertThat(savedEvent, is(event));
-    assertThat(savedEvent.getVersion(), is(0L));
-    verify(eventService).scheduleEvent(event);
-    verify(eventRepository, atLeast(1)).save(event);
-  }
-
-  @Test(expected = EntityExistsException.class)
-  public void createShouldThrowAnExceptionIfEventAlreadyExists() {
-    // given
-    final CronEvent event = defaults(CronEvent.builder()).build();
-    given(eventRepository.existsById(any())).willReturn(true);
-
-    // when
-    eventService.create(event);
-
-    // then an exception is expected
-  }
-
-  @Test
   public void deleteShouldRemoveExistingEvent() {
     // given
     final UUID eventId = randomUUID();
@@ -147,6 +117,23 @@ public class EventServiceTest {
     eventService.delete(randomUUID());
 
     // then an exception is expected
+  }
+
+  @Test
+  public void saveShouldSaveAndRescheduleUpdatedEvent() {
+    // given
+    final CronEvent event = defaults(CronEvent.builder()).build();
+    event.setVersion(42);
+    given(eventRepository.existsById(any())).willReturn(true);
+    given(eventRepository.save(event)).willReturn(event);
+
+    // when
+    final Event savedEvent = eventService.save(event);
+
+    // then
+    assertThat(savedEvent, is(event));
+    verify(eventService).scheduleEvent(event);
+    verify(eventRepository, atLeast(1)).save(event);
   }
 
   @Test

@@ -1,6 +1,9 @@
 package ch.wellernet.zeus.modules.scenario.controller;
 
+import ch.wellernet.zeus.modules.scenario.model.CronEvent;
+import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
+import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -49,21 +52,20 @@ public class EventController implements ScenarioApiV1Controller {
   @ApiOperation("Creates a new event.")
   @PostMapping
   public ResponseEntity<Event> create(@ApiParam(value = "Event data", required = true) @Valid @RequestBody final Event event) {
-    return ResponseEntity.status(OK).body(eventService.create(event));
+    return ResponseEntity.status(OK).body(eventService.save(updateEvent(event.getId(), event, null)));
   }
 
   @ApiOperation("Saves an event.")
   @ApiResponses(@ApiResponse(code = 412, message = "Concurrent modification"))
   @PutMapping("/{id}")
-  public ResponseEntity<Event> update(
+  public ResponseEntity<Event> save(
       @ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id,
       @ApiParam(value = "Event data", required = true) @RequestBody final Event event,
       @ApiParam(value = "ETag (i.e.) version attribute for optimistic locking", required = true) @RequestHeader(value = "If-Match") final long version)
       throws NoSuchElementException, OptimisticLockException {
-    final Event currentEvent = findEvent(id, version);
-    currentEvent.setName(event.getName());
-    return ResponseEntity.status(OK).body(eventService.save(currentEvent));
+    return ResponseEntity.status(OK).body(eventService.save(updateEvent(id, event, version)));
   }
+
 
   @ApiOperation("Deletes an existing event.")
   @DeleteMapping(value = "/{id}")
@@ -104,5 +106,46 @@ public class EventController implements ScenarioApiV1Controller {
       throw new OptimisticLockException(event);
     }
     return event;
+  }
+
+  private Event updateEvent(final UUID id, final Event event, final Long version) {
+    final Event currentEvent;
+    if (version == null) {
+      currentEvent = event.dispatch(new Event.Dispatcher<Event>() {
+        @Override
+        public Event execute(final CronEvent event) {
+          return CronEvent.builder()
+                     .id(event.getId())
+                     .name(event.getName())
+                     .cronExpression(event.getCronExpression())
+                     .build();
+        }
+
+        @Override
+        public Event execute(final DayTimeEvent event) {
+          return DayTimeEvent.builder()
+                     .id(event.getId())
+                     .name(event.getName())
+                     .sunEvent(event.getSunEvent())
+                     .definition(event.getDefinition())
+                     .shift(event.getShift())
+                     .build();
+        }
+
+        @Override
+        public Event execute(final FixedRateEvent event) {
+          return FixedRateEvent.builder()
+                     .id(event.getId())
+                     .name(event.getName())
+                     .initialDelay(event.getInitialDelay())
+                     .interval(event.getInterval())
+                     .build();
+        }
+      });
+    } else {
+      currentEvent = findEvent(id, version);
+      currentEvent.setName(event.getName());
+    }
+    return currentEvent;
   }
 }

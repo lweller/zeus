@@ -52,7 +52,7 @@ public class EventControllerTest {
   @Test
   public void createShouldReturnSaveNewEvent() {
     // given
-    given(eventService.create(EVENT_1)).willReturn(EVENT_1);
+    given(eventService.save(EVENT_1)).willReturn(EVENT_1);
 
     // when
     final ResponseEntity<Event> response = eventController.create(EVENT_1);
@@ -62,10 +62,50 @@ public class EventControllerTest {
     assertThat(response.getStatusCode(), is(OK));
   }
 
+  @Test
+  public void saveShouldSaveUpdatedEvent() {
+    // given
+    final Event event = defaults(CronEvent.builder()).build();
+    event.setVersion(42);
+    given(eventService.findById(event.getId())).willReturn(event);
+    given(eventService.save(event)).willReturn(event);
+
+    // when
+    final ResponseEntity<Event> response = eventController.save(event.getId(), event, 42);
+
+    // then
+    assertThat(response.getBody(), is(event));
+    verify(eventService).save(event);
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void saveThrowAnExceptionWhenEventDoesNotExists() {
+    // given
+    given(eventService.findById(any())).willThrow(NoSuchElementException.class);
+
+    // when
+    eventController.save(EVENT_1.getId(), EVENT_1, 0);
+
+    // then an exception is expected
+  }
+
+  @Test(expected = OptimisticLockException.class)
+  public void saveThrowAnExceptionOnConcurrentModification() {
+    // given
+    final Event event = defaults(CronEvent.builder()).build();
+    event.setVersion(42);
+    given(eventService.findById(event.getId())).willReturn(event);
+
+    // when
+    eventController.save(event.getId(), event, 41);
+
+    // then an exception is expected
+  }
+
   @Test(expected = EntityExistsException.class)
   public void createShouldThrowEntityExistsExceptionIfEventDoesAlreadyExists() {
     // given
-    given(eventService.create(any())).willThrow(EntityExistsException.class);
+    given(eventService.save(any())).willThrow(EntityExistsException.class);
 
     // when
     eventController.create(EVENT_1);
@@ -205,5 +245,9 @@ public class EventControllerTest {
 
     // then
     assertThat(response.getStatusCode(), is(NOT_FOUND));
+  }
+
+  private CronEvent.CronEventBuilder defaults(final CronEvent.CronEventBuilder builder) {
+    return builder.id(randomUUID()).cronExpression("0 0 0 * * *");
   }
 }

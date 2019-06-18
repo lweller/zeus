@@ -37,7 +37,7 @@ public class FixedRateEvent extends Event {
   }
 
   @Override
-  public void dispatch(final Dispatcher dispatcher) {
-    dispatcher.execute(this);
+  public <T> T dispatch(final Dispatcher<T> dispatcher) {
+    return dispatcher.execute(this);
   }
 }

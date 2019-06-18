@@ -7,12 +7,12 @@ import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.repository.EventRepository;
 import ch.wellernet.zeus.modules.scenario.scheduling.*;
 import com.luckycatlabs.sunrisesunset.Zenith;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.lang.NonNull;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.support.CronTrigger;
@@ -23,9 +23,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
@@ -72,27 +70,14 @@ public class EventService {
     return event;
   }
 
-  public Event create(@NotNull final Event event) throws EntityExistsException {
-    if (eventRepository.existsById(event.getId())) {
-      throw new EntityExistsException(format("event with ID %s already exists", event.getId()));
-    }
-
-    event.setVersion(0);
-    final Event newEvent = eventRepository.save(event);
-    scheduleEvent(newEvent);
-    updateNextFiringDate(newEvent);
-    return newEvent;
+  public Event save(@NonNull final Event event) {
+    final Event savedEvent = eventRepository.save(event);
+    scheduleEvent(savedEvent);
+    updateNextFiringDate(savedEvent);
+    return savedEvent;
   }
 
-  public Event save(final Event event) {
-    final Event updatedEvent = eventRepository.save(event);
-    cancelEvent(updatedEvent.getId());
-    scheduleEvent(updatedEvent);
-    updateNextFiringDate(updatedEvent);
-    return updatedEvent;
-  }
-
-  public void delete(@NotNull final UUID eventId) {
+  public void delete(@NonNull final UUID eventId) {
     if (!eventRepository.existsById(eventId)) {
       throw new NoSuchElementException(format("event with ID %s does not exists", eventId));
     }
@@ -100,7 +85,7 @@ public class EventService {
     eventRepository.deleteById(eventId);
   }
 
-  public Event fireEvent(@Nonnull final UUID eventId) {
+  public Event fireEvent(@NonNull final UUID eventId) {
     final Optional<Event> eventOptional = eventRepository.findById(eventId);
 
     if (eventOptional.isPresent()) {
@@ -123,21 +108,24 @@ public class EventService {
   }
 
   private void scheduleEvent(final Event event) {
-    event.dispatch(new Event.Dispatcher() {
+    event.dispatch(new Event.Dispatcher<Void>() {
 
       @Override
-      public void execute(final CronEvent event) {
+      public Void execute(final CronEvent event) {
         scheduleEvent(event);
+        return null;
       }
 
       @Override
-      public void execute(final DayTimeEvent event) {
+      public Void execute(final DayTimeEvent event) {
         scheduleEvent(event);
+        return null;
       }
 
       @Override
-      public void execute(final FixedRateEvent event) {
+      public Void execute(final FixedRateEvent event) {
         scheduleEvent(event);
+        return null;
       }
 
     });
@@ -198,7 +186,7 @@ public class EventService {
   private Runnable createRunnableToFireEvent(final Event event) {
     return () -> new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
       @Override
-      protected void doInTransactionWithoutResult(final @NonNull TransactionStatus status) {
+      protected void doInTransactionWithoutResult(final @Nonnull TransactionStatus status) {
         fireEvent(event.getId());
       }
     });

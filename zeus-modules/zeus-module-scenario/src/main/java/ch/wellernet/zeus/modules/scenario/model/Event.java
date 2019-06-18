@@ -16,7 +16,8 @@ import java.util.UUID;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
-import static javax.persistence.CascadeType.*;
+import static javax.persistence.CascadeType.DETACH;
+import static javax.persistence.CascadeType.REFRESH;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.InheritanceType.SINGLE_TABLE;
 import static lombok.AccessLevel.PRIVATE;
@@ -47,7 +48,7 @@ public abstract class Event {
 
   private Date lastExecution;
 
-  @OneToMany(cascade = {PERSIST, DETACH, MERGE, REFRESH}, fetch = LAZY, mappedBy = "event")
+  @OneToMany(cascade = {DETACH, REFRESH}, fetch = LAZY, mappedBy = "event")
   @JsonIgnore
   private Set<EventDrivenTransition> transitions = new HashSet<>();
 
@@ -65,16 +66,19 @@ public abstract class Event {
     });
   }
 
-  public abstract void dispatch(Dispatcher dispatcher);
+  public abstract <T> T dispatch(Dispatcher<T> dispatcher);
 
-  public interface Dispatcher {
-    default void execute(final CronEvent event) {
+  public interface Dispatcher<T> {
+    default T execute(final CronEvent event) {
+      return null;
     }
 
-    default void execute(final DayTimeEvent event) {
+    default T execute(final DayTimeEvent event) {
+      return null;
     }
 
-    default void execute(final FixedRateEvent event) {
+    default T execute(final FixedRateEvent event) {
+      return null;
     }
   }
 }
