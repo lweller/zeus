@@ -5,8 +5,8 @@ import {Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 import {Scenario} from '../model/scenario';
-import {environment} from '../../environments/environment';
-import {MessageService} from './message.service';
+import {environment} from '../../../environments/environment';
+import {MessageService} from '../../common/service/message.service';
 
 @Injectable()
 export class ScenarioService {

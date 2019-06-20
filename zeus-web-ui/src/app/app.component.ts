@@ -1,4 +1,4 @@
-import {MessageService} from './service/message.service';
+import {MessageService} from './common/service/message.service';
 import {Component} from '@angular/core';
 import {Event, NavigationStart, Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';

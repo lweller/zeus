@@ -2,8 +2,8 @@ import {inject, TestBed} from '@angular/core/testing';
 
 import {DeviceService} from "./device.service";
 import {TranslateService} from "@ngx-translate/core";
-import {TranslateMockService} from "./translate.service.mock";
-import {MessageService} from "./message.service";
+import {TranslateMockService} from "../../common/service/translate.service.mock";
+import {MessageService} from "../../common/service/message.service";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('DeviceService', () => {

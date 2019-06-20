@@ -3,8 +3,8 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
-import {environment} from '../../environments/environment';
-import {MessageService} from './message.service';
+import {environment} from '../../../environments/environment';
+import {MessageService} from '../../common/service/message.service';
 import {Event} from "../model/event";
 import {PRECONDITION_FAILED} from "http-status-codes";
 

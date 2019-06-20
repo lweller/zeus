@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {Device} from '../../model/device';
-import {DeviceService} from '../../service/device.service';
+import {Device} from '../model/device';
+import {DeviceService} from '../services/device.service';
 
 @Component({
     selector: 'app-devices',

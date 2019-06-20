@@ -4,9 +4,9 @@ import {PRECONDITION_FAILED} from 'http-status-codes';
 import {Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {Device} from '../model/device';
-import {environment} from '../../environments/environment';
+import {environment} from '../../../environments/environment';
 import {Command} from '../model/command';
-import {MessageService} from './message.service';
+import {MessageService} from '../../common/service/message.service';
 import {TranslateService} from '@ngx-translate/core';
 
 const COMMUNICATION_NOT_SUCCESSFUL = 901;

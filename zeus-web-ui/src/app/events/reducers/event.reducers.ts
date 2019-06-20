@@ -1,23 +1,24 @@
-import {EventState, initialEventState} from "../states/event.state";
+import {EventState, initialEventState} from "../model/event-state";
 import {Action, createReducer, on} from "@ngrx/store";
-import * as EventActions from "../actions/event.actions";
+import * as EventUiActions from "../actions/event-ui.actions";
+import * as EventApiActions from "../actions/event-api.actions";
 
 const reducer = createReducer(initialEventState,
     on(
-        EventActions.loadedAllSuccessfully,
+        EventApiActions.loadedAllSuccessfully,
         (state, {events}) => ({...state, events: events})),
 
     on(
-        EventActions.selected,
+        EventUiActions.selected,
         (state, {id}) => ({
             ...state,
             selectedEvent: state.events.find(event => event.id === id)
         })),
 
     on(
-        EventActions.modified,
-        EventActions.savedSuccessfully,
-        EventActions.firedSuccessfully,
+        EventUiActions.modified,
+        EventApiActions.savedSuccessfully,
+        EventApiActions.firedSuccessfully,
         (state, {event}) => ({
             ...state,
             selectedEvent: state.selectedEvent && state.selectedEvent.id === event.id ? event : state.selectedEvent,

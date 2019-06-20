@@ -1,10 +1,10 @@
 import {TranslateService} from '@ngx-translate/core';
 import {Component, OnInit} from '@angular/core';
-import {Event} from '../../model/event';
+import {Event} from '../model/event';
 import {ActivatedRoute, Router} from "@angular/router";
 import {select, Store} from "@ngrx/store";
-import * as EventActions from "../../store/actions/event.actions";
-import {events} from "../../store/states/event.state";
+import * as EventActions from "../actions/event-ui.actions";
+import {events} from "../model/event-state";
 import * as lodash from 'lodash';
 
 @Component({

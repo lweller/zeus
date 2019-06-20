@@ -1,4 +1,4 @@
-import {Event} from '../../model/event'
+import {Event} from './event'
 import {createFeatureSelector, createSelector} from "@ngrx/store";
 
 export interface EventState {

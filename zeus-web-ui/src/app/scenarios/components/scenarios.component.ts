@@ -1,8 +1,8 @@
 import {TranslateService} from '@ngx-translate/core';
 import {Component, OnInit} from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {Scenario} from '../../model/scenario';
-import {ScenarioService} from '../../service/scenario.service';
+import {Scenario} from '../model/scenario';
+import {ScenarioService} from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenarios',

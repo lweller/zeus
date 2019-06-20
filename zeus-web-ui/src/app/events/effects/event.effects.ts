@@ -1,25 +1,26 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {EventService} from "../../service/event.service";
+import {EventService} from "../services/event.service";
 import {catchError, concatMap, map, switchMap, withLatestFrom} from "rxjs/operators";
 import {EMPTY, of} from "rxjs";
-import * as EventActions from "../actions/event.actions";
+import * as EventUiActions from "../actions/event-ui.actions";
+import * as EventApiActions from "../actions/event-api.actions";
 import {select, Store} from "@ngrx/store";
-import {events} from "../states/event.state";
+import {events} from "../model/event-state";
 
 @Injectable()
 export class EventEffects {
     // noinspection JSUnusedGlobalSymbols
     loadAll = createEffect(
         () => this.actions.pipe(
-            ofType(EventActions.init),
+            ofType(EventUiActions.init),
             switchMap(action => of(action).pipe(withLatestFrom(this.store.pipe(select(events))))),
             switchMap(([, events]) => {
                     if (events) {
                         return EMPTY
                     }
                     return this.eventService.findAll().pipe(
-                        map(events => EventActions.loadedAllSuccessfully({events: events})),
+                        map(events => EventApiActions.loadedAllSuccessfully({events: events})),
                         catchError(() => EMPTY)
                     )
                 }
@@ -30,10 +31,10 @@ export class EventEffects {
     // noinspection JSUnusedGlobalSymbols
     save = createEffect(
         () => this.actions.pipe(
-            ofType(EventActions.modified),
+            ofType(EventUiActions.modified),
             concatMap(action =>
                 this.eventService.save(action.event).pipe(
-                    map(event => EventActions.savedSuccessfully({event: event})),
+                    map(event => EventApiActions.savedSuccessfully({event: event})),
                     catchError(() => EMPTY)
                 )
             )
@@ -43,10 +44,10 @@ export class EventEffects {
     // noinspection JSUnusedGlobalSymbols
     fire = createEffect(
         () => this.actions.pipe(
-            ofType(EventActions.fire),
+            ofType(EventUiActions.fire),
             concatMap(action =>
                 this.eventService.fire(action.event).pipe(
-                    map(event => EventActions.firedSuccessfully({event: event})),
+                    map(event => EventApiActions.firedSuccessfully({event: event})),
                     catchError(() => EMPTY)
                 )
             )

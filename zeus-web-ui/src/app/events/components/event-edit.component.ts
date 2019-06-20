@@ -1,15 +1,15 @@
 import {Component, OnInit} from '@angular/core';
-import {Event} from "../../model/event";
+import {Event} from "../model/event";
 import {ActivatedRoute, Router} from "@angular/router";
-import * as EventActions from "../../store/actions/event.actions";
+import * as EventActions from "../actions/event-ui.actions";
 import {select, Store} from "@ngrx/store";
-import {selectedEvent} from "../../store/states/event.state";
+import {selectedEvent} from "../model/event-state";
 import * as lodash from 'lodash';
 
 @Component({
     selector: 'app-event-edit',
-    templateUrl: './event.edit.component.html',
-    styleUrls: ['./event.edit.component.css']
+    templateUrl: './event-edit.component.html',
+    styleUrls: ['./event-edit.component.css']
 })
 export class EventEditComponent implements OnInit {
 

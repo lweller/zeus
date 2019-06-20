@@ -18,20 +18,20 @@ import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
 
 import {AppComponent} from './app.component';
-import {DevicesComponent} from './component/device/devices.component';
-import {EventsComponent} from './component/event/events.component';
-import {ScenariosComponent} from './component/scenario/scenarios.component';
-import {MessageBoxComponent} from './component/message-box/message-box.component';
-import {DeviceService} from './service/device.service';
-import {EventService} from './service/event.service';
-import {ScenarioService} from './service/scenario.service';
-import {MessageService} from './service/message.service';
-import {NavigationBarComponent} from './component/navigation-bar/navigation-bar.component';
-import {EditableLabelComponent} from './component/editable-label/editable-label.component';
-import {TranslatePoHttpLoader} from "./translate-po-http-loader";
+import {DevicesComponent} from './devices/comonents/devices.component';
+import {EventsComponent} from './events/components/events.component';
+import {ScenariosComponent} from './scenarios/components/scenarios.component';
+import {MessageBoxComponent} from './common/component/message-box/message-box.component';
+import {DeviceService} from './devices/services/device.service';
+import {EventService} from './events/services/event.service';
+import {ScenarioService} from './scenarios/services/scenario.service';
+import {MessageService} from './common/service/message.service';
+import {NavigationBarComponent} from './common/component/navigation-bar/navigation-bar.component';
+import {EditableLabelComponent} from './common/component/editable-label/editable-label.component';
+import {TranslatePoHttpLoader} from "./common/utils/translate-po-http-loader";
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule} from "@angular/forms";
-import {EventEditComponent} from "./component/event/event.edit.component";
+import {EventEditComponent} from "./events/components/event-edit.component";
 import {
     MatButtonModule,
     MatCardModule,
@@ -43,10 +43,10 @@ import {
     MatToolbarModule
 } from "@angular/material";
 import {StoreModule} from "@ngrx/store";
-import {eventReducer} from "./store/reducers/event.reducers";
+import {eventReducer} from "./events/reducers/event.reducers";
 import {EffectsModule} from "@ngrx/effects";
-import {EventEffects} from "./store/effects/event.effects";
-import {EVENT_STATE} from "./store/states/event.state";
+import {EventEffects} from "./events/effects/event.effects";
+import {EVENT_STATE} from "./events/model/event-state";
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
