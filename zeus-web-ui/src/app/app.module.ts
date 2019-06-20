@@ -42,6 +42,11 @@ import {
     MatSelectModule,
     MatToolbarModule
 } from "@angular/material";
+import {StoreModule} from "@ngrx/store";
+import {eventReducer} from "./store/reducers/event.reducers";
+import {EffectsModule} from "@ngrx/effects";
+import {EventEffects} from "./store/effects/event.effects";
+import {EVENT_STATE} from "./store/states/event.state";
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
@@ -95,7 +100,17 @@ const translations = navigator.language || 'en_US';
         FlexLayoutModule,
         FormsModule,
         MatInputModule, MatButtonModule, MatCardModule, MatCheckboxModule,
-        MatIconModule, MatMenuModule, MatSelectModule, MatToolbarModule
+        MatIconModule, MatMenuModule, MatSelectModule, MatToolbarModule,
+        StoreModule.forRoot({}, {
+            runtimeChecks: {
+                strictStateImmutability: true,
+                strictActionImmutability: true,
+                strictStateSerializability: true,
+                strictActionSerializability: true,
+            },
+        }),
+        StoreModule.forFeature(EVENT_STATE, eventReducer),
+        EffectsModule.forRoot([EventEffects])
     ],
     providers: [
         {provide: LOCALE_ID, useValue: translations},

@@ -2,7 +2,7 @@
     <div *ngFor="let event of events" class="entry" fxLayout="row">
         <div fxFlex="1 1 100%" fxLayout="column">
             <app-editable-label
-                    (finishedEditing)="event.name = $event; update(event)"
+                    (finishedEditing)="event.name = $event; save(event)"
                     [value]="event.name"
             ></app-editable-label>
             <div class="next-firing">

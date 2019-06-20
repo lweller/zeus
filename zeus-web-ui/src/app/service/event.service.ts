@@ -16,6 +16,7 @@ export class EventService {
     }
 
     findAll(): Observable<Event[]> {
+        console.log('Finding all events');
         return this.httpClient.get<Event[]>(`${environment.zeusServerScenarioApiBaseUri}/events`);
     }
 
@@ -24,6 +25,7 @@ export class EventService {
     }
 
     save(event: Event): Observable<Event> {
+        console.log('Saving event with ID ' + event.id);
         let message;
         let updatedEvent: Event = null;
         return this.httpClient.put<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}`, event,

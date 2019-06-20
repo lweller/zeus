@@ -1,8 +1,11 @@
 import {TranslateService} from '@ngx-translate/core';
 import {Component, OnInit} from '@angular/core';
 import {Event} from '../../model/event';
-import {EventService} from '../../service/event.service';
 import {ActivatedRoute, Router} from "@angular/router";
+import {select, Store} from "@ngrx/store";
+import * as EventActions from "../../store/actions/event.actions";
+import {events} from "../../store/states/event.state";
+import * as lodash from 'lodash';
 
 @Component({
     selector: 'app-events',
@@ -13,28 +16,27 @@ export class EventsComponent implements OnInit {
 
     events: Event[];
 
-    constructor(private router: Router, private route: ActivatedRoute, private translateService: TranslateService, private eventService: EventService) {
+    constructor(private store: Store<any>,
+                private router: Router,
+                private route: ActivatedRoute,
+                private translateService: TranslateService) {
+        store.pipe(select(events)).subscribe(events => this.events = lodash.cloneDeep(events));
     }
 
     ngOnInit() {
-        this.load();
-    }
-
-    load(): void {
-        this.eventService.findAll().subscribe(events => this.events = events);
+        this.store.dispatch(EventActions.init());
     }
 
     edit(event: Event) {
-        this.router.navigate([event.id], {relativeTo: this.route, skipLocationChange: true})
+        this.router.navigate([event.id], {relativeTo: this.route, skipLocationChange: true}).then()
     }
 
-    update(event: Event): void {
-        Object.assign(this.events[this.events.indexOf(event)], event);
+    save(event: Event): void {
+        this.store.dispatch(EventActions.modified({event: event}));
     }
 
     fire(event: Event): void {
-        this.eventService.fire(event).subscribe(updatedEvent =>
-            this.events[this.events.indexOf(event)] = updatedEvent);
+        this.store.dispatch(EventActions.fire({event: event}));
     }
 
     buildNextOccurrenceExpression(event: Event): string {
