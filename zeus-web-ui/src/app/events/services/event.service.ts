@@ -1,67 +1,77 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
+import {EMPTY, Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
-import {TranslateService} from '@ngx-translate/core';
 import {environment} from '../../../environments/environment';
-import {MessageService} from '../../common/service/message.service';
 import {Event} from "../model/event";
-import {PRECONDITION_FAILED} from "http-status-codes";
+import {NOT_FOUND, PRECONDITION_FAILED} from "http-status-codes";
+import * as EventApiActions from "../actions/event-api.actions";
+import {Store} from "@ngrx/store";
 
 
 @Injectable()
 export class EventService {
 
-    constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {
+    constructor(private store: Store<any>, private httpClient: HttpClient) {
     }
 
     findAll(): Observable<Event[]> {
-        console.log('Finding all events');
-        return this.httpClient.get<Event[]>(`${environment.zeusServerScenarioApiBaseUri}/events`);
+        return this.httpClient.get<Event[]>(`${environment.zeusServerScenarioApiBaseUri}/events`).pipe(
+            tap(events => {
+                    this.store.dispatch(EventApiActions.loadedAllSuccessfully({events: events}));
+                }
+            ),
+            catchError(() => {
+                this.store.dispatch(EventApiActions.unexpectedError());
+                return EMPTY;
+            }));
     }
 
-    findById(id: String): Observable<Event> {
-        return this.httpClient.get<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${id}`);
+    findById(id: string): Observable<Event> {
+        return this.httpClient.get<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${id}`).pipe(
+            tap(event => {
+                    this.store.dispatch(EventApiActions.refresh({event: event}));
+                }
+            ),
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === NOT_FOUND) {
+                    this.store.dispatch(EventApiActions.notFound({id: id}));
+                    return of(error.error);
+                }
+                this.store.dispatch(EventApiActions.unexpectedError());
+                return EMPTY;
+            }));
     }
 
     save(event: Event): Observable<Event> {
-        console.log('Saving event with ID ' + event.id);
-        let message;
-        let updatedEvent: Event = null;
         return this.httpClient.put<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}`, event,
-            {headers: new HttpHeaders().set('If-Match', `${event.version}`)})
-            .pipe(catchError((error: HttpErrorResponse) => {
+            {headers: new HttpHeaders().set('If-Match', `${event.version}`)}).pipe(
+            tap(event => {
+                    this.store.dispatch(EventApiActions.refresh({event: event}));
+                    this.store.dispatch(EventApiActions.savedSuccessfully({event: event}));
+                }
+            ),
+            catchError((error: HttpErrorResponse) => {
                 if (error.status === PRECONDITION_FAILED) {
-                    this.translateService.get('Data has not been updated due to concurrent modifications.')
-                        .subscribe(result => message = result);
-                    this.messageService.displayWarning(message);
-                    updatedEvent = error.error;
-                    updatedEvent.$error = true;
-                    return of(updatedEvent);
-                } else {
-                    this.translateService.get('Sorry, an unexpected error happened !')
-                        .subscribe(result => message = result);
-                    this.messageService.displayError(message);
-                    event.$error = true;
-                    return of(event);
+                    this.store.dispatch(EventApiActions.refresh({event: error.error}));
+                    this.store.dispatch(EventApiActions.concurrentModification({event: error.error}));
+                    return of(error.error);
                 }
-            }))
-            .pipe(tap(reloadedEvent => {
-                event.$editing = false;
-                if (!reloadedEvent.$error) {
-                    this.translateService.get('The event \'{name}\' has been updated.', {name: event.name})
-                        .subscribe(result => message = result);
-                    this.messageService.displayInfo(message);
-                }
+                this.store.dispatch(EventApiActions.unexpectedError());
+                return EMPTY;
             }));
     }
 
     fire(event: Event): Observable<Event> {
-        let message;
-        this.translateService.get('Event has successfully been fired.')
-            .subscribe(result => message = result);
-        return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}!fire`, {})
-            .pipe(tap(() => this.messageService.displayInfo(message)));
+        return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}!fire`, {}).pipe(
+            tap(event => {
+                    this.store.dispatch(EventApiActions.refresh({event: event}));
+                    this.store.dispatch(EventApiActions.firedSuccessfully({event: event}));
+                }
+            ),
+            catchError(() => {
+                this.store.dispatch(EventApiActions.unexpectedError());
+                return EMPTY;
+            }));
     }
-
 }

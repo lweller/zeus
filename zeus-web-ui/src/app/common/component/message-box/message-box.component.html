@@ -1,13 +1,13 @@
 <div
         [@visibility-changed]="getVisibility()"
-        [class.error]="currentMessage.level === 'error'"
-        [class.info]="currentMessage.level === 'info'"
-        [class.warning]="currentMessage.level === 'warning'"
+        [class.error]="level === 'error'"
+        [class.info]="level === 'info'"
+        [class.warning]="level === 'warning'"
         class="message-box">
     <div class="left">
-        <span class="scroll-vertical">{{currentMessage.message}}</span>
+        <span class="scroll-vertical">{{text}}</span>
     </div>
     <div class="right">
-        <span (click)="close()">x</span>
+        <span (click)="acknowledge()">x</span>
     </div>
 </div>

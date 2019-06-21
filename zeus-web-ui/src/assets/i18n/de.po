@@ -21,8 +21,8 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 msgid ""
-"Command has been sent to device, but ended up with a failure, leaving "
-"device possibly in an undefined state."
+"Command has been sent to device, but ended up with a failure, leaving device "
+"possibly in an undefined state."
 msgstr ""
 "Befehl wurde an das Gerät gesendet, aber hat zu einem Fehler geführt, was "
 "möglicherweise einen undefinierten Zustand zur Folge haben kann."
@@ -36,14 +36,10 @@ msgstr ""
 "erreichbar ist."
 
 msgid "Data has not been updated due to concurrent modifications."
-msgstr ""
-"Konnte wegen gleichzeitiger Veränderung die Daten nicht aktualisieren."
+msgstr "Konnte wegen gleichzeitiger Veränderung die Daten nicht aktualisieren."
 
 msgid "Edit"
 msgstr "Bearbeiten"
-
-msgid "Event has successfully been fired."
-msgstr "Das Ereignis wurde erfolgreich abgefeuert."
 
 msgid "Fire"
 msgstr "Auslösen"
@@ -55,10 +51,23 @@ msgid "Sorry, an unexpected error happened !"
 msgstr "Entschuldigung, es ist ein unerwarteter Fehler aufgetreten !"
 
 msgid "The device '{name}' has been updated."
-msgstr "Das Gerät '{name}' wurde aktualisiert."
+msgstr "Das Gerät '{event.name}' wurde aktualisiert."
 
-msgid "The event '{name}' has been updated."
-msgstr "Das Ereignis '{name}' wurde aktualisiert."
+msgid "The event '{event.name}' has been updated."
+msgstr "Das Ereignis '{event.name}' wurde aktualisiert."
+
+msgid ""
+"The event '{event.name}' has not been updated due to concurrent "
+"modifications."
+msgstr ""
+"Das Ereignis '{event.name}' konnte nicht aktualisiert werden , weil es "
+"gleichzeitig mehrfach verändert wurde."
+
+msgid "The event '{event.name}' has successfully been fired."
+msgstr "Das Ereignis '{event.name}' wurde erfolgreich abgefeuert."
+
+msgid "The event with the ID '{id}' does not exist."
+msgstr "Das Ereignis mit der ID '{id}'  existiert nicht."
 
 msgid "The scenario '{name}' has been disabled."
 msgstr "Das Szenario '{name}' wurde deaktiviert."
@@ -78,7 +87,7 @@ msgstr "über einer Woche"
 msgid "one day"
 msgstr "einem Tag"
 
-msgid "time of next occurrence is unknown"
+msgid "time createMessage next occurrence is unknown"
 msgstr "Zeitpunkt der nächsten Auslösung ist unbekannt"
 
 msgid "will fire in {duration}"

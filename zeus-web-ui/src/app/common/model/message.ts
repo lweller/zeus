@@ -1,12 +1,16 @@
-export const STATE_NEW = 'new';
-export const STATE_DONE = 'done';
+export enum Level {
+    INFO = 'info',
+    WARNING = 'warning',
+    ERROR = 'error'
+}
 
-export const LEVEL_INFO = 'info';
-export const LEVEL_WARNING = 'warning';
-export const LEVEL_ERROR = 'error';
+export enum State {
+    NEW,
+    ACKNOWLEDGED
+}
 
-export class Message {
-    message = '';
-    state = STATE_DONE;
-    level: string;
+export interface Message {
+    level: Level;
+    text: string;
+    params: any;
 }

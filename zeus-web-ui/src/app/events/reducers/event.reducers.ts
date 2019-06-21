@@ -17,8 +17,7 @@ const reducer = createReducer(initialEventState,
 
     on(
         EventUiActions.modified,
-        EventApiActions.savedSuccessfully,
-        EventApiActions.firedSuccessfully,
+        EventApiActions.refresh,
         (state, {event}) => ({
             ...state,
             selectedEvent: state.selectedEvent && state.selectedEvent.id === event.id ? event : state.selectedEvent,

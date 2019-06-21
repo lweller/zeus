@@ -9,7 +9,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "extract": "ngx-translate-extract --input ./src --output ./src/assets/i18n/de.po ./src/assets/i18n/fr.po --clean --sort --format pot",
+    "extract": "ngx-translate-extract --input ./src --output ./src/assets/i18n/de.po ./src/assets/i18n/fr.po --clean --sort --format pot -m translate",
     "postinstall": "node patch.js"
   },
   "private": true,

@@ -50,6 +50,7 @@ public class EventController implements ScenarioApiV1Controller {
   }
 
   @ApiOperation("Creates a new event.")
+  @ApiResponses(@ApiResponse(code = 409, message = "Event already exists"))
   @PostMapping
   public ResponseEntity<Event> create(@ApiParam(value = "Event data", required = true) @Valid @RequestBody final Event event) {
     return ResponseEntity.status(OK).body(eventService.save(updateEvent(event.getId(), event, null)));
@@ -75,7 +76,6 @@ public class EventController implements ScenarioApiV1Controller {
   }
 
   @ApiOperation("Fires immediately an event.")
-  @ApiResponses(@ApiResponse(code = 400, message = "Operation is invalid"))
   @PostMapping(value = "/{id}!fire")
   public ResponseEntity<Event> fire(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
     return ResponseEntity.status(OK).body(eventService.fireEvent(id));

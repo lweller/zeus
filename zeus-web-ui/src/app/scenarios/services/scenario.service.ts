@@ -6,12 +6,11 @@ import {catchError, tap} from 'rxjs/operators';
 import {TranslateService} from '@ngx-translate/core';
 import {Scenario} from '../model/scenario';
 import {environment} from '../../../environments/environment';
-import {MessageService} from '../../common/service/message.service';
 
 @Injectable()
 export class ScenarioService {
 
-    constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {
+    constructor(private translateService: TranslateService, private httpClient: HttpClient) {
     }
 
     findAll(): Observable<Scenario[]> {
@@ -26,14 +25,14 @@ export class ScenarioService {
                 if (error.status === PRECONDITION_FAILED) {
                     this.translateService.get('Data has not been updated due to concurrent modifications.')
                         .subscribe(result => message = result);
-                    this.messageService.displayWarning(message);
+                    //this.messageService.displayWarning(message);
                     const reloadedScenario: Scenario = error.error;
                     reloadedScenario.$error = true;
                     return of(reloadedScenario);
                 } else {
                     this.translateService.get('Sorry, an unexpected error happened !')
                         .subscribe(result => message = result);
-                    this.messageService.displayError(message);
+                    //this.messageService.displayError(message);
                     scenario.$error = true;
                     return of(scenario);
                 }
@@ -48,7 +47,7 @@ export class ScenarioService {
                         this.translateService.get('The scenario \'{name}\' has been disabled.', {name: scenario.name})
                             .subscribe(result => message = result);
                     }
-                    this.messageService.displayInfo(message);
+                    //this.messageService.displayInfo(message);
                 }
             }));
     }

@@ -6,7 +6,6 @@ import {catchError, tap} from 'rxjs/operators';
 import {Device} from '../model/device';
 import {environment} from '../../../environments/environment';
 import {Command} from '../model/command';
-import {MessageService} from '../../common/service/message.service';
 import {TranslateService} from '@ngx-translate/core';
 
 const COMMUNICATION_NOT_SUCCESSFUL = 901;
@@ -15,7 +14,7 @@ const COMMUNICATION_INTERRUPTED = 902;
 @Injectable()
 export class DeviceService {
 
-    constructor(private translateService: TranslateService, private httpClient: HttpClient, private messageService: MessageService) {
+    constructor(private translateService: TranslateService, private httpClient: HttpClient) {
     }
 
     findAll(): Observable<Device[]> {
@@ -39,21 +38,21 @@ export class DeviceService {
                     case COMMUNICATION_NOT_SUCCESSFUL:
                         this.translateService.get('Could not communicate with device, may be it\'s not reachable.')
                             .subscribe(result => message = result);
-                        this.messageService.displayWarning(message);
+                        //this.messageService.displayWarning(message);
                         updatedDevice = error.error;
                         updatedDevice.$error = true;
                         return of(updatedDevice);
                     case COMMUNICATION_INTERRUPTED:
                         this.translateService.get('Command has been sent to device, but ended up with a failure, leaving device possibly in an undefined state.')
                             .subscribe(result => message = result);
-                        this.messageService.displayError(message);
+                        //this.messageService.displayError(message);
                         updatedDevice = error.error;
                         updatedDevice.$error = true;
                         return of(updatedDevice);
                     default:
                         this.translateService.get('Sorry, an unexpected error happened !')
                             .subscribe(result => message = result);
-                        this.messageService.displayError(message);
+                        //this.messageService.displayError(message);
                         device.$error = true;
                         return of(device);
                 }
@@ -63,7 +62,7 @@ export class DeviceService {
                 if (!reloadedDevice.$error) {
                     this.translateService.get('Command has been successfully executed.', {name: device.name})
                         .subscribe(result => message = result);
-                    this.messageService.displayInfo(message);
+                    //this.messageService.displayInfo(message);
                 }
             }));
     }
@@ -77,14 +76,14 @@ export class DeviceService {
                 if (error.status === PRECONDITION_FAILED) {
                     this.translateService.get('Data has not been updated due to concurrent modifications.')
                         .subscribe(result => message = result);
-                    this.messageService.displayWarning(message);
+                    //this.messageService.displayWarning(message);
                     updatedDevice = error.error;
                     updatedDevice.$error = true;
                     return of(updatedDevice);
                 } else {
                     this.translateService.get('Sorry, an unexpected error happened !')
                         .subscribe(result => message = result);
-                    this.messageService.displayError(message);
+                    //this.messageService.displayError(message);
                     device.$error = true;
                     return of(device);
                 }
@@ -94,7 +93,7 @@ export class DeviceService {
                 if (!reloadedDevice.$error) {
                     this.translateService.get('The device \'{name}\' has been updated.', {name: device.name})
                         .subscribe(result => message = result);
-                    this.messageService.displayInfo(message);
+                    //this.messageService.displayInfo(message);
                 }
             }));
     }

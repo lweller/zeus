@@ -1,7 +1,10 @@
 import {createAction, props} from "@ngrx/store";
 import {Event} from "../model/event";
+import {createActionType} from "../../common/utils/message.util";
 
-export const init = createAction('[Events UI] Init');
-export const selected = createAction('[Events UI] Event Selected', props<{ id: string }>());
-export const modified = createAction('[Events UI] Event Modified', props<{ event: Event }>());
-export const fire = createAction('[Events UI] Event Fired', props<{ event: Event }>());
+const SOURCE = 'Event UI';
+
+export const init = createAction(createActionType(SOURCE, 'INIT'));
+export const selected = createAction(createActionType(SOURCE, 'SELECTED'), props<{ id: string }>());
+export const modified = createAction(createActionType(SOURCE, 'MODIFIED'), props<{ event: Event }>());
+export const fire = createAction(createActionType(SOURCE, 'FIRED'), props<{ event: Event }>());

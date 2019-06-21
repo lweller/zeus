@@ -43,9 +43,6 @@ msgstr ""
 msgid "Edit"
 msgstr "Editer"
 
-msgid "Event has successfully been fired."
-msgstr "L'événement a été déclenché avec succès."
-
 msgid "Fire"
 msgstr "Déclancher"
 
@@ -56,16 +53,29 @@ msgid "Sorry, an unexpected error happened !"
 msgstr "Désolé, une erreur inattendue est survenue !"
 
 msgid "The device '{name}' has been updated."
-msgstr "Le dispositif '{name}' a été actualité."
+msgstr "L'appareil '{name} a été actualisé."
 
-msgid "The event '{name}' has been updated."
-msgstr "L'évènement a été  été actualité."
+msgid "The event '{event.name}' has been updated."
+msgstr "L'évènement '{event.name}' a été actualisé."
+
+msgid ""
+"The event '{event.name}' has not been updated due to concurrent "
+"modifications."
+msgstr ""
+"L'évènement '{event.name}' m'a pas été actualisé à cause de modifications "
+"concurrentes."
+
+msgid "The event '{event.name}' has successfully been fired."
+msgstr "L'événement '{event.name}' a été déclenché avec succès."
+
+msgid "The event with the ID '{id}' does not exist."
+msgstr "L'évènement avec l'ID '{id}' n'existe pas."
 
 msgid "The scenario '{name}' has been disabled."
-msgstr "Le scénario '{name} ' a été désactivé."
+msgstr "Le scenario '{name}' a été activé."
 
 msgid "The scenario '{name}' has been enabled."
-msgstr "Le scénario '{name} ' a été activé."
+msgstr "Le scenario '{name}' a été déactivé."
 
 msgid "and"
 msgstr "et"
@@ -79,7 +89,7 @@ msgstr "plus d'une semaine"
 msgid "one day"
 msgstr "un jour"
 
-msgid "time of next occurrence is unknown"
+msgid "time createMessage next occurrence is unknown"
 msgstr "l'heure de la prochaine occurrence est inconnue"
 
 msgid "will fire in {duration}"
