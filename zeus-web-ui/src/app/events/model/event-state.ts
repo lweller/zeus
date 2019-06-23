@@ -3,17 +3,17 @@ import {createFeatureSelector, createSelector} from "@ngrx/store";
 
 export interface EventState {
     events: Event[];
-    selectedEvent: Event;
+    editedEvent: Event;
 }
 
 export const initialEventState: EventState = {
     events: null,
-    selectedEvent: null
+    editedEvent: null
 };
 
-export const EVENT_STATE = 'eventState';
+export const EVENT_STATE_ID = 'ch.wellernet.zeus.events';
 
-const eventState = createFeatureSelector<EventState>(EVENT_STATE);
+const eventState = createFeatureSelector<EventState>(EVENT_STATE_ID);
 
 export const events = createSelector(eventState, (state: EventState) => state.events);
-export const selectedEvent = createSelector(eventState, (state: EventState) => state.selectedEvent);
+export const editedEvent = createSelector(eventState, (state: EventState) => state.editedEvent);

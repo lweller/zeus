@@ -16,8 +16,8 @@
         </div>
         <div [matMenuTriggerFor]="menu" class="menu-button" fxFlex="0 0 20px">
             <mat-menu #menu="matMenu" xPosition="before">
-                <button (click)="fire(event)" mat-menu-item>{{'Fire' | translate}}</button>
                 <button (click)="edit(event)" mat-menu-item>{{'Edit' | translate }}</button>
+                <button (click)="fire(event)" mat-menu-item>{{'Fire' | translate}}</button>
             </mat-menu>
         </div>
     </div>

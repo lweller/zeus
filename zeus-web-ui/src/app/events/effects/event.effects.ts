@@ -9,6 +9,7 @@ import {events} from "../model/event-state";
 
 @Injectable()
 export class EventEffects {
+
     // noinspection JSUnusedGlobalSymbols
     loadAll = createEffect(
         () => this.actions.pipe(
@@ -47,4 +48,5 @@ export class EventEffects {
         private eventService: EventService
     ) {
     }
+
 }

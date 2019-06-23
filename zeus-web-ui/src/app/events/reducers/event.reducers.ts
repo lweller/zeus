@@ -7,12 +7,18 @@ const reducer = createReducer(initialEventState,
     on(
         EventApiActions.loadedAllSuccessfully,
         (state, {events}) => ({...state, events: events})),
+    on(
+        EventUiActions.edit,
+        (state, {event}) => ({
+            ...state,
+            editedEvent: event
+        })),
 
     on(
-        EventUiActions.selected,
-        (state, {id}) => ({
+        EventApiActions.savedSuccessfully,
+        (state) => ({
             ...state,
-            selectedEvent: state.events.find(event => event.id === id)
+            editedEvent: null
         })),
 
     on(
@@ -20,7 +26,7 @@ const reducer = createReducer(initialEventState,
         EventApiActions.refresh,
         (state, {event}) => ({
             ...state,
-            selectedEvent: state.selectedEvent && state.selectedEvent.id === event.id ? event : state.selectedEvent,
+            editedEvent: state.editedEvent && state.editedEvent.id === event.id ? event : state.editedEvent,
             events: state.events.map(otherEvent => otherEvent.id === event.id ? event : otherEvent)
         }))
 );

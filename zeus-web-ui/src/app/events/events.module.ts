@@ -1,8 +1,8 @@
-import {NgModule} from '@angular/core';
+import {ModuleWithProviders, NgModule} from '@angular/core';
 import {EventsComponent} from "./components/events.component";
 import {EventEditComponent} from "./components/event-edit.component";
 import {StoreModule} from "@ngrx/store";
-import {EVENT_STATE} from "./model/event-state";
+import {EVENT_STATE_ID} from "./model/event-state";
 import {eventReducer} from "./reducers/event.reducers";
 import {EffectsModule} from "@ngrx/effects";
 import {EventEffects} from "./effects/event.effects";
@@ -13,6 +13,9 @@ import {MatButtonModule, MatInputModule, MatMenuModule} from "@angular/material"
 import {HttpClientModule} from "@angular/common/http";
 import {ZeusCommonModule} from "../common/common.module";
 import {EventsRoutingModule} from "./events-routing.module";
+import {EventRoutingEffects} from "./effects/event-routing.effects";
+import {CONFIG, EventsModuleConfig} from "./events.module.config";
+
 
 @NgModule({
     imports: [
@@ -21,9 +24,9 @@ import {EventsRoutingModule} from "./events-routing.module";
         FlexLayoutModule,
         FormsModule,
         MatInputModule, MatButtonModule, MatMenuModule,
-        StoreModule.forFeature(EVENT_STATE, eventReducer),
-        EffectsModule.forFeature([EventEffects]),
-        EventsRoutingModule
+        EventsRoutingModule,
+        StoreModule.forFeature(EVENT_STATE_ID, eventReducer),
+        EffectsModule.forFeature([EventEffects, EventRoutingEffects])
     ],
     declarations: [
         EventsComponent,
@@ -34,4 +37,17 @@ import {EventsRoutingModule} from "./events-routing.module";
     ]
 })
 export class EventsModule {
+
+    static with(config: EventsModuleConfig): ModuleWithProviders {
+        return {
+            ngModule: EventsModule,
+            providers: [
+                {
+                    provide: CONFIG,
+                    useValue: config
+                }
+            ]
+        }
+    }
+
 }

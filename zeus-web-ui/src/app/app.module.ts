@@ -1,4 +1,4 @@
-import {AppRoutingModule} from './app-routing.module';
+import {AppRoutingModule, EVENTS_ROOT} from './app-routing.module';
 import {LOCALE_ID, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
@@ -85,7 +85,7 @@ export const metaReducers: MetaReducer<any>[] = [messageStateReducer];
         }),
         EffectsModule.forRoot([]),
         AppRoutingModule,
-        EventsModule
+        EventsModule.with({root: EVENTS_ROOT})
     ],
     providers: [
         {provide: LOCALE_ID, useValue: translations},

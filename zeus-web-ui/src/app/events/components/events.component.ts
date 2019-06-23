@@ -28,15 +28,16 @@ export class EventsComponent implements OnInit {
     }
 
     edit(event: Event) {
-        this.router.navigate([event.id], {relativeTo: this.route, skipLocationChange: true}).then()
+        //this.router.navigate([event.id], {relativeTo: this.route, skipLocationChange: true}).then()
+        this.store.dispatch(EventActions.edit({event: lodash.cloneDeep(event)}))
     }
 
     save(event: Event): void {
-        this.store.dispatch(EventActions.modified({event: event}));
+        this.store.dispatch(EventActions.modified({event: lodash.cloneDeep(event)}));
     }
 
     fire(event: Event): void {
-        this.store.dispatch(EventActions.fire({event: event}));
+        this.store.dispatch(EventActions.fire({event: lodash.cloneDeep(event)}));
     }
 
     buildNextOccurrenceExpression(event: Event): string {

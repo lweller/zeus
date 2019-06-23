@@ -3,7 +3,7 @@ import {Event} from "../model/event";
 import {ActivatedRoute, Router} from "@angular/router";
 import * as EventActions from "../actions/event-ui.actions";
 import {select, Store} from "@ngrx/store";
-import {selectedEvent} from "../model/event-state";
+import {editedEvent} from "../model/event-state";
 import * as lodash from 'lodash';
 
 @Component({
@@ -18,18 +18,14 @@ export class EventEditComponent implements OnInit {
     constructor(private store: Store<any>,
                 private router: Router,
                 private route: ActivatedRoute) {
-        store.pipe(select(selectedEvent)).subscribe(event => this.event = lodash.cloneDeep(event));
+        store.pipe(select(editedEvent)).subscribe(event => event == undefined ? this.close() : this.event = lodash.cloneDeep(event));
     }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
-            this.store.dispatch(EventActions.selected({id: params['id']}));
-        });
     }
 
     save(event: Event): void {
         this.store.dispatch(EventActions.modified({event: event}));
-        this.close()
     }
 
     close() {
