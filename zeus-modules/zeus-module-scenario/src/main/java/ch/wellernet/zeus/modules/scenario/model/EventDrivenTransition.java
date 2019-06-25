@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,7 +20,10 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(callSuper = true)
 public class EventDrivenTransition extends Transition {
-  private @ManyToOne(cascade = {DETACH, REFRESH}) Event event;
+
+  @ManyToOne(cascade = {DETACH, REFRESH})
+  @NotNull
+  private Event event;
 
   @Builder
   protected EventDrivenTransition(final UUID id, final String name, final Scenario scenario, final Event event,

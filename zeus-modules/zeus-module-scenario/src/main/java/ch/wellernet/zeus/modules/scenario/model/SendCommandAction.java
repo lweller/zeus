@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 import static javax.persistence.CascadeType.DETACH;
-import static javax.persistence.CascadeType.MERGE;
-import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.CascadeType.REFRESH;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -22,8 +21,14 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(callSuper = true)
 public class SendCommandAction extends Action {
-  private @ManyToOne(cascade = {PERSIST, DETACH, MERGE, REFRESH}) Device device;
+
+  @ManyToOne(cascade = {DETACH, REFRESH})
+  @NotNull
+  private Device device;
+
+  @NotNull
   private Command command;
+
   private String data;
 
   @Builder

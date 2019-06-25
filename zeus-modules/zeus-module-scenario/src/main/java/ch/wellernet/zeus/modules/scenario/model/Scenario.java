@@ -1,19 +1,19 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.googlecode.jmapper.annotations.JGlobalMap;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static javax.persistence.CascadeType.ALL;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -21,14 +21,31 @@ import static lombok.AccessLevel.PRIVATE;
 @Data
 @NoArgsConstructor(access = PRIVATE)
 @EqualsAndHashCode(of = "id")
+@JGlobalMap(excluded = {"id", "version", "enabled"})
 public class Scenario {
 
-  private @Id @Setter(PRIVATE) UUID id;
+  @Id
+  @NotNull
+  @Setter(PRIVATE)
+  private UUID id;
+
+
+  @Version
+  private long version;
+
+  @NotNull
   private String name;
+
+  @JsonProperty(access = READ_ONLY)
   private boolean enabled;
-  private @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "scenario") Set<State> states;
-  private @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "scenario") Set<Transition> transitions;
-  private @Version long version;
+
+  @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "scenario")
+  @NotNull
+  private Set<State> states;
+
+  @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "scenario")
+  @NotNull
+  private Set<Transition> transitions;
 
   @Builder
   protected Scenario(final UUID id, final String name, final Boolean enabled, final Set<State> states,

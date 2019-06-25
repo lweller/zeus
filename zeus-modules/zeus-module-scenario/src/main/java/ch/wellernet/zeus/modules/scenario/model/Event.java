@@ -1,8 +1,10 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.googlecode.jmapper.annotations.JGlobalMap;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
@@ -13,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
@@ -24,8 +27,8 @@ import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
-@Inheritance(strategy = SINGLE_TABLE)
 @Data
+@Inheritance(strategy = SINGLE_TABLE)
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@class")
@@ -34,6 +37,7 @@ import static lombok.AccessLevel.PROTECTED;
     @JsonSubTypes.Type(value = DayTimeEvent.class),
     @JsonSubTypes.Type(value = FixedRateEvent.class)
 })
+@JGlobalMap(excluded = {"id", "version", "lastExecution", "transitions"})
 public abstract class Event {
   @Id
   @NotNull
@@ -46,6 +50,7 @@ public abstract class Event {
   @NotNull
   private String name;
 
+  @JsonProperty(access = READ_ONLY)
   private Date lastExecution;
 
   @OneToMany(cascade = {DETACH, REFRESH}, fetch = LAZY, mappedBy = "event")

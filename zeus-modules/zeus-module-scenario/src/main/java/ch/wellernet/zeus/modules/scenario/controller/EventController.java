@@ -1,10 +1,8 @@
 package ch.wellernet.zeus.modules.scenario.controller;
 
-import ch.wellernet.zeus.modules.scenario.model.CronEvent;
-import ch.wellernet.zeus.modules.scenario.model.DayTimeEvent;
 import ch.wellernet.zeus.modules.scenario.model.Event;
-import ch.wellernet.zeus.modules.scenario.model.FixedRateEvent;
 import ch.wellernet.zeus.modules.scenario.service.EventService;
+import com.googlecode.jmapper.JMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -46,14 +44,14 @@ public class EventController implements ScenarioApiV1Controller {
   @ApiOperation("Finds event by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<Event> findById(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
-    return ResponseEntity.status(OK).body(findEvent(id));
+    return ResponseEntity.status(OK).body(load(id));
   }
 
   @ApiOperation("Creates a new event.")
   @ApiResponses(@ApiResponse(code = 409, message = "Event already exists"))
   @PostMapping
   public ResponseEntity<Event> create(@ApiParam(value = "Event data", required = true) @Valid @RequestBody final Event event) {
-    return ResponseEntity.status(OK).body(eventService.save(updateEvent(event.getId(), event, null)));
+    return ResponseEntity.status(OK).body(eventService.save(event));
   }
 
   @ApiOperation("Saves an event.")
@@ -64,7 +62,7 @@ public class EventController implements ScenarioApiV1Controller {
       @ApiParam(value = "Event data", required = true) @RequestBody final Event event,
       @ApiParam(value = "ETag (i.e.) version attribute for optimistic locking", required = true) @RequestHeader(value = "If-Match") final long version)
       throws NoSuchElementException, OptimisticLockException {
-    return ResponseEntity.status(OK).body(eventService.save(updateEvent(id, event, version)));
+    return ResponseEntity.status(OK).body(eventService.save(update(event, id, version)));
   }
 
 
@@ -86,21 +84,21 @@ public class EventController implements ScenarioApiV1Controller {
     return ResponseEntity.status(NOT_FOUND).body("cannot find event");
   }
 
-  @ExceptionHandler({EntityExistsException.class})
-  public ResponseEntity<String> handleEntityExistsException() {
-    return ResponseEntity.status(CONFLICT).body("event already exists");
-  }
-
   @ExceptionHandler({OptimisticLockException.class})
   public ResponseEntity<Event> handleOptimisticLockException(final OptimisticLockException exception) {
     return ResponseEntity.status(PRECONDITION_FAILED).body((Event) exception.getEntity());
   }
 
-  private Event findEvent(final UUID id) {
-    return findEvent(id, null);
+  @ExceptionHandler({EntityExistsException.class})
+  public ResponseEntity<String> handleEntityExistsException() {
+    return ResponseEntity.status(CONFLICT).body("event already exists");
   }
 
-  private Event findEvent(final UUID id, final Long version) throws OptimisticLockException {
+  private Event load(final UUID id) {
+    return load(id, null);
+  }
+
+  private Event load(final UUID id, final Long version) throws OptimisticLockException {
     final Event event = eventService.findById(id);
     if (version != null && event.getVersion() != version) {
       throw new OptimisticLockException(event);
@@ -108,44 +106,10 @@ public class EventController implements ScenarioApiV1Controller {
     return event;
   }
 
-  private Event updateEvent(final UUID id, final Event event, final Long version) {
-    final Event currentEvent;
+  private Event update(final Event event, final UUID id, final Long version) {
     if (version == null) {
-      currentEvent = event.dispatch(new Event.Dispatcher<Event>() {
-        @Override
-        public Event execute(final CronEvent event) {
-          return CronEvent.builder()
-                     .id(event.getId())
-                     .name(event.getName())
-                     .cronExpression(event.getCronExpression())
-                     .build();
-        }
-
-        @Override
-        public Event execute(final DayTimeEvent event) {
-          return DayTimeEvent.builder()
-                     .id(event.getId())
-                     .name(event.getName())
-                     .sunEvent(event.getSunEvent())
-                     .definition(event.getDefinition())
-                     .shift(event.getShift())
-                     .build();
-        }
-
-        @Override
-        public Event execute(final FixedRateEvent event) {
-          return FixedRateEvent.builder()
-                     .id(event.getId())
-                     .name(event.getName())
-                     .initialDelay(event.getInitialDelay())
-                     .interval(event.getInterval())
-                     .build();
-        }
-      });
-    } else {
-      currentEvent = findEvent(id, version);
-      currentEvent.setName(event.getName());
+      return event;
     }
-    return currentEvent;
+    return new JMapper<>(Event.class, Event.class).getDestination(event, load(id, version));
   }
 }

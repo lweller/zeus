@@ -4,24 +4,22 @@ import ch.wellernet.zeus.modules.device.service.DeviceService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
 import ch.wellernet.zeus.modules.device.service.communication.UndefinedCommandException;
-import ch.wellernet.zeus.modules.scenario.model.Action;
-import ch.wellernet.zeus.modules.scenario.model.Arc;
-import ch.wellernet.zeus.modules.scenario.model.InhibitionArc;
-import ch.wellernet.zeus.modules.scenario.model.InputArc;
-import ch.wellernet.zeus.modules.scenario.model.OutputArc;
-import ch.wellernet.zeus.modules.scenario.model.SendCommandAction;
-import ch.wellernet.zeus.modules.scenario.model.State;
-import ch.wellernet.zeus.modules.scenario.model.Transition;
+import ch.wellernet.zeus.modules.scenario.model.*;
+import ch.wellernet.zeus.modules.scenario.repository.ScenarioRepository;
 import ch.wellernet.zeus.modules.scenario.repository.StateRepository;
 import ch.wellernet.zeus.modules.scenario.repository.TransitionRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.MANDATORY;
 
 @Service
@@ -30,12 +28,33 @@ import static javax.transaction.Transactional.TxType.MANDATORY;
 public class ScenarioService {
 
   // injected dependencies
+  private final DeviceService deviceService;
+  private final ScenarioRepository scenarioRepository;
   private final TransitionRepository transitionRepository;
   private final StateRepository stateRepository;
 
-  private final DeviceService deviceService;
+  public Collection<Scenario> findAll() {
+    return newArrayList(scenarioRepository.findAll());
+  }
 
-  public void fireTransition(final UUID transitionId) throws NoSuchElementException {
+  public Scenario findById(final UUID scenarioId) {
+    return scenarioRepository.findById(scenarioId)
+               .orElseThrow(
+                   () -> new NoSuchElementException(format("scenario with ID %s does not exists", scenarioId)));
+  }
+
+  public Scenario save(@NonNull final Scenario scenario) {
+    return scenarioRepository.save(scenario);
+  }
+
+  public void delete(@NonNull final UUID scenarioId) {
+    if (!scenarioRepository.existsById(scenarioId)) {
+      throw new NoSuchElementException(format("scenario with ID %s does not exists", scenarioId));
+    }
+    scenarioRepository.deleteById(scenarioId);
+  }
+
+  void fireTransition(final UUID transitionId) throws NoSuchElementException {
     fireTransition(transitionRepository.findById(transitionId).orElseThrow(NoSuchElementException::new));
   }
 
@@ -49,7 +68,7 @@ public class ScenarioService {
 
   boolean canFireOutputArc(final OutputArc outputArc) {
     return outputArc.getState() != null
-        && outputArc.getState().getCount() + outputArc.getWeight() <= outputArc.getState().getMaxCount();
+               && outputArc.getState().getCount() + outputArc.getWeight() <= outputArc.getState().getMaxCount();
   }
 
   boolean canFireTransition(final Transition transition) {
@@ -87,7 +106,7 @@ public class ScenarioService {
           try {
             deviceService.sendCommand(action.getDevice(), action.getCommand(), action.getData());
           } catch (final UndefinedCommandException | CommunicationNotSuccessfulException
-              | CommunicationInterruptedException exception) {
+                             | CommunicationInterruptedException exception) {
             throw new RuntimeException(exception);
           }
         }

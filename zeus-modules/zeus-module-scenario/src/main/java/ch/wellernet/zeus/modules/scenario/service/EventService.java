@@ -49,13 +49,6 @@ public class EventService {
   private @Setter(onMethod_ = @Autowired(required = false))
   ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
 
-  void cancelEvent(final UUID eventId) {
-    final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
-    if (scheduledFuture != null) {
-      scheduledFuture.cancel(true);
-    }
-  }
-
   public Collection<Event> findAll() {
     final Iterable<Event> events = eventRepository.findAll();
     events.forEach(this::updateNextFiringDate);
@@ -129,6 +122,13 @@ public class EventService {
       }
 
     });
+  }
+
+  void cancelEvent(final UUID eventId) {
+    final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
+    if (scheduledFuture != null) {
+      scheduledFuture.cancel(true);
+    }
   }
 
   void scheduleEvent(final CronEvent event) throws IllegalArgumentException {
