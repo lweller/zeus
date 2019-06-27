@@ -1,54 +1,76 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {PRECONDITION_FAILED} from 'http-status-codes';
-import {Observable, of} from 'rxjs';
+import {NOT_FOUND, PRECONDITION_FAILED} from 'http-status-codes';
+import {EMPTY, Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
-import {TranslateService} from '@ngx-translate/core';
 import {Scenario} from '../model/scenario';
 import {environment} from '../../../environments/environment';
+import * as ScenarioApiActions from "../../scenarios/actions/scenario-api.actions";
+import {Store} from "@ngrx/store";
 
 @Injectable()
 export class ScenarioService {
 
-    constructor(private translateService: TranslateService, private httpClient: HttpClient) {
+    constructor(private store: Store<any>, private httpClient: HttpClient) {
     }
 
     findAll(): Observable<Scenario[]> {
-        return this.httpClient.get<Scenario[]>(`${environment.zeusServerScenarioApiBaseUri}/scenarios`);
+        return this.httpClient.get<Scenario[]>(`${environment.zeusServerScenarioApiBaseUri}/scenarios`).pipe(
+            tap(scenarios => {
+                    this.store.dispatch(ScenarioApiActions.loadedAllSuccessfully({scenarios: scenarios}));
+                }
+            ),
+            catchError(() => {
+                this.store.dispatch(ScenarioApiActions.unexpectedError());
+                return EMPTY;
+            }));
+    }
+
+    findById(id: string): Observable<Scenario> {
+        return this.httpClient.get<Scenario>(`${environment.zeusServerScenarioApiBaseUri}/scenarios/${id}`).pipe(
+            tap(scenario => {
+                    this.store.dispatch(ScenarioApiActions.refresh({scenario: scenario}));
+                }
+            ),
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === NOT_FOUND) {
+                    this.store.dispatch(ScenarioApiActions.notFound({id: id}));
+                    return of(error.error);
+                }
+                this.store.dispatch(ScenarioApiActions.unexpectedError());
+                return EMPTY;
+            }));
+    }
+
+    save(scenario: Scenario): Observable<Scenario> {
+        return this.httpClient.put<Scenario>(`${environment.zeusServerScenarioApiBaseUri}/scenarios/${scenario.id}`, scenario,
+            {headers: new HttpHeaders().set('If-Match', `${scenario.version}`)}).pipe(
+            tap(scenario => {
+                    this.store.dispatch(ScenarioApiActions.refresh({scenario: scenario}));
+                    this.store.dispatch(ScenarioApiActions.savedSuccessfully({scenario: scenario}));
+                }
+            ),
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === PRECONDITION_FAILED) {
+                    this.store.dispatch(ScenarioApiActions.refresh({scenario: error.error}));
+                    this.store.dispatch(ScenarioApiActions.concurrentModification({scenario: error.error}));
+                    return of(error.error);
+                }
+                this.store.dispatch(ScenarioApiActions.unexpectedError());
+                return EMPTY;
+            }));
     }
 
     toggleEnabling(scenario: Scenario): Observable<Scenario> {
-        let message;
         return this.httpClient.post<Scenario>(`${environment.zeusServerScenarioApiBaseUri}/scenarios/${scenario.id}!toggleEnabling`,
-            {headers: new HttpHeaders().set('If-Match', `${scenario.version}`)})
-            .pipe(catchError((error: HttpErrorResponse) => {
-                if (error.status === PRECONDITION_FAILED) {
-                    this.translateService.get('Data has not been updated due to concurrent modifications.')
-                        .subscribe(result => message = result);
-                    //this.messageService.displayWarning(message);
-                    const reloadedScenario: Scenario = error.error;
-                    reloadedScenario.$error = true;
-                    return of(reloadedScenario);
-                } else {
-                    this.translateService.get('Sorry, an unexpected error happened !')
-                        .subscribe(result => message = result);
-                    //this.messageService.displayError(message);
-                    scenario.$error = true;
-                    return of(scenario);
+            {headers: new HttpHeaders().set('If-Match', `${scenario.version}`)}).pipe(
+            tap(scenario => {
+                    this.store.dispatch(ScenarioApiActions.refresh({scenario: scenario}));
                 }
-            }))
-            .pipe(tap(reloadedScenario => {
-                scenario.$editing = false;
-                if (!reloadedScenario.$error) {
-                    if (reloadedScenario.enabled) {
-                        this.translateService.get('The scenario \'{name}\' has been enabled.', {name: scenario.name})
-                            .subscribe(result => message = result);
-                    } else {
-                        this.translateService.get('The scenario \'{name}\' has been disabled.', {name: scenario.name})
-                            .subscribe(result => message = result);
-                    }
-                    //this.messageService.displayInfo(message);
-                }
+            ),
+            catchError(() => {
+                this.store.dispatch(ScenarioApiActions.unexpectedError());
+                return EMPTY;
             }));
     }
 }

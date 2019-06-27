@@ -1,10 +1,10 @@
 <div fxLayout="column">
-    <div *ngFor="let event of events" class="entry" fxLayout="row">
+    <div *ngFor="let event of events" class="entry" fxLayout="row" fxLayoutAlign="center center">
         <div fxFlex="1 1 100%" fxLayout="column">
             <app-editable-label
                     (finishedEditing)="event.name = $event; save(event)"
-                    [value]="event.name"
-            ></app-editable-label>
+                    [value]="event.name">
+            </app-editable-label>
             <div class="next-firing">
                 <span *ngIf="event.nextScheduledExecution ; else nextOccurrenceUnknown">
                     {{'will fire in {duration}' | translate:{duration: buildNextOccurrenceExpression(event)} }}

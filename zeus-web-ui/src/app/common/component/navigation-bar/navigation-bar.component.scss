@@ -1,0 +1,63 @@
+@import '../../theming';
+
+.bar {
+  padding: 3px 5px 3px 5px;
+}
+
+.button {
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  font-size: x-large;
+  font-weight: bold;
+  margin: 0 0 0 4px;
+  background-color: #eeeeee;
+  border: medium;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+.button:focus {
+  outline: 0;
+}
+
+.button:hover {
+  background-color: #c0c0c0;
+}
+
+.button.active {
+  color: white;
+  background-color: $primary;
+}
+
+.devices {
+  background-image: url('/assets/icons/devices.svg');
+}
+
+.devices.active {
+  background-image: url('/assets/icons/devices.active.svg');
+}
+
+.events {
+  background-image: url('/assets/icons/events.svg');
+}
+
+.events.active {
+  background-image: url('/assets/icons/events.active.svg');
+}
+
+
+.scenarios {
+  background-image: url('/assets/icons/scenarios.svg');
+}
+
+.scenarios.active {
+  background-image: url('/assets/icons/scenarios.active.svg');
+}

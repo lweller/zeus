@@ -1,11 +1,20 @@
-<ul class="list">
-    <li *ngFor="let scenario of scenarios" class="entry">
-        <span
-                (click)="toggleEnabling(scenario)" [@state-changed]="getState(scenario)"
-                class="state">{{scenario.enabled ? 'O' : 'X'}}</span>
+<div fxLayout="column">
+    <div *ngFor="let scenario of scenarios" class="entry" fxLayout="row">
+        <mat-slide-toggle
+                (toggleChange)="toggleEnabling(scenario)"
+                [checked]="scenario.enabled"
+                fxFlex="0 0 50px">
+        </mat-slide-toggle>
         <app-editable-label
-                (finishedEditing)="scenario.name = $event; update(scenario)"
+                (finishedEditing)="scenario.name = $event; save(scenario)"
                 [value]="scenario.name"
-                class="name"></app-editable-label>
-    </li>
-</ul>
+                fxFlex="1 1 100%"
+                fxFlexAlign="center">
+        </app-editable-label>
+        <div [matMenuTriggerFor]="menu" class="menu-button" fxFlex="0 0 20px">
+            <mat-menu #menu="matMenu" xPosition="before">
+                <button (click)="edit(scenario)" mat-menu-item>{{'Edit' | translate }}</button>
+            </mat-menu>
+        </div>
+    </div>
+</div>

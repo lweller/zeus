@@ -1,15 +1,15 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {DevicesComponent} from './devices/comonents/devices.component';
-import {ScenariosComponent} from './scenarios/components/scenarios.component';
 
 export const EVENTS_ROOT = 'events';
+export const SCENARIOS_ROOT = 'scenarios';
 
 const routes: Routes = [
     {path: '', redirectTo: '/devices', pathMatch: 'full'},
     {path: 'devices', component: DevicesComponent},
     {path: EVENTS_ROOT, loadChildren: './events/events.module#EventsModule'},
-    {path: 'scenarios', component: ScenariosComponent}
+    {path: SCENARIOS_ROOT, loadChildren: './scenarios/scenarios.module#ScenariosModule'}
 ];
 
 @NgModule({

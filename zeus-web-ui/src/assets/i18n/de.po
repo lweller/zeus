@@ -69,11 +69,18 @@ msgstr "Das Ereignis '{event.name}' wurde erfolgreich abgefeuert."
 msgid "The event with the ID '{id}' does not exist."
 msgstr "Das Ereignis mit der ID '{id}'  existiert nicht."
 
-msgid "The scenario '{name}' has been disabled."
-msgstr "Das Szenario '{name}' wurde deaktiviert."
+msgid "The scenario '{scenario.name}' has been updated."
+msgstr "Das Szenario '{scenario.name}' wurde aktualisiert."
 
-msgid "The scenario '{name}' has been enabled."
-msgstr "Das Szenario '{name}' wurde aktiviert."
+msgid ""
+"The scenario '{scenario.name}' has not been updated due to concurrent "
+"modifications."
+msgstr ""
+"Das Szenario '{scenario.name}' konnte nicht aktualisiert werden , weil es "
+"gleichzeitig mehrfach verändert wurde."
+
+msgid "The scenario with the ID '{id}' does not exist."
+msgstr "Das Szenario mit der ID '{id}'  existiert nicht."
 
 msgid "and"
 msgstr "und"

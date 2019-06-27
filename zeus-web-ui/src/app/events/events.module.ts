@@ -9,13 +9,14 @@ import {EventEffects} from "./effects/event.effects";
 import {EventService} from "./services/event.service";
 import {FlexLayoutModule} from "@angular/flex-layout";
 import {FormsModule} from "@angular/forms";
-import {MatButtonModule, MatInputModule, MatMenuModule} from "@angular/material";
 import {HttpClientModule} from "@angular/common/http";
 import {ZeusCommonModule} from "../common/common.module";
 import {EventsRoutingModule} from "./events-routing.module";
 import {EventRoutingEffects} from "./effects/event-routing.effects";
 import {CONFIG, EventsModuleConfig} from "./events.module.config";
-
+import {MatInputModule} from "@angular/material/input";
+import {MatButtonModule} from "@angular/material/button";
+import {MatMenuModule} from "@angular/material/menu";
 
 @NgModule({
     imports: [

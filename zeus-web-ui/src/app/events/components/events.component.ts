@@ -5,7 +5,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {select, Store} from "@ngrx/store";
 import * as EventActions from "../actions/event-ui.actions";
 import {events} from "../model/event-state";
-import * as lodash from 'lodash';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'app-events',
@@ -20,7 +20,7 @@ export class EventsComponent implements OnInit {
                 private router: Router,
                 private route: ActivatedRoute,
                 private translateService: TranslateService) {
-        store.pipe(select(events)).subscribe(events => this.events = lodash.cloneDeep(events));
+        store.pipe(select(events)).subscribe(events => this.events = cloneDeep(events));
     }
 
     ngOnInit() {
@@ -28,16 +28,15 @@ export class EventsComponent implements OnInit {
     }
 
     edit(event: Event) {
-        //this.router.navigate([event.id], {relativeTo: this.route, skipLocationChange: true}).then()
-        this.store.dispatch(EventActions.edit({event: lodash.cloneDeep(event)}))
+        this.store.dispatch(EventActions.edit({event: cloneDeep(event)}))
     }
 
     save(event: Event): void {
-        this.store.dispatch(EventActions.modified({event: lodash.cloneDeep(event)}));
+        this.store.dispatch(EventActions.modified({event: cloneDeep(event)}));
     }
 
     fire(event: Event): void {
-        this.store.dispatch(EventActions.fire({event: lodash.cloneDeep(event)}));
+        this.store.dispatch(EventActions.fire({event: cloneDeep(event)}));
     }
 
     buildNextOccurrenceExpression(event: Event): string {

@@ -7,6 +7,7 @@ const reducer = createReducer(initialEventState,
     on(
         EventApiActions.loadedAllSuccessfully,
         (state, {events}) => ({...state, events: events})),
+
     on(
         EventUiActions.edit,
         (state, {event}) => ({

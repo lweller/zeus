@@ -110,6 +110,6 @@ public class EventController implements ScenarioApiV1Controller {
     if (version == null) {
       return event;
     }
-    return new JMapper<>(Event.class, Event.class).getDestination(event, load(id, version));
+    return new JMapper<>(Event.class, Event.class).getDestination(load(id, version), event);
   }
 }

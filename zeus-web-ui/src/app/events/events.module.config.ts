@@ -1,6 +1,7 @@
-export const CONFIG = 'config';
+import {InjectionToken} from "@angular/core";
 
+export const CONFIG = new InjectionToken<EventsModuleConfig>('events-config');
 
-export interface EventsModuleConfig {
+export abstract class EventsModuleConfig {
     root: string
 }

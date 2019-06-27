@@ -1,0 +1,4 @@
+@import '../../styles.scss';
+
+$app-primary: map-get($theme, primary);
+$primary: mat-color($app-primary);

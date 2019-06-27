@@ -1,46 +1,37 @@
-import {TranslateService} from '@ngx-translate/core';
 import {Component, OnInit} from '@angular/core';
-import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Scenario} from '../model/scenario';
-import {ScenarioService} from '../services/scenario.service';
+import {select, Store} from "@ngrx/store";
+import * as ScenarioUiActions from "../actions/scenario-ui.actions";
+import {scenarios} from "../model/scenario-state";
+import {cloneDeep} from 'lodash';
+import * as ScenarioActions from "../../scenarios/actions/scenario-ui.actions";
 
 @Component({
     selector: 'app-scenarios',
     templateUrl: './scenarios.component.html',
-    styleUrls: ['./scenarios.component.css'],
-    animations: [
-        trigger('state-changed', [
-            state('enabled', style({'background-color': '#4782e2', color: 'white'})),
-            state('disabled', style({'background-color': '#c0c0c0', color: 'black'})),
-            transition('enabled <=> disabled', animate('0.5s'))
-        ])
-    ]
+    styleUrls: ['./scenarios.component.css']
 })
 export class ScenariosComponent implements OnInit {
 
     scenarios: Scenario[];
 
-    constructor(private translateService: TranslateService, private scenariosService: ScenarioService) {
+    constructor(private store: Store<any>) {
+        store.pipe(select(scenarios)).subscribe(scenarios => this.scenarios = cloneDeep(scenarios));
     }
 
     ngOnInit() {
-        this.load();
+        this.store.dispatch(ScenarioUiActions.init())
     }
 
-    load(): void {
-        this.scenariosService.findAll().subscribe(scenarios => this.scenarios = scenarios);
+    edit(scenario: Scenario) {
+        this.store.dispatch(ScenarioActions.edit({scenario: cloneDeep(scenario)}))
     }
 
-    update(scenario: Scenario): void {
-        Object.assign(this.scenarios[this.scenarios.indexOf(scenario)], event);
+    save(scenario: Scenario): void {
+        this.store.dispatch(ScenarioActions.modified({scenario: cloneDeep(scenario)}));
     }
 
     toggleEnabling(scenario: Scenario): void {
-        this.scenariosService.toggleEnabling(scenario).subscribe(updatedScenario =>
-            Object.assign(this.scenarios[this.scenarios.indexOf(scenario)], updatedScenario));
-    }
-
-    getState(scenario: Scenario): string {
-        return scenario.enabled ? 'enabled' : 'disabled';
+        this.store.dispatch(ScenarioActions.toggleEnabling({scenario: cloneDeep(scenario)}));
     }
 }

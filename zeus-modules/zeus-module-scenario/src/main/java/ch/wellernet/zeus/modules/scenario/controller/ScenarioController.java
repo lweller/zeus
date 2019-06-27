@@ -115,6 +115,6 @@ public class ScenarioController implements ScenarioApiV1Controller {
     if (version == null) {
       return scenario;
     }
-    return new JMapper<>(Scenario.class, Scenario.class).getDestination(scenario, load(id, version));
+    return new JMapper<>(Scenario.class, Scenario.class).getDestination(load(id, version), scenario);
   }
 }
