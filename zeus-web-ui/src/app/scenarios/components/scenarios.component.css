@@ -15,7 +15,4 @@
 
 .menu-button {
     cursor: pointer;
-    background-image: url('/assets/icons/menu.svg');
-    background-position: center;
-    background-repeat: no-repeat;
 }

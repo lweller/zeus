@@ -1,4 +1,5 @@
 @import '~@angular/material/theming';
+@import 'app/common/theming';
 
 @include mat-core();
 
@@ -80,6 +81,7 @@ $mat-dark-theme-foreground: (
 );
 
 // Background config
+
 // Light bg
 $light-background: #fafafa;
 $light-bg-darker-5: darken($light-background, 5%);
@@ -197,3 +199,6 @@ $theme: mat-light-theme($theme-primary, $theme-accent, $theme-warn);
   padding: .5em .85em;
   min-height: 2.5em;
 }
+
+// custom theming
+@include zeus-common($theme);

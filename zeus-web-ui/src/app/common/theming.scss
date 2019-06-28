@@ -1,4 +1,57 @@
-@import '../../styles.scss';
+@mixin zeus-common($theme) {
 
-$app-primary: map-get($theme, primary);
-$primary: mat-color($app-primary);
+  $app-foreground: map-get($theme, foreground);
+  $app-background: map-get($theme, background);
+  $app-primary: map-get($theme, primary);
+
+  $icon-color: mat-color($app-foreground, icon);
+  $active-icon-color: mat-contrast($app-primary, main);
+
+  $background-color: mat-color($app-background, app-bar);
+  $hover-background-color: mat-color($app-background, hover);
+  $active-background-color: mat-color($app-primary);
+
+  .button {
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    font-size: x-large;
+    font-weight: bold;
+    margin: 0 0 0 4px;
+    border: medium;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    color: $icon-color;
+    background-color: $background-color;
+  }
+
+  .button:focus {
+    outline: 0;
+  }
+
+  .button:hover {
+    background-color: $hover-background-color;
+  }
+
+  .button.active {
+    color: $active-icon-color;
+    background-color: $active-background-color;
+  }
+
+  .icon * {
+    fill: $icon-color;
+  }
+
+  .active .icon * {
+    fill: $active-icon-color;
+  }
+}
+
+
