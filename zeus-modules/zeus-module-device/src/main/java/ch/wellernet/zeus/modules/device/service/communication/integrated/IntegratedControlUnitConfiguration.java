@@ -16,10 +16,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -38,7 +38,7 @@ public class IntegratedControlUnitConfiguration {
   public void initializeIntegratedControlUnit() {
     ControlUnit integratedControlUnit = controlUnitRepository.findIntegrated().orElse(null);
     if (integratedControlUnit == null) {
-      final List<Device> devices = new ArrayList<>();
+      final Set<Device> devices = new HashSet<>();
       for (final DriverMapping driverMapping : properties.getDriverMappings()) {
         devices.add(new Device(driverMapping.getDeviceId(), driverMapping.getDeviceType(),
             format("Device %s", devices.size() + 1), null));

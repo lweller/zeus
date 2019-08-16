@@ -1,11 +1,6 @@
 package ch.wellernet.zeus.modules.device.service.communication.tcp;
 
-import ch.wellernet.zeus.modules.device.model.Command;
-import ch.wellernet.zeus.modules.device.model.ControlUnit;
-import ch.wellernet.zeus.modules.device.model.Device;
-import ch.wellernet.zeus.modules.device.model.IntegratedControlUnitAddress;
-import ch.wellernet.zeus.modules.device.model.State;
-import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
+import ch.wellernet.zeus.modules.device.model.*;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
@@ -53,22 +48,27 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 public class TcpCommunicationServiceTest {
 
-  public @Rule final ExpectedException thrown = ExpectedException.none();
+  public @Rule
+  final ExpectedException thrown = ExpectedException.none();
 
-  private @MockBean DeviceRepository deviceRepository;
-  private @MockBean TaskScheduler taskScheduler;
-  private @Mock Socket socket;
+  private @MockBean
+  DeviceRepository deviceRepository;
+  private @MockBean
+  TaskScheduler taskScheduler;
+  private @Mock
+  Socket socket;
 
   private byte[] inputStreamBuffer;
   private ByteArrayOutputStream outputStream;
 
-  private @SpyBean TcpCommunicationService tcpCommunicationService;
+  private @SpyBean
+  TcpCommunicationService tcpCommunicationService;
 
   @Test
   public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequestIsNok()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
+    final ControlUnit controlUnit = ControlUnit.builder().id(randomUUID()).address(TcpControlUnitAddress.builder().build()).build();
     final UUID deviceId = UUID.randomUUID();
     final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
     final Command command = SWITCH_ON;
@@ -86,7 +86,7 @@ public class TcpCommunicationServiceTest {
   public void sendCommandShouldSendCorrectRequestAndExtractDeviceStateFromResponseWhenRequestIsOk()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    final ControlUnit controlUnit = ControlUnit.builder().address(TcpControlUnitAddress.builder().build()).build();
+    final ControlUnit controlUnit = ControlUnit.builder().id(randomUUID()).address(TcpControlUnitAddress.builder().build()).build();
     final UUID deviceId = UUID.randomUUID();
     final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
     final Command command = SWITCH_ON;
@@ -104,7 +104,7 @@ public class TcpCommunicationServiceTest {
   public void sendCommandShouldThrowExceptionWhenAddressHasWrongType()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    final ControlUnit controlUnit = ControlUnit.builder().address(new IntegratedControlUnitAddress()).build();
+    final ControlUnit controlUnit = ControlUnit.builder().id(randomUUID()).address(new IntegratedControlUnitAddress()).build();
     final UUID deviceId = UUID.randomUUID();
     final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
 
@@ -201,7 +201,7 @@ public class TcpCommunicationServiceTest {
   public void setupSocket() throws IOException, CommunicationNotSuccessfulException {
     when(socket.getInputStream()).thenReturn(new ByteArrayInputStream(inputStreamBuffer = new byte[255]));
     when(socket.getOutputStream()).thenReturn(outputStream = new ByteArrayOutputStream());
-    doReturn(this.socket).when(tcpCommunicationService).createSocket(any(), any());
+    doReturn(socket).when(tcpCommunicationService).createSocket(any(), any());
   }
 
   private void response(final String response) {

@@ -45,17 +45,20 @@ public class ScenarioServiceTest {
   private static final List<Scenario> SCENARIOS = newArrayList(SCENARIO_1, SCENARIO_2, SCENARIO_3);
 
   // object under test
-  private @SpyBean
-  ScenarioService scenarioService;
+  @SpyBean
+  private ScenarioService scenarioService;
 
-  private @MockBean
-  ScenarioRepository scenarioRepository;
-  private @MockBean
-  TransitionRepository transitionRepository;
-  private @MockBean
-  StateRepository stateRepository;
-  private @MockBean
-  DeviceService deviceService;
+  @MockBean
+  private ScenarioRepository scenarioRepository;
+
+  @MockBean
+  private TransitionRepository transitionRepository;
+
+  @MockBean
+  private StateRepository stateRepository;
+
+  @MockBean
+  private DeviceService deviceService;
 
   @Test
   public void deleteShouldRemoveExistingScenario() {
@@ -442,7 +445,7 @@ public class ScenarioServiceTest {
                                           OutputArc.builder().weight(3).state(outputState).build()))
                                       .actions(newHashSet(SendCommandAction.builder().device(device).command(command).build())).build();
     given(transitionRepository.findById(transitionId)).willReturn(Optional.of(transition));
-    given(deviceService.sendCommand(device, command, null))
+    given(deviceService.executeCommand(device, command, null))
         .willThrow(new UndefinedCommandException("command not found"));
 
     // when
@@ -483,7 +486,7 @@ public class ScenarioServiceTest {
     assertThat(outputState.getCount(), is(3));
     verify(stateRepository).save(outputState);
     // actions should have executed
-    verify(deviceService).sendCommand(device, command, null);
+    verify(deviceService).executeCommand(device, command, null);
     // next automatic transition should have been called recursively
     verify(scenarioService).fireTransition(nextAutomaticTransition);
     // but not next scenario driven transition

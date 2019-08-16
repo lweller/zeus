@@ -51,19 +51,23 @@ public class EventServiceTest {
   private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
-  private @SpyBean
-  EventService eventService;
+  @SpyBean
+  private EventService eventService;
 
-  private @MockBean
-  PlatformTransactionManager transactionManager;
-  private @MockBean
-  ScheduledEventRegistrar scheduledEventRegistrar;
-  private @MockBean
-  TaskScheduler taskScheduler;
-  private @MockBean
-  EventRepository eventRepository;
-  private @MockBean
-  ScenarioService scenarioService;
+  @MockBean
+  private PlatformTransactionManager transactionManager;
+
+  @MockBean
+  private ScheduledEventRegistrar scheduledEventRegistrar;
+
+  @MockBean
+  private TaskScheduler taskScheduler;
+
+  @MockBean
+  private EventRepository eventRepository;
+
+  @MockBean
+  private ScenarioService scenarioService;
 
   @Test
   public void cancelEventShouldCancelAlsoTask() {

@@ -1,20 +1,11 @@
 package ch.wellernet.zeus.modules.device.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
-import java.util.List;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static javax.persistence.CascadeType.ALL;
@@ -28,15 +19,25 @@ import static lombok.AccessLevel.PROTECTED;
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"devices"})
 public class ControlUnit {
-  private @Id @Setter(PRIVATE) UUID id;
-  private @OneToOne(cascade = ALL) ControlUnitAddress address;
-  private @OneToMany(cascade = ALL, mappedBy = "controlUnit") @Setter(PRIVATE) @JsonIgnore List<Device> devices;
-  private @Version long version;
+
+  @Id
+  @Setter(PRIVATE)
+  private UUID id;
+
+  @Version
+  private long version;
+
+  @OneToOne(cascade = ALL, orphanRemoval = true)
+  private ControlUnitAddress address;
+
+  @OneToMany(cascade = ALL, orphanRemoval = true, mappedBy = "controlUnit")
+  @Setter(PRIVATE)
+  private Set<Device> devices;
 
   @Builder
-  public ControlUnit(final UUID id, final ControlUnitAddress address, final List<Device> devices) {
-    this.id = id;
-    this.address = address;
-    this.devices = devices;
+  public ControlUnit(final UUID id, final ControlUnitAddress address, final Set<Device> devices) {
+    setId(id);
+    setAddress(address);
+    setDevices(Optional.ofNullable(devices).orElse(new HashSet<>()));
   }
 }

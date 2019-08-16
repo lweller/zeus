@@ -10,4 +10,9 @@ public class IntegratedControlUnitAddress extends ControlUnitAddress {
   public IntegratedControlUnitAddress() {
     super(IntegratedCommunicationService.NAME);
   }
+
+  @Override
+  public <T> T dispatch(final Dispatcher<T> dispatcher) {
+    return dispatcher.execute(this);
+  }
 }

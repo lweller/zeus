@@ -34,13 +34,21 @@ public class ControlUnitControllerTest {
   // test data
   private static final String COMMUNICATION_SERVICE_NAME = "mock";
   private static final ControlUnit INTEGRATED_CONTROL_UNIT = ControlUnit.builder().id(randomUUID())
-      .address(new IntegratedControlUnitAddress()).build();
+                                                                 .address(new IntegratedControlUnitAddress()).build();
   private static final ControlUnit CONTROL_UNIT_1 = ControlUnit.builder().id(randomUUID())
-      .address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
-      }).build();
+                                                        .address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
+                                                          @Override
+                                                          public <T> T dispatch(final Dispatcher<T> dispatcher) {
+                                                            return null;
+                                                          }
+                                                        }).build();
   private static final ControlUnit CONTROL_UNIT_2 = ControlUnit.builder().id(randomUUID())
-      .address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
-      }).build();
+                                                        .address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
+                                                          @Override
+                                                          public <T> T dispatch(final Dispatcher<T> dispatcher) {
+                                                            return null;
+                                                          }
+                                                        }).build();
   private static final Collection<ControlUnit> CONTROL_UNITS = Sets.newHashSet(INTEGRATED_CONTROL_UNIT,
       CONTROL_UNIT_1, CONTROL_UNIT_2);
 
