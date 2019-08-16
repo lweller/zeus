@@ -1,10 +1,9 @@
 package ch.wellernet.zeus.modules.device.controller;
 
+import ch.wellernet.zeus.modules.device.controller.dto.ControlUnitDto;
+import ch.wellernet.zeus.modules.device.controller.mapper.ControlUnitMapper;
 import ch.wellernet.zeus.modules.device.model.ControlUnit;
-import ch.wellernet.zeus.modules.device.model.ControlUnitAddress;
-import ch.wellernet.zeus.modules.device.model.IntegratedControlUnitAddress;
 import ch.wellernet.zeus.modules.device.repository.ControlUnitRepository;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptySet;
 import static java.util.UUID.randomUUID;
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -31,19 +33,6 @@ import static org.springframework.http.HttpStatus.OK;
 @SpringBootTest(classes = ControlUnitController.class, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class ControlUnitControllerTest {
-  // test data
-  private static final String COMMUNICATION_SERVICE_NAME = "mock";
-  private static final ControlUnit INTEGRATED_CONTROL_UNIT = ControlUnit.builder().id(randomUUID())
-      .address(new IntegratedControlUnitAddress()).build();
-  private static final ControlUnit CONTROL_UNIT_1 = ControlUnit.builder().id(randomUUID())
-      .address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
-      }).build();
-  private static final ControlUnit CONTROL_UNIT_2 = ControlUnit.builder().id(randomUUID())
-      .address(new ControlUnitAddress(COMMUNICATION_SERVICE_NAME) {
-      }).build();
-  private static final Collection<ControlUnit> CONTROL_UNITS = Sets.newHashSet(INTEGRATED_CONTROL_UNIT,
-      CONTROL_UNIT_1, CONTROL_UNIT_2);
-
   // object under test
   @Autowired
   private ControlUnitController controlUnitController;
@@ -51,16 +40,26 @@ public class ControlUnitControllerTest {
   @MockBean
   private ControlUnitRepository controlUnitRepository;
 
+  @MockBean
+  private ControlUnitMapper controlUnitMapper;
+
   @Test
   public void findAllShouldReturnCollectionOfControlUnits() {
     // given
-    given(controlUnitRepository.findAll()).willReturn(CONTROL_UNITS);
+    final ControlUnit controlUnit1 = ControlUnit.builder().id(randomUUID()).build();
+    final ControlUnit controlUnit2 = ControlUnit.builder().id(randomUUID()).build();
+    final Collection<ControlUnit> controlUnits = Stream.of(controlUnit1, controlUnit2).collect(toSet());
+    final ControlUnitDto controlUnitDto1 = ControlUnitDto.builder().id(randomUUID()).build();
+    final ControlUnitDto controlUnitDto2 = ControlUnitDto.builder().id(randomUUID()).build();
+    final Collection<ControlUnitDto> controlUnitDtos = Stream.of(controlUnitDto1, controlUnitDto2).collect(toSet());
+    given(controlUnitRepository.findAll()).willReturn(controlUnits);
+    given(controlUnitMapper.toDtos(controlUnits)).willReturn(controlUnitDtos);
 
     // when
-    final ResponseEntity<Collection<ControlUnit>> response = controlUnitController.findAll();
+    final ResponseEntity<Collection<ControlUnitDto>> response = controlUnitController.findAll();
 
     // then
-    assertThat(response.getBody(), containsInAnyOrder(CONTROL_UNIT_1, CONTROL_UNIT_2, INTEGRATED_CONTROL_UNIT));
+    assertThat(response.getBody(), containsInAnyOrder(controlUnitDto1, controlUnitDto2));
     assertThat(response.getStatusCode(), is(OK));
   }
 
@@ -70,7 +69,7 @@ public class ControlUnitControllerTest {
     given(controlUnitRepository.findAll()).willReturn(emptySet());
 
     // when
-    final ResponseEntity<Collection<ControlUnit>> response = controlUnitController.findAll();
+    final ResponseEntity<Collection<ControlUnitDto>> response = controlUnitController.findAll();
 
     // then
     assertThat(response.getBody(), is(empty()));
@@ -80,23 +79,28 @@ public class ControlUnitControllerTest {
   @Test
   public void findByIdShouldReturnControlUnit() {
     // given
-    given(controlUnitRepository.findById(CONTROL_UNIT_1.getId())).willReturn(Optional.of(CONTROL_UNIT_1));
+    final UUID controlUnitId = randomUUID();
+    final ControlUnit controlUnit = ControlUnit.builder().id(controlUnitId).build();
+    final ControlUnitDto controlUnitDto = ControlUnitDto.builder().id(controlUnitId).build();
+    given(controlUnitRepository.findById(controlUnitId)).willReturn(Optional.of(controlUnit));
+    given(controlUnitMapper.toDto(controlUnit)).willReturn(controlUnitDto);
 
     // when
-    final ResponseEntity<ControlUnit> response = controlUnitController.findById(CONTROL_UNIT_1.getId());
+    final ResponseEntity<ControlUnitDto> response = controlUnitController.findById(controlUnitId);
 
     // then
-    assertThat(response.getBody(), is(CONTROL_UNIT_1));
+    assertThat(response.getBody(), is(controlUnitDto));
     assertThat(response.getStatusCode(), is(OK));
   }
 
   @Test(expected = NoSuchElementException.class)
   public void findByIdShouldReturnNullWithStatusNotFoundIfDevicesDoesNotExists() {
     // given
-    given(controlUnitRepository.findById(CONTROL_UNIT_1.getId())).willReturn(Optional.empty());
+    final UUID controlUnitId = randomUUID();
+    given(controlUnitRepository.findById(controlUnitId)).willReturn(Optional.empty());
 
     // when
-    controlUnitController.findById(CONTROL_UNIT_1.getId());
+    controlUnitController.findById(controlUnitId);
 
     // then an exception is expected
   }
@@ -104,23 +108,28 @@ public class ControlUnitControllerTest {
   @Test
   public void findIntegratedShouldReturnIntegratedControlUnit() {
     // given
-    given(controlUnitRepository.findIntegrated()).willReturn(Optional.of(CONTROL_UNIT_1));
+    final UUID controlUnitId = randomUUID();
+    final ControlUnit controlUnit = ControlUnit.builder().id(controlUnitId).build();
+    final ControlUnitDto controlUnitDto = ControlUnitDto.builder().id(controlUnitId).build();
+    given(controlUnitRepository.findIntegrated()).willReturn(Optional.of(controlUnit));
+    given(controlUnitMapper.toDto(controlUnit)).willReturn(controlUnitDto);
 
     // when
-    final ResponseEntity<ControlUnit> response = controlUnitController.findIntegrated();
+    final ResponseEntity<ControlUnitDto> response = controlUnitController.findIntegrated();
 
     // then
-    assertThat(response.getBody(), is(CONTROL_UNIT_1));
+    assertThat(response.getBody(), is(controlUnitDto));
     assertThat(response.getStatusCode(), is(OK));
   }
 
   @Test(expected = NoSuchElementException.class)
   public void findIntegratedThrowNoSuchElementExceptionIfIntegratedControlUnitDoesNotExists() {
     // given
-    given(controlUnitRepository.findById(CONTROL_UNIT_1.getId())).willReturn(Optional.empty());
+    final UUID controlUnitId = randomUUID();
+    given(controlUnitRepository.findById(controlUnitId)).willReturn(Optional.empty());
 
     // when
-    controlUnitController.findById(CONTROL_UNIT_1.getId());
+    controlUnitController.findById(controlUnitId);
 
     // then an exception is expected
   }

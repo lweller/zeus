@@ -104,7 +104,7 @@ public class ScenarioService {
         @Override
         public void execute(final SendCommandAction action) {
           try {
-            deviceService.sendCommand(action.getDevice(), action.getCommand(), action.getData());
+            deviceService.executeCommand(action.getDevice(), action.getCommand(), action.getData());
           } catch (final UndefinedCommandException | CommunicationNotSuccessfulException
                              | CommunicationInterruptedException exception) {
             throw new RuntimeException(exception);

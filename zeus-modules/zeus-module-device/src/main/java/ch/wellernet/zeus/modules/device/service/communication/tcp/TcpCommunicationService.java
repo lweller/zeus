@@ -1,10 +1,6 @@
 package ch.wellernet.zeus.modules.device.service.communication.tcp;
 
-import ch.wellernet.zeus.modules.device.model.Command;
-import ch.wellernet.zeus.modules.device.model.ControlUnit;
-import ch.wellernet.zeus.modules.device.model.Device;
-import ch.wellernet.zeus.modules.device.model.State;
-import ch.wellernet.zeus.modules.device.model.TcpControlUnitAddress;
+import ch.wellernet.zeus.modules.device.model.*;
 import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
@@ -18,11 +14,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 import java.time.Instant;
 import java.util.Collection;
@@ -71,13 +63,13 @@ public class TcpCommunicationService implements CommunicationService {
           format("command %s is undefined for device type '%s'", command, device.getType()));
     }
     if (!(device.getControlUnit().getAddress() instanceof TcpControlUnitAddress)) {
-      throw new IllegalStateException("TcpCommunicationService requires a TcpControlUnitAddress");
+      throw new IllegalStateException("TcpCommunicationService requires a TcpControlUnitAddressDto");
     }
     final TcpControlUnitAddress address = (TcpControlUnitAddress) device.getControlUnit().getAddress();
     try {
-      Response response;
-      try (Socket socket = createSocket(address, device.getState())) {
-        String dataNullSafe = Optional.ofNullable(data).orElse("");
+      final Response response;
+      try (final Socket socket = createSocket(address, device.getState())) {
+        final String dataNullSafe = Optional.ofNullable(data).orElse("");
         response = send(socket,
             format("%s %s %s", command, device.getId(), dataNullSafe).trim());
 
@@ -104,7 +96,7 @@ public class TcpCommunicationService implements CommunicationService {
   private Response parseResponse(final String response)
       throws CommunicationInterruptedException, CommunicationNotSuccessfulException {
     final Matcher matcher = RESPONSE_PATTERN.matcher(response);
-    TcpState tcpState;
+    final TcpState tcpState;
     if (matcher.matches()) {
       tcpState = TcpState.valueOf(matcher.group(1));
     } else {
@@ -118,7 +110,7 @@ public class TcpCommunicationService implements CommunicationService {
       throw new CommunicationInterruptedException("no device state in response");
     }
 
-    State deviceState;
+    final State deviceState;
     try {
       deviceState = State.valueOf(data);
     } catch (final IllegalArgumentException exception) {
@@ -150,20 +142,20 @@ public class TcpCommunicationService implements CommunicationService {
         log.warn("device with id {} not found", deviceId);
         return;
       }
-      try (Socket socket = createSocket(address, device.get().getState())) {
+      try (final Socket socket = createSocket(address, device.get().getState())) {
         final Response response = send(socket, format("GET_SWITCH_STATE %s", deviceId));
         if (response.getTcpState() == TcpState.OK) {
           device.get().setState(response.getDeviceState());
           deviceRepository.save(device.get());
         }
       }
-    } catch (IOException | CommunicationInterruptedException | CommunicationNotSuccessfulException exception) {
+    } catch (final IOException | CommunicationInterruptedException | CommunicationNotSuccessfulException exception) {
       log.error("error while communicating over TCP", exception);
       throw new RuntimeException("error while communicating over TCP");
     }
   }
 
-  Socket createSocket(final TcpControlUnitAddress address, State currentState) throws CommunicationNotSuccessfulException {
+  Socket createSocket(final TcpControlUnitAddress address, final State currentState) throws CommunicationNotSuccessfulException {
     log.debug("opening socket to {}", address);
     try {
       return new Socket(address.getHost(), address.getPort());

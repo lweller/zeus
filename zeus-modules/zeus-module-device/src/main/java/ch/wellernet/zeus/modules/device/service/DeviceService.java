@@ -28,23 +28,23 @@ public class DeviceService {
   private final DeviceRepository deviceRepository;
   private final CommunicationServiceRegistry communicationServiceRegistry;
 
-  public Device sendCommand(final Device device, final Command command)
+  public Device executeCommand(final Device device, final Command command)
       throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
-    return sendCommand(device, command, null);
+    return executeCommand(device, command, null);
   }
 
-  public Device sendCommand(final Device device, Command command, final String data)
+  public Device executeCommand(final Device device, Command command, final String data)
       throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
 
     if (command == null) {
       command = device.getType().getMainCommand();
     }
 
-    Device updatedDevice;
+    final Device updatedDevice;
     try {
       final State newState = communicationServiceRegistry
-          .findByName(device.getControlUnit().getAddress().getCommunicationServiceName())
-          .sendCommand(device, command, data);
+                                 .findByName(device.getControlUnit().getAddress().getCommunicationServiceName())
+                                 .sendCommand(device, command, data);
       device.setState(newState);
     } catch (final CommunicationNotSuccessfulException exception) {
       log.error("command has not been executed successfully, but devices is in a well defined state", exception);

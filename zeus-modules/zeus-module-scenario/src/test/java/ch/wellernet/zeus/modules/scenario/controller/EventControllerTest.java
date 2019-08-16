@@ -43,11 +43,11 @@ public class EventControllerTest {
   private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
-  private @Autowired
-  EventController eventController;
+  @Autowired
+  private EventController eventController;
 
-  private @MockBean
-  EventService eventService;
+  @MockBean
+  private EventService eventService;
 
   @Test
   public void createShouldReturnSaveNewEvent() {

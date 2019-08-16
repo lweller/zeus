@@ -43,11 +43,11 @@ public class ScenarioControllerTest {
   private static final List<Scenario> SCENARIOS = newArrayList(SCENARIO_1, SCENARIO_2, SCENARIO_3);
 
   // object under test
-  private @Autowired
-  ScenarioController scenarioController;
+  @Autowired
+  private ScenarioController scenarioController;
 
-  private @MockBean
-  ScenarioService scenarioService;
+  @MockBean
+  private ScenarioService scenarioService;
 
   @Test
   public void createShouldReturnSaveNewScenario() {
@@ -185,7 +185,6 @@ public class ScenarioControllerTest {
 
     // then an exception is expected
   }
-
 
   @Test
   public void handleEntityExistsExceptionShouldReturnConflictStatus() {

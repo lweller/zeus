@@ -26,41 +26,37 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 
-import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
-import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_OFF;
-import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON;
-import static ch.wellernet.zeus.modules.device.model.Command.TOGGLE_SWITCH;
+import static ch.wellernet.zeus.modules.device.model.Command.*;
 import static ch.wellernet.zeus.modules.device.model.State.OFF;
 import static ch.wellernet.zeus.modules.device.model.State.ON;
 import static ch.wellernet.zeus.modules.device.service.communication.integrated.drivers.raspberry.GpioDigitalOutputPinDriver.ACTIVE_STATE_PROPERTY;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.pi4j.io.gpio.PinState.HIGH;
-import static com.pi4j.io.gpio.PinState.LOW;
-import static com.pi4j.io.gpio.PinState.getInverseState;
+import static com.pi4j.io.gpio.PinState.*;
 import static java.lang.System.currentTimeMillis;
 import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Answers.RETURNS_MOCKS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @SpringBootTest(classes = GpioDigitalOutputPinDriverTest.TestGpioDigitalOutputPinDriver.class, webEnvironment = NONE)
 @RunWith(JUnitParamsRunner.class)
 public class GpioDigitalOutputPinDriverTest {
   // activate spring
-  public static final @ClassRule SpringClassRule springClassRule = new SpringClassRule();
-  public final @Rule SpringMethodRule springMethodRule = new SpringMethodRule();
+  public static final @ClassRule
+  SpringClassRule springClassRule = new SpringClassRule();
+  public final @Rule
+  SpringMethodRule springMethodRule = new SpringMethodRule();
   // object under test
-  private @Autowired TestGpioDigitalOutputPinDriver gpioDigitalOutputPinDriver;
-  private @MockBean(answer = RETURNS_MOCKS) GpioController gpioController;
-  private @MockBean TaskScheduler taskScheduler;
+  private @Autowired
+  TestGpioDigitalOutputPinDriver gpioDigitalOutputPinDriver;
+  private @MockBean(answer = RETURNS_MOCKS)
+  GpioController gpioController;
+  private @MockBean
+  TaskScheduler taskScheduler;
 
   @Test
   public void executeCommandGetStateShouldNotCancelPreviousScheduledTaskWhenOneExists()
@@ -210,7 +206,7 @@ public class GpioDigitalOutputPinDriverTest {
   // make class testable
   static class TestGpioDigitalOutputPinDriver extends GpioDigitalOutputPinDriver {
 
-    public TestGpioDigitalOutputPinDriver(TaskScheduler taskScheduler, GpioController gpioController) {
+    public TestGpioDigitalOutputPinDriver(final TaskScheduler taskScheduler, final GpioController gpioController) {
       super(taskScheduler, new Properties() {
         private static final long serialVersionUID = 1L;
 

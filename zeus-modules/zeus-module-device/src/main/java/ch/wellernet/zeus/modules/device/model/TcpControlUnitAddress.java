@@ -19,9 +19,14 @@ public class TcpControlUnitAddress extends ControlUnitAddress {
   }
 
   @Builder
-  private TcpControlUnitAddress(final String communicationServiceName, final String host, final int port) {
+  private TcpControlUnitAddress(final String host, final int port) {
     this();
     this.host = host;
     this.port = port;
+  }
+
+  @Override
+  public <T> T dispatch(final Dispatcher<T> dispatcher) {
+    return dispatcher.execute(this);
   }
 }

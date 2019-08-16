@@ -1,6 +1,7 @@
 package ch.wellernet.zeus.modules.device.controller;
 
-import ch.wellernet.zeus.modules.device.model.ControlUnit;
+import ch.wellernet.zeus.modules.device.controller.dto.ControlUnitDto;
+import ch.wellernet.zeus.modules.device.controller.mapper.ControlUnitMapper;
 import ch.wellernet.zeus.modules.device.repository.ControlUnitRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -9,13 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -23,7 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller.API_ROOT_PATH;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -37,25 +32,26 @@ public class ControlUnitController implements DeviceApiV1Controller {
 
   // injected dependencies
   private final ControlUnitRepository controlUnitRepository;
+  private final ControlUnitMapper controlUnitMapper;
 
   @ApiOperation("Finds all registered control units.")
   @GetMapping
-  public ResponseEntity<Collection<ControlUnit>> findAll() {
-    return ResponseEntity.status(HttpStatus.OK).body(newArrayList(controlUnitRepository.findAll()));
+  public ResponseEntity<Collection<ControlUnitDto>> findAll() {
+    return ResponseEntity.status(HttpStatus.OK).body(controlUnitMapper.toDtos(newHashSet(controlUnitRepository.findAll())));
   }
 
   @ApiOperation("Finds control unit by its UUID.")
   @GetMapping("/{id}")
-  public ResponseEntity<ControlUnit> findById(
+  public ResponseEntity<ControlUnitDto> findById(
       @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id)
       throws NoSuchElementException {
-    return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findById(id).orElseThrow(NoSuchElementException::new));
+    return ResponseEntity.status(HttpStatus.OK).body(controlUnitMapper.toDto(controlUnitRepository.findById(id).orElseThrow(NoSuchElementException::new)));
   }
 
   @ApiOperation("Finds integrated control unit.")
   @GetMapping("/integrated")
-  public ResponseEntity<ControlUnit> findIntegrated() throws NoSuchElementException {
-    return ResponseEntity.status(HttpStatus.OK).body(controlUnitRepository.findIntegrated().orElseThrow(NoSuchElementException::new));
+  public ResponseEntity<ControlUnitDto> findIntegrated() throws NoSuchElementException {
+    return ResponseEntity.status(HttpStatus.OK).body(controlUnitMapper.toDto(controlUnitRepository.findIntegrated().orElseThrow(NoSuchElementException::new)));
   }
 
   @ExceptionHandler({NoSuchElementException.class})
