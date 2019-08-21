@@ -26,7 +26,7 @@ public abstract class ControlUnitMapper {
     final ControlUnit updatedControlUnit = controlUnitRepository
                                                .findById(controlUnitDto.getId())
                                                .map(controlUnit -> copy(controlUnitDto, controlUnit, context))
-                                               .orElse(controlUnitRepository.save(createFrom(controlUnitDto, context)));
+                                               .orElseGet(() -> controlUnitRepository.save(createFrom(controlUnitDto, context)));
     updatedControlUnit.getDevices().forEach(device -> device.setControlUnit(updatedControlUnit));
     return updatedControlUnit;
   }

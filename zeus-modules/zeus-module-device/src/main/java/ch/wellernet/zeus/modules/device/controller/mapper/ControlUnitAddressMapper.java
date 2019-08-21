@@ -46,14 +46,14 @@ abstract class ControlUnitAddressMapper {
                      public IntegratedControlUnitAddress execute(final IntegratedControlUnitAddressDto controlUnitAddressDto) {
                        return context.getAddressOfType(IntegratedControlUnitAddress.class)
                                   .map(controlUnitAddress -> copy(controlUnitAddressDto, controlUnitAddress))
-                                  .orElse(createFrom(controlUnitAddressDto));
+                                  .orElseGet(() -> createFrom(controlUnitAddressDto));
                      }
 
                      @Override
                      public TcpControlUnitAddress execute(final TcpControlUnitAddressDto controlUnitAddressDto) {
                        return context.getAddressOfType(TcpControlUnitAddress.class)
                                   .map(controlUnitAddress -> copy(controlUnitAddressDto, controlUnitAddress))
-                                  .orElse(createFrom(controlUnitAddressDto));
+                                  .orElseGet(() -> createFrom(controlUnitAddressDto));
                      }
                    }))
                .orElse(null);

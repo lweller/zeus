@@ -1,0 +1,9 @@
+<div (keyup.control.enter)="save(device)" (keyup.esc)="close()" fxLayout="column">
+    <mat-form-field fxFill>
+        <input [(ngModel)]="device.name" matInput placeholder="Name">
+    </mat-form-field>
+    <div fxFlexAlign="end" fxLayout="row" fxLayoutGap="3px">
+        <button (click)="close()" mat-raised-button>{{'Cancel'|translate}}</button>
+        <button (click)="save(device)" color="primary" mat-raised-button>{{'Save' | translate }}</button>
+    </div>
+</div>

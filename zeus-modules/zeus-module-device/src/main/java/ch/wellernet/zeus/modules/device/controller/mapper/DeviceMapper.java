@@ -26,7 +26,7 @@ public abstract class DeviceMapper {
     return deviceRepository
                .findById(deviceDto.getId())
                .map(device -> copy(deviceDto, device))
-               .orElse(deviceRepository.save(createFrom(deviceDto)));
+               .orElseGet(() -> deviceRepository.save(createFrom(deviceDto)));
   }
 
   Set<Device> updateFrom(final Set<DeviceDto> deviceDtos) {

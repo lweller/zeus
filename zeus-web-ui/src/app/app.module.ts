@@ -1,8 +1,7 @@
-import {AppRoutingModule, EVENTS_ROOT, SCENARIOS_ROOT} from './app-routing.module';
+import {AppRoutingModule, DEVICES_ROOT, EVENTS_ROOT, SCENARIOS_ROOT} from './app-routing.module';
 import {LOCALE_ID, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {DevicesComponent} from './devices/comonents/devices.component';
 import {DeviceService} from './devices/services/device.service';
 import {ScenarioService} from './scenarios/services/scenario.service';
 import {MetaReducer, StoreModule} from "@ngrx/store";
@@ -28,6 +27,7 @@ import localeFr from "@angular/common/locales/fr";
 import {TranslatePoHttpLoader} from "./common/utils/translate-po-http-loader";
 import {EventsModule} from "./events/events.module";
 import {ScenariosModule} from "./scenarios/scenarios.module";
+import {DevicesModule} from "./devices/devices.module";
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
@@ -58,8 +58,7 @@ export const metaReducers: MetaReducer<any>[] = [messageStateReducer];
 
 @NgModule({
     declarations: [
-        AppComponent,
-        DevicesComponent
+        AppComponent
     ],
     imports: [
         BrowserModule,
@@ -84,6 +83,7 @@ export const metaReducers: MetaReducer<any>[] = [messageStateReducer];
         }),
         EffectsModule.forRoot([]),
         AppRoutingModule,
+        DevicesModule.with({root: DEVICES_ROOT}),
         EventsModule.with({root: EVENTS_ROOT}),
         ScenariosModule.with({root: SCENARIOS_ROOT})
     ],
