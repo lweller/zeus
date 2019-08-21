@@ -1,13 +1,15 @@
 package ch.wellernet.zeus.modules.device.model;
 
 import ch.wellernet.zeus.modules.device.service.communication.integrated.IntegratedCommunicationService;
+import lombok.Builder;
 
 import javax.persistence.Entity;
 
 @Entity
 public class IntegratedControlUnitAddress extends ControlUnitAddress {
 
-  public IntegratedControlUnitAddress() {
+  @Builder
+  private IntegratedControlUnitAddress() {
     super(IntegratedCommunicationService.NAME);
   }
 

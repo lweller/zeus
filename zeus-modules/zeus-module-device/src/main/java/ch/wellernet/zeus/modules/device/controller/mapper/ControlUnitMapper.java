@@ -9,21 +9,24 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Mapper(componentModel = "spring", uses = {DeviceMapper.class, ControlUnitAddressMapper.class})
-abstract class ControlUnitMapper {
+public abstract class ControlUnitMapper {
 
   @Autowired
   private ControlUnitRepository controlUnitRepository;
 
-  abstract ControlUnitDto toDto(final ControlUnit controlUnit);
+  public abstract ControlUnitDto toDto(final ControlUnit controlUnit);
+
+  public abstract Collection<ControlUnitDto> toDtos(Collection<ControlUnit> newHashSet);
 
   ControlUnit createOrUpdateFrom(final ControlUnitDto controlUnitDto, @Context final ControlUnitMapperContext context) {
     final ControlUnit updatedControlUnit = controlUnitRepository
                                                .findById(controlUnitDto.getId())
                                                .map(controlUnit -> copy(controlUnitDto, controlUnit, context))
-                                               .orElse(controlUnitRepository.save(createFrom(controlUnitDto, context)));
+                                               .orElseGet(() -> controlUnitRepository.save(createFrom(controlUnitDto, context)));
     updatedControlUnit.getDevices().forEach(device -> device.setControlUnit(updatedControlUnit));
     return updatedControlUnit;
   }

@@ -16,10 +16,7 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
 
-import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
-import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_OFF;
-import static ch.wellernet.zeus.modules.device.model.Command.SWITCH_ON;
-import static ch.wellernet.zeus.modules.device.model.Command.TOGGLE_SWITCH;
+import static ch.wellernet.zeus.modules.device.model.Command.*;
 import static ch.wellernet.zeus.modules.device.model.State.OFF;
 import static ch.wellernet.zeus.modules.device.model.State.ON;
 import static com.google.common.collect.Sets.immutableEnumSet;
@@ -36,17 +33,22 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
   private static final String PIN_PROPERTY = "pin";
   private static final String ACTIVE_STATE_PROPERTY = "active-state";
 
-  private @Getter final Collection<Command> supportedCommands;
-  private @Getter Pin pin;
-  private @Getter PinState activePinState;
-  private @Getter PinState currentState;
-  private @Getter ScheduledFuture<?> timerTask;
-
+  private @Getter
+  final Collection<Command> supportedCommands;
   // injected dependencies
   private final TaskScheduler taskScheduler;
-  private @Getter final Properties properties;
+  private @Getter
+  final Properties properties;
+  private @Getter
+  Pin pin;
+  private @Getter
+  PinState activePinState;
+  private @Getter
+  PinState currentState;
+  private @Getter
+  ScheduledFuture<?> timerTask;
 
-  MockGpioDigitalOutputPinDriver(TaskScheduler taskScheduler, final Properties properties) {
+  MockGpioDigitalOutputPinDriver(final TaskScheduler taskScheduler, final Properties properties) {
     this.taskScheduler = taskScheduler;
     this.properties = properties;
     supportedCommands = immutableEnumSet(SWITCH_ON, SWITCH_OFF, TOGGLE_SWITCH, GET_SWITCH_STATE);
@@ -82,9 +84,10 @@ public class MockGpioDigitalOutputPinDriver implements DeviceDriver {
       case RESET:
         break;
       case GET_SWITCH_STATE:
+        break;
       case REBOOT:
       default:
-        throw new UndefinedCommandException(format("Command %s is undefined in driver %s.", command, this.getClass().getSimpleName()));
+        throw new UndefinedCommandException(format("Command %s is undefined in driver %s.", command, getClass().getSimpleName()));
     }
     return currentState == activePinState ? ON : OFF;
   }

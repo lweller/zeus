@@ -1,7 +1,6 @@
 import {TranslateService} from '@ngx-translate/core';
 import {Component, OnInit} from '@angular/core';
 import {Event} from '../model/event';
-import {ActivatedRoute, Router} from "@angular/router";
 import {select, Store} from "@ngrx/store";
 import * as EventActions from "../actions/event-ui.actions";
 import {events} from "../model/event-state";
@@ -17,8 +16,6 @@ export class EventsComponent implements OnInit {
     events: Event[];
 
     constructor(private store: Store<any>,
-                private router: Router,
-                private route: ActivatedRoute,
                 private translateService: TranslateService) {
         store.pipe(select(events)).subscribe(events => this.events = cloneDeep(events));
     }

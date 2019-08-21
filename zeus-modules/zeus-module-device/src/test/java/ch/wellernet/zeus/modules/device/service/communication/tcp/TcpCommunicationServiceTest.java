@@ -104,7 +104,7 @@ public class TcpCommunicationServiceTest {
   public void sendCommandShouldThrowExceptionWhenAddressHasWrongType()
       throws UndefinedCommandException, CommunicationInterruptedException, CommunicationNotSuccessfulException {
     // given
-    final ControlUnit controlUnit = ControlUnit.builder().id(randomUUID()).address(new IntegratedControlUnitAddress()).build();
+    final ControlUnit controlUnit = ControlUnit.builder().id(randomUUID()).address(IntegratedControlUnitAddress.builder().build()).build();
     final UUID deviceId = UUID.randomUUID();
     final Device device = Device.builder().id(deviceId).type(GENERIC_SWITCH).controlUnit(controlUnit).build();
 

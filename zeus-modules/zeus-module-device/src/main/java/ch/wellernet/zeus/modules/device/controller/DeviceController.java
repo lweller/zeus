@@ -1,7 +1,10 @@
 package ch.wellernet.zeus.modules.device.controller;
 
+import ch.wellernet.zeus.modules.device.controller.dto.DeviceDto;
+import ch.wellernet.zeus.modules.device.controller.mapper.DeviceMapper;
 import ch.wellernet.zeus.modules.device.model.Command;
 import ch.wellernet.zeus.modules.device.model.Device;
+import ch.wellernet.zeus.modules.device.repository.DeviceRepository;
 import ch.wellernet.zeus.modules.device.service.DeviceService;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationInterruptedException;
 import ch.wellernet.zeus.modules.device.service.communication.CommunicationNotSuccessfulException;
@@ -20,7 +23,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller.API_ROOT_PATH;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.*;
 
@@ -35,7 +39,39 @@ public class DeviceController implements DeviceApiV1Controller {
   static final int COMMUNICATION_INTERRUPTED = 902;
 
   // injected dependencies
+  private final DeviceRepository deviceRepository;
+  private final DeviceMapper deviceMapper;
   private final DeviceService deviceService;
+
+
+  @ApiOperation("Finds all registered devices.")
+  @GetMapping
+  public ResponseEntity<Collection<DeviceDto>> findAll() {
+    return ResponseEntity.status(OK).body(deviceMapper.toDtos(newHashSet(deviceRepository.findAll())));
+  }
+
+  @ApiOperation("Finds device by its UUID.")
+  @GetMapping("/{id}")
+  public ResponseEntity<DeviceDto> findById(@ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id) {
+    return ResponseEntity.status(OK).body(
+        deviceMapper.toDto(load(id)));
+  }
+
+  @ApiOperation("Updates a device. If it does not already exist a new one is created.")
+  @PostMapping
+  public ResponseEntity<DeviceDto> createOrUpdate(@ApiParam(value = "Device data", required = true) @Valid @RequestBody final DeviceDto deviceDto) {
+    return ResponseEntity.status(OK).body(deviceMapper.toDto(deviceMapper.createOrUpdateFrom(deviceDto)));
+  }
+
+  @ApiOperation("Deletes an existing device.")
+  @DeleteMapping(value = "/{id}")
+  public ResponseEntity<Void> delete(@ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id) {
+    if (!deviceRepository.existsById(id)) {
+      throw new NoSuchElementException(format("device with ID %s does not exists", id));
+    }
+    deviceRepository.deleteById(id);
+    return ResponseEntity.status(OK).build();
+  }
 
   @ApiOperation("Executes main command for a given device.")
   @ApiResponses({@ApiResponse(code = 400, message = "Operation is invalid"),
@@ -43,7 +79,7 @@ public class DeviceController implements DeviceApiV1Controller {
                                                                       + "well defined state. For example this can happen, when device is not reachable"),
       @ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communication could not terminated leaving device possibly in a undefined state.")})
   @PostMapping(value = "/{id}/main-command!execute")
-  public ResponseEntity<Device> executeCommand(
+  public ResponseEntity<DeviceDto> executeCommand(
       @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id)
       throws UndefinedCommandException, CommunicationNotSuccessfulException,
                  CommunicationInterruptedException {
@@ -55,37 +91,12 @@ public class DeviceController implements DeviceApiV1Controller {
       @ApiResponse(code = COMMUNICATION_NOT_SUCCESSFUL, message = "Communication with device was not successful, but devices is still in a well defined state. For example this can happen, when device is not reachable"),
       @ApiResponse(code = COMMUNICATION_INTERRUPTED, message = "Communication could not terminated leaving device possibly in a undefined state.")})
   @PostMapping(value = "/{id}/commands/{command}!execute")
-  public ResponseEntity<Device> executeCommand(
+  public ResponseEntity<DeviceDto> executeCommand(
       @ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id,
       @ApiParam(value = "Command name") @PathVariable final Command command)
       throws UndefinedCommandException, CommunicationNotSuccessfulException, CommunicationInterruptedException {
-    final Device updatedDevice = deviceService.executeCommand(deviceService.findById(id), command);
-    return ResponseEntity.status(OK.value()).body(updatedDevice);
-  }
-
-  @ApiOperation("Finds all registered devices.")
-  @GetMapping
-  public ResponseEntity<Collection<Device>> findAll() {
-    return ResponseEntity.status(OK).body(newArrayList(deviceService.findAll()));
-  }
-
-  @ApiOperation("Finds device by its UUID.")
-  @GetMapping("/{id}")
-  public ResponseEntity<Device> findById(@ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id) {
-    return ResponseEntity.status(OK).body(deviceService.findById(id));
-  }
-
-  @ApiOperation("Saves a device. If it does not already exist a new one is created.")
-  @PostMapping
-  public ResponseEntity<Device> save(@ApiParam(value = "Device data", required = true) @Valid @RequestBody final Device device) {
-    return ResponseEntity.status(OK).body(deviceService.save(device));
-  }
-
-  @ApiOperation("Deletes an existing device.")
-  @DeleteMapping(value = "/{id}")
-  public ResponseEntity<Void> delete(@ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id) {
-    deviceService.delete(id);
-    return ResponseEntity.status(OK).build();
+    final Device updatedDevice = deviceService.executeCommand(load(id), command);
+    return ResponseEntity.status(OK.value()).body(deviceMapper.toDto(updatedDevice));
   }
 
   @ExceptionHandler({CommunicationInterruptedException.class})
@@ -106,8 +117,8 @@ public class DeviceController implements DeviceApiV1Controller {
   }
 
   @ExceptionHandler({OptimisticLockException.class})
-  public ResponseEntity<Device> handleOptimisticLockException(final OptimisticLockException exception) {
-    return ResponseEntity.status(PRECONDITION_FAILED).body((Device) exception.getEntity());
+  public ResponseEntity<DeviceDto> handleOptimisticLockException(final OptimisticLockException exception) {
+    return ResponseEntity.status(PRECONDITION_FAILED).body(deviceMapper.toDto((Device) exception.getEntity()));
   }
 
   @ExceptionHandler({IllegalArgumentException.class})
@@ -118,5 +129,11 @@ public class DeviceController implements DeviceApiV1Controller {
   @ExceptionHandler({UndefinedCommandException.class})
   public ResponseEntity<String> handleUndefinedCommandException() {
     return ResponseEntity.status(NOT_FOUND).body("undefined command");
+  }
+
+  private Device load(final UUID id) {
+    return deviceRepository
+               .findById(id)
+               .orElseThrow(() -> new NoSuchElementException(format("device with ID %s does not exists", id)));
   }
 }

@@ -39,22 +39,24 @@ abstract class ControlUnitAddressMapper {
 
   ControlUnitAddress createOrUpdateFrom(final ControlUnitAddressDto controlUnitAddressDto, @Context final ControlUnitMapperContext context) {
     return Optional
-               .ofNullable(controlUnitAddressDto.dispatch(
+               .ofNullable(controlUnitAddressDto)
+               .map(dto -> dto.dispatch(
                    new ControlUnitAddressDto.Dispatcher<ControlUnitAddress>() {
                      @Override
                      public IntegratedControlUnitAddress execute(final IntegratedControlUnitAddressDto controlUnitAddressDto) {
                        return context.getAddressOfType(IntegratedControlUnitAddress.class)
                                   .map(controlUnitAddress -> copy(controlUnitAddressDto, controlUnitAddress))
-                                  .orElse(createFrom(controlUnitAddressDto));
+                                  .orElseGet(() -> createFrom(controlUnitAddressDto));
                      }
 
                      @Override
                      public TcpControlUnitAddress execute(final TcpControlUnitAddressDto controlUnitAddressDto) {
                        return context.getAddressOfType(TcpControlUnitAddress.class)
                                   .map(controlUnitAddress -> copy(controlUnitAddressDto, controlUnitAddress))
-                                  .orElse(createFrom(controlUnitAddressDto));
+                                  .orElseGet(() -> createFrom(controlUnitAddressDto));
                      }
-                   })).orElse(null);
+                   }))
+               .orElse(null);
   }
 
   abstract IntegratedControlUnitAddress createFrom(IntegratedControlUnitAddressDto controlUnitAddressDto);

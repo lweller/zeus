@@ -1,6 +1,7 @@
 package ch.wellernet.zeus.modules.device.controller.mapper;
 
 import ch.wellernet.zeus.modules.device.controller.dto.ControlUnitDto;
+import ch.wellernet.zeus.modules.device.controller.dto.DeviceDto;
 import ch.wellernet.zeus.modules.device.controller.dto.TcpControlUnitAddressDto;
 import ch.wellernet.zeus.modules.device.model.ControlUnit;
 import ch.wellernet.zeus.modules.device.model.Device;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.UUID.randomUUID;
@@ -104,7 +106,7 @@ public class ControlUnitMapperTest {
     // given
     final ControlUnit controlUnit = ControlUnit.builder()
                                         .id(randomUUID())
-                                        .address(new IntegratedControlUnitAddress())
+                                        .address(IntegratedControlUnitAddress.builder().build())
                                         .build();
     final ControlUnitDto controlUnitDto = ControlUnitDto.builder()
                                               .id(controlUnit.getId())
@@ -114,7 +116,6 @@ public class ControlUnitMapperTest {
                                                            .build())
                                               .build();
     given(controlUnitRepository.findById(controlUnitDto.getId())).willReturn(Optional.of(controlUnit));
-    given(deviceMapper.updateFrom(any())).willReturn(Stream.of(Device.builder().build()).collect(toSet()));
 
     // when
     final ControlUnit updatedControlUnit = controlUnitMapper.createOrUpdateFrom(controlUnitDto, new ControlUnitMapperContext());
@@ -124,8 +125,96 @@ public class ControlUnitMapperTest {
     assertThat(updatedControlUnit.getAddress(), isA(TcpControlUnitAddress.class));
     assertThat(((TcpControlUnitAddress) updatedControlUnit.getAddress()).getHost(), is("zeus.example.com"));
     assertThat(((TcpControlUnitAddress) updatedControlUnit.getAddress()).getPort(), is(8080));
-    assertThat(updatedControlUnit.getDevices(), hasSize(1));
+  }
+
+  @Test
+  public void createOrUpdateShouldCreateNewlyAddedNewDevice() {
+    // given
+    final UUID deviceId1 = randomUUID();
+    final Device device1 = Device.builder().id(deviceId1).build();
+    final UUID deviceId2 = randomUUID();
+    final Device device2 = Device.builder().id(deviceId2).build();
+    final ControlUnit controlUnit = ControlUnit.builder()
+                                        .id(randomUUID())
+                                        .devices(Stream.of(device1).collect(toSet()))
+                                        .build();
+    final DeviceDto deviceDto1 = DeviceDto.builder().id(deviceId1).build();
+    final DeviceDto deviceDto2 = DeviceDto.builder().id(deviceId2).build();
+    final ControlUnitDto controlUnitDto = ControlUnitDto.builder()
+                                              .id(controlUnit.getId())
+                                              .devices(Stream.of(deviceDto1, deviceDto2).collect(toSet()))
+                                              .build();
+    given(controlUnitRepository.findById(controlUnitDto.getId())).willReturn(Optional.of(controlUnit));
+    given(deviceMapper.updateFrom(Stream.of(deviceDto1, deviceDto2).collect(toSet())))
+        .willReturn(Stream.of(device1, device2).collect(toSet()));
+
+    // when
+    final ControlUnit updatedControlUnit = controlUnitMapper.createOrUpdateFrom(controlUnitDto, new ControlUnitMapperContext());
+
+    // then
+    assertThat(updatedControlUnit.getId(), is(controlUnit.getId()));
+    assertThat(updatedControlUnit.getDevices(), hasSize(2));
+    assertThat(updatedControlUnit.getDevices(), containsInAnyOrder(device1, device2));
     assertThat(updatedControlUnit.getDevices(), everyItem(hasProperty("controlUnit", is(updatedControlUnit))));
+  }
+
+  @Test
+  public void createOrUpdateShouldRemovedNoMorePresentDevice() {
+    // given
+    final UUID deviceId1 = randomUUID();
+    final Device device1 = Device.builder().id(deviceId1).build();
+    final UUID deviceId2 = randomUUID();
+    final Device device2 = Device.builder().id(deviceId2).build();
+    final ControlUnit controlUnit = ControlUnit.builder()
+                                        .id(randomUUID())
+                                        .devices(Stream.of(device1, device2).collect(toSet()))
+                                        .build();
+    final DeviceDto deviceDto1 = DeviceDto.builder().id(deviceId1).build();
+    final DeviceDto deviceDto2 = DeviceDto.builder().id(deviceId2).build();
+    final ControlUnitDto controlUnitDto = ControlUnitDto.builder()
+                                              .id(controlUnit.getId())
+                                              .devices(Stream.of(deviceDto1).collect(toSet()))
+                                              .build();
+    given(controlUnitRepository.findById(controlUnitDto.getId())).willReturn(Optional.of(controlUnit));
+    given(deviceMapper.updateFrom(Stream.of(deviceDto1).collect(toSet())))
+        .willReturn(Stream.of(device1).collect(toSet()));
+
+    // when
+    final ControlUnit updatedControlUnit = controlUnitMapper.createOrUpdateFrom(controlUnitDto, new ControlUnitMapperContext());
+
+    // then
+    assertThat(updatedControlUnit.getId(), is(controlUnit.getId()));
+    assertThat(updatedControlUnit.getDevices(), hasSize(1));
+    assertThat(updatedControlUnit.getDevices(), containsInAnyOrder(device1));
+    assertThat(updatedControlUnit.getDevices(), everyItem(hasProperty("controlUnit", is(updatedControlUnit))));
+  }
+
+  @Test
+  public void createOrUpdateShouldUpdateDevice() {
+    // given
+    final UUID deviceId = randomUUID();
+    final Device device = Device.builder().id(deviceId).name("A device").build();
+    final Device updatedDevice = Device.builder().id(deviceId).name("Updated device").build();
+    final ControlUnit controlUnit = ControlUnit.builder()
+                                        .id(randomUUID())
+                                        .devices(Stream.of(device).collect(toSet()))
+                                        .build();
+    final DeviceDto deviceDto = DeviceDto.builder().id(deviceId).name("A device").build();
+    final ControlUnitDto controlUnitDto = ControlUnitDto.builder()
+                                              .id(controlUnit.getId())
+                                              .devices(Stream.of(deviceDto).collect(toSet()))
+                                              .build();
+    given(controlUnitRepository.findById(controlUnitDto.getId())).willReturn(Optional.of(controlUnit));
+    given(deviceMapper.updateFrom(Stream.of(deviceDto).collect(toSet())))
+        .willReturn(Stream.of(updatedDevice).collect(toSet()));
+
+    // when
+    final ControlUnit updatedControlUnit = controlUnitMapper.createOrUpdateFrom(controlUnitDto, new ControlUnitMapperContext());
+
+    // then
+    assertThat(updatedControlUnit.getId(), is(controlUnit.getId()));
+    assertThat(updatedControlUnit.getDevices(), hasSize(1));
+    assertThat(updatedControlUnit.getDevices(), containsInAnyOrder(hasProperty("name", is("Updated device"))));
   }
 
   @Test

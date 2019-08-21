@@ -7,23 +7,26 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
 @Mapper(componentModel = "spring", uses = ControlUnitMapper.class)
-abstract class DeviceMapper {
+public abstract class DeviceMapper {
 
   @Autowired
   private DeviceRepository deviceRepository;
 
-  abstract DeviceDto toDto(final Device device);
+  public abstract DeviceDto toDto(final Device device);
 
-  Device createOrUpdateFrom(final DeviceDto deviceDto) {
+  public abstract Collection<DeviceDto> toDtos(Collection<Device> devices);
+
+  public Device createOrUpdateFrom(final DeviceDto deviceDto) {
     return deviceRepository
                .findById(deviceDto.getId())
                .map(device -> copy(deviceDto, device))
-               .orElse(deviceRepository.save(createFrom(deviceDto)));
+               .orElseGet(() -> deviceRepository.save(createFrom(deviceDto)));
   }
 
   Set<Device> updateFrom(final Set<DeviceDto> deviceDtos) {
