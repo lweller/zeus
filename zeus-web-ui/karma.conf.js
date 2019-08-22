@@ -23,18 +23,7 @@ module.exports = function (config) {
             fixWebpackSourcePaths: true
         },
         junitReporter: {
-            outputFile: 'target/karma-reports/TEST-AngularJS.xml',
-            useBrowserName: false,
-            classNameFormatter: function (browser, result) {
-                let name = 'AngularJS.';
-                name += browser.name
-                    .replace(/ /g, '_')
-                    .replace(/\./g, '_') + '.';
-                if (result.suite && result.suite.length > 0) {
-                    name += result.suite.join(' ')
-                }
-                return name;
-            }
+            outputDir: 'target/karma-reports',
         },
         reporters: ['progress', 'kjhtml', 'junit'],
         port: 9876,
