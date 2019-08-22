@@ -23,53 +23,42 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.8.0</version>
+                <configuration>
+                    <nodeVersion>v10.15.3</nodeVersion>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>install-npm-packages</id>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>install</argument>
-                            </arguments>
-                        </configuration>
-                        <phase>generate-resources</phase>
+                        <id>install node and npm</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>install-node-and-npm</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>build-javascript</id>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build</argument>
-                            </arguments>
-                        </configuration>
-                        <phase>generate-resources</phase>
+                        <id>npm install</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>npm</goal>
                         </goals>
                     </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
                     <execution>
-                        <id>build zip file</id>
-                        <phase>package</phase>
+                        <id>npm run build</id>
                         <goals>
-                            <goal>single</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <descriptors>
-                                <descriptor>assembly.xml</descriptor>
-                            </descriptors>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>run karma tests</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>test -- zeus-web-ui --karma-config karma.conf.ci.js</arguments>
                         </configuration>
                     </execution>
                 </executions>

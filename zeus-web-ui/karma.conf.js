@@ -8,8 +8,10 @@ module.exports = function (config) {
         plugins: [
             require('karma-jasmine'),
             require('karma-firefox-launcher'),
+            require('karma-phantomjs-launcher'),
             require('karma-jasmine-html-reporter'),
             require('karma-coverage-istanbul-reporter'),
+            require('karma-junit-reporter'),
             require('@angular-devkit/build-angular/plugins/karma')
         ],
         client: {
@@ -19,13 +21,15 @@ module.exports = function (config) {
             dir: require('path').join(__dirname, 'coverage'), reports: ['html', 'lcovonly'],
             fixWebpackSourcePaths: true
         },
-
-        reporters: ['progress', 'kjhtml'],
+        junitReporter: {
+            outputDir: 'target/surefire-reports/'
+        },
+        reporters: ['progress', 'kjhtml', 'junit'],
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['FirefoxHeadless'],
+        browsers: ['PhantomJS'],
         singleRun: false
     });
 };
