@@ -2,6 +2,7 @@
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
 module.exports = function (config) {
+    // noinspection JSUnusedGlobalSymbols
     config.set({
         basePath: '',
         frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -22,8 +23,18 @@ module.exports = function (config) {
             fixWebpackSourcePaths: true
         },
         junitReporter: {
-            outputDir: 'target/surefire-reports/',
-            outputFile: 'TESTS-TestSuite.xml'
+            outputFile: 'target/surefire-reports/TESTS-TestSuite.xml',
+            useBrowserName: false,
+            classNameFormatter: function (browser, result) {
+                let name = 'AngularJS.';
+                name += browser.name
+                    .replace(/ /g, '_')
+                    .replace(/\./g, '_') + '.';
+                if (result.suite && result.suite.length > 0) {
+                    name += result.suite.join(' ')
+                }
+                return name;
+            }
         },
         reporters: ['progress', 'kjhtml', 'junit'],
         port: 9876,
