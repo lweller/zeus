@@ -23,7 +23,7 @@ module.exports = function (config) {
             fixWebpackSourcePaths: true
         },
         junitReporter: {
-            outputFile: 'target/surefire-reports/TESTS-TestSuite.xml',
+            outputFile: 'target/surefire-reports/TEST-AngularJS.xml',
             useBrowserName: false,
             classNameFormatter: function (browser, result) {
                 let name = 'AngularJS.';
