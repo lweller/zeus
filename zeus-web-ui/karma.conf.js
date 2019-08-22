@@ -22,7 +22,8 @@ module.exports = function (config) {
             fixWebpackSourcePaths: true
         },
         junitReporter: {
-            outputDir: 'target/surefire-reports/'
+            outputDir: 'target/surefire-reports/',
+            outputFile: 'TESTS-TestSuite.xml'
         },
         reporters: ['progress', 'kjhtml', 'junit'],
         port: 9876,
