@@ -1,11 +1,8 @@
 package ch.wellernet.zeus.modules.scenario.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -23,10 +20,10 @@ public class CronEvent extends Event {
   private String cronExpression;
 
   @Builder
-  private CronEvent(@Nonnull final UUID id,
-                    @Nonnull final String name,
-                    @Nonnull final Set<EventDrivenTransition> transitions,
-                    @Nonnull final String cronExpression) {
+  private CronEvent(@NonNull final UUID id,
+                    @NonNull final String name,
+                    @Nullable final Set<EventDrivenTransition> transitions,
+                    @NonNull final String cronExpression) {
     super(id, name, transitions);
     this.cronExpression = cronExpression;
   }
