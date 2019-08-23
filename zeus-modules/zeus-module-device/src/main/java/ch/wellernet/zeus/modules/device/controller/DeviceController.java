@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static ch.wellernet.zeus.modules.device.controller.DeviceApiV1Controller.API_ROOT_PATH;
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static javax.transaction.Transactional.TxType.REQUIRED;
 import static org.springframework.http.HttpStatus.*;
@@ -43,18 +43,16 @@ public class DeviceController implements DeviceApiV1Controller {
   private final DeviceMapper deviceMapper;
   private final DeviceService deviceService;
 
-
   @ApiOperation("Finds all registered devices.")
   @GetMapping
   public ResponseEntity<Collection<DeviceDto>> findAll() {
-    return ResponseEntity.status(OK).body(deviceMapper.toDtos(newHashSet(deviceRepository.findAll())));
+    return ResponseEntity.status(OK).body(deviceMapper.toDtos(newArrayList(deviceRepository.findAll())));
   }
 
   @ApiOperation("Finds device by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<DeviceDto> findById(@ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id) {
-    return ResponseEntity.status(OK).body(
-        deviceMapper.toDto(load(id)));
+    return ResponseEntity.status(OK).body(deviceMapper.toDto(load(id)));
   }
 
   @ApiOperation("Updates a device. If it does not already exist a new one is created.")
@@ -66,9 +64,6 @@ public class DeviceController implements DeviceApiV1Controller {
   @ApiOperation("Deletes an existing device.")
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<Void> delete(@ApiParam(value = "Device UUID", required = true) @PathVariable final UUID id) {
-    if (!deviceRepository.existsById(id)) {
-      throw new NoSuchElementException(format("device with ID %s does not exists", id));
-    }
     deviceRepository.deleteById(id);
     return ResponseEntity.status(OK).build();
   }
@@ -99,18 +94,6 @@ public class DeviceController implements DeviceApiV1Controller {
     return ResponseEntity.status(OK.value()).body(deviceMapper.toDto(updatedDevice));
   }
 
-  @ExceptionHandler({CommunicationInterruptedException.class})
-  public ResponseEntity<Device> handleCommunicationInterruptedException(
-      final CommunicationInterruptedException exception) {
-    return ResponseEntity.status(COMMUNICATION_INTERRUPTED).body(exception.getDevice());
-  }
-
-  @ExceptionHandler({CommunicationNotSuccessfulException.class})
-  public ResponseEntity<Device> handleCommunicationNotSuccessfulException(
-      final CommunicationNotSuccessfulException exception) {
-    return ResponseEntity.status(COMMUNICATION_NOT_SUCCESSFUL).body(exception.getDevice());
-  }
-
   @ExceptionHandler({NoSuchElementException.class})
   public ResponseEntity<String> handleNoSuchElementException() {
     return ResponseEntity.status(NOT_FOUND).body("cannot find device");
@@ -121,14 +104,21 @@ public class DeviceController implements DeviceApiV1Controller {
     return ResponseEntity.status(PRECONDITION_FAILED).body(deviceMapper.toDto((Device) exception.getEntity()));
   }
 
-  @ExceptionHandler({IllegalArgumentException.class})
-  public ResponseEntity<String> handleIllegalArgumentException(final IllegalArgumentException exception) {
-    return ResponseEntity.status(BAD_REQUEST).body(exception.getMessage());
-  }
-
   @ExceptionHandler({UndefinedCommandException.class})
   public ResponseEntity<String> handleUndefinedCommandException() {
     return ResponseEntity.status(NOT_FOUND).body("undefined command");
+  }
+
+  @ExceptionHandler({CommunicationNotSuccessfulException.class})
+  public ResponseEntity<Device> handleCommunicationNotSuccessfulException(
+      final CommunicationNotSuccessfulException exception) {
+    return ResponseEntity.status(COMMUNICATION_NOT_SUCCESSFUL).body(exception.getDevice());
+  }
+
+  @ExceptionHandler({CommunicationInterruptedException.class})
+  public ResponseEntity<Device> handleCommunicationInterruptedException(
+      final CommunicationInterruptedException exception) {
+    return ResponseEntity.status(COMMUNICATION_INTERRUPTED).body(exception.getDevice());
   }
 
   private Device load(final UUID id) {

@@ -26,7 +26,7 @@ import static ch.wellernet.zeus.modules.device.controller.DeviceController.COMMU
 import static ch.wellernet.zeus.modules.device.model.Command.GET_SWITCH_STATE;
 import static ch.wellernet.zeus.modules.device.model.State.ON;
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
@@ -63,10 +63,10 @@ public class DeviceControllerTest {
     // given
     final Device device1 = Device.builder().id(randomUUID()).build();
     final Device device2 = Device.builder().id(randomUUID()).build();
-    final Collection<Device> devices = Stream.of(device1, device2).collect(toSet());
+    final Collection<Device> devices = Stream.of(device1, device2).collect(toList());
     final DeviceDto deviceDto1 = DeviceDto.builder().id(randomUUID()).build();
     final DeviceDto deviceDto2 = DeviceDto.builder().id(randomUUID()).build();
-    final Collection<DeviceDto> deviceDtos = Stream.of(deviceDto1, deviceDto2).collect(toSet());
+    final Collection<DeviceDto> deviceDtos = Stream.of(deviceDto1, deviceDto2).collect(toList());
     given(deviceRepository.findAll()).willReturn(devices);
     given(deviceMapper.toDtos(devices)).willReturn(deviceDtos);
 
@@ -136,18 +136,6 @@ public class DeviceControllerTest {
 
     // then
     verify(deviceRepository).deleteById(deviceId);
-  }
-
-  @Test(expected = NoSuchElementException.class)
-  public void deleteShouldThrowNoSuchElementExceptionIfDeviceDoesNotExists() {
-    // given
-    final UUID deviceId = randomUUID();
-    given(deviceRepository.existsById(deviceId)).willReturn(false);
-
-    // when
-    deviceController.delete(randomUUID());
-
-    // then an exception is expected
   }
 
   @Test
