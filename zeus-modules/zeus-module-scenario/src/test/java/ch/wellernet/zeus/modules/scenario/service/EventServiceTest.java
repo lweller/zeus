@@ -19,18 +19,19 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
 import static ch.wellernet.zeus.modules.scenario.model.SunEvent.*;
 import static ch.wellernet.zeus.modules.scenario.model.SunEventDefinition.NAUTICAL;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.System.currentTimeMillis;
-import static java.util.Collections.emptyList;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,12 +44,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
     "zeus.location.longitude=7.439949"}, webEnvironment = NONE)
 @RunWith(SpringRunner.class)
 public class EventServiceTest {
-
-  // test data
-  private static final Event EVENT_1 = CronEvent.builder().id(randomUUID()).name("Event 1").build();
-  private static final Event EVENT_2 = CronEvent.builder().id(randomUUID()).name("Event 2").build();
-  private static final Event EVENT_3 = CronEvent.builder().id(randomUUID()).name("Event 3").build();
-  private static final List<Event> EVENTS = newArrayList(EVENT_1, EVENT_2, EVENT_3);
 
   // object under test
   @SpyBean
@@ -99,150 +94,6 @@ public class EventServiceTest {
   }
 
   @Test
-  public void deleteShouldRemoveExistingEvent() {
-    // given
-    final UUID eventId = randomUUID();
-    given(eventRepository.existsById(any())).willReturn(true);
-
-    // when
-    eventService.delete(eventId);
-
-    // then
-    verify(eventService).cancelEvent(eventId);
-    verify(eventRepository).deleteById(eventId);
-  }
-
-  @Test(expected = NoSuchElementException.class)
-  public void deleteShouldThrowAnExceptionIfEventDoesNotExist() {
-    // given
-    given(eventRepository.existsById(any())).willReturn(false);
-
-    // when
-    eventService.delete(randomUUID());
-
-    // then an exception is expected
-  }
-
-  @Test
-  public void saveShouldSaveAndRescheduleUpdatedEvent() {
-    // given
-    final CronEvent event = defaults(CronEvent.builder()).build();
-    event.setVersion(42);
-    given(eventRepository.existsById(any())).willReturn(true);
-    given(eventRepository.save(event)).willReturn(event);
-
-    // when
-    final Event savedEvent = eventService.save(event);
-
-    // then
-    assertThat(savedEvent, is(event));
-    verify(eventService).scheduleEvent(event);
-    verify(eventRepository, atLeast(1)).save(event);
-  }
-
-  @Test
-  public void findAllShouldReturnCollectionOfEventsWithNextFiringSet() {
-    // given
-    doNothing().when(eventService).updateNextFiringDate(any());
-    given(eventRepository.findAll()).willReturn(EVENTS);
-    //noinspection unchecked
-    given(scheduledEventRegistrar.get(any())).willReturn(mock(ScheduledFuture.class));
-
-    // when
-    final Collection<Event> events = eventService.findAll();
-
-    // then
-    assertThat(events, containsInAnyOrder(EVENT_1, EVENT_2, EVENT_3));
-    verify(eventService).updateNextFiringDate(EVENT_1);
-    verify(eventService).updateNextFiringDate(EVENT_2);
-    verify(eventService).updateNextFiringDate(EVENT_3);
-  }
-
-  @Test
-  public void findAllShouldReturnCollectionOfEventsWithoutNextFiringSetWhenEventsHaveNotBeenScheduled() {
-    // given
-    final CronEvent originalEvent1 = CronEvent.builder().id(randomUUID()).build();
-    final CronEvent originalEvent2 = CronEvent.builder().id(randomUUID()).build();
-    final CronEvent originalEvent3 = CronEvent.builder().id(randomUUID()).build();
-    given(eventRepository.findAll()).willReturn(newArrayList(originalEvent1, originalEvent2, originalEvent3));
-    given(scheduledEventRegistrar.get(any())).willReturn(null);
-
-    // when
-    final Collection<Event> events = eventService.findAll();
-
-    // then
-    assertThat(events, containsInAnyOrder(originalEvent1, originalEvent2, originalEvent3));
-    events.forEach(event -> assertThat(event.getNextScheduledExecution(), is(nullValue())));
-  }
-
-  @Test
-  public void findAllShouldReturnEmptyCollectionWhenNoEventsAreAvailable() {
-    // given
-    given(eventRepository.findAll()).willReturn(emptyList());
-
-    // when
-    final Collection<Event> events = eventService.findAll();
-
-    // then
-    assertThat(events, is(empty()));
-  }
-
-  @Test(expected = NoSuchElementException.class)
-  public void findByIdShouldThrowAnExceptionWhenEventDoesNotExists() {
-    // given
-    given(eventRepository.findById(EVENT_1.getId())).willReturn(Optional.empty());
-
-    // when
-    eventService.findById(EVENT_1.getId());
-
-    // then an exception is expected
-  }
-
-  @Test
-  public void findByIdShouldReturnEventWithNextFiringSet() {
-    // given
-    doNothing().when(eventService).updateNextFiringDate(any());
-    given(eventRepository.findById(EVENT_1.getId())).willReturn(Optional.of(EVENT_1));
-    //noinspection unchecked
-    given(scheduledEventRegistrar.get(any())).willReturn(mock(ScheduledFuture.class));
-
-    // when
-    final Event event = eventService.findById(EVENT_1.getId());
-
-    // then
-    assertThat(event, is(EVENT_1));
-    verify(eventService).updateNextFiringDate(EVENT_1);
-  }
-
-  @Test
-  public void findByIdShouldReturnEventWithoutNextFiringSetWhenEventHasNotBeenScheduled() {
-    // given
-    final Event originalEvent = CronEvent.builder().id(randomUUID()).build();
-    given(eventRepository.findById(originalEvent.getId())).willReturn(Optional.of(originalEvent));
-    given(scheduledEventRegistrar.get(any())).willReturn(null);
-
-    // when
-    final Event event = eventService.findById(originalEvent.getId());
-
-    // then
-    assertThat(event, is(originalEvent));
-    assertThat(event.getNextScheduledExecution(), is(nullValue()));
-  }
-
-  @Test
-  public void fireEventShouldCancelItWhenEventNotExists() {
-    // given
-    final UUID eventId = new UUID(0, 42);
-    doNothing().when(eventService).cancelEvent(eventId);
-
-    // when
-    eventService.fireEvent(eventId);
-
-    // then
-    verify(eventService).cancelEvent(eventId);
-  }
-
-  @Test
   public void fireEventShouldFireAllTransitionsWhenItIsFired() {
     // given
     doNothing().when(scenarioService).fireTransition(any(UUID.class));
@@ -254,7 +105,7 @@ public class EventServiceTest {
     given(eventRepository.save(event)).willReturn(event);
 
     // when
-    final Event updatedEvent = eventService.fireEvent(event.getId());
+    final Event updatedEvent = eventService.fireEvent(event);
 
     // then
     verify(scenarioService).fireTransition(transition1);
@@ -267,9 +118,9 @@ public class EventServiceTest {
   @Test
   public void scheduleAllExistingEventShouldCreateTaskForEachEvent() {
     // given
-    final CronEvent cronEvent = defaults(CronEvent.builder()).build();
+    final CronEvent event = defaults(CronEvent.builder()).build();
     final FixedRateEvent fixedRateEvent = defaults(FixedRateEvent.builder()).build();
-    given(eventRepository.findAll()).willReturn(newHashSet(cronEvent, fixedRateEvent));
+    given(eventRepository.findAll()).willReturn(newHashSet(event, fixedRateEvent));
     doNothing().when(eventService).scheduleEvent(any(CronEvent.class));
     doNothing().when(eventService).scheduleEvent(any(FixedRateEvent.class));
 
@@ -277,7 +128,7 @@ public class EventServiceTest {
     eventService.scheduleAllExistingEvents();
 
     // then
-    verify(eventService).scheduleEvent(cronEvent);
+    verify(eventService).scheduleEvent(event);
     verify(eventService).scheduleEvent(fixedRateEvent);
   }
 
@@ -285,10 +136,10 @@ public class EventServiceTest {
   public void scheduleCronEventShouldSaveAndCreateTaskWhenCronExpressionIsInvValid() {
     // given
     final String cronExpression = "not valid!!!";
-    final CronEvent cronEvent = defaults(CronEvent.builder()).cronExpression(cronExpression).build();
+    final CronEvent event = defaults(CronEvent.builder()).cronExpression(cronExpression).build();
 
     // when
-    eventService.scheduleEvent(cronEvent);
+    eventService.scheduleEvent(event);
 
     // then an exception is expected
   }
@@ -298,13 +149,13 @@ public class EventServiceTest {
     // given
     final String cronExpression = "0/5 * * * * *";
     new CronTrigger(cronExpression);
-    final CronEvent cronEvent = defaults(CronEvent.builder()).cronExpression(cronExpression).build();
+    final CronEvent event = defaults(CronEvent.builder()).cronExpression(cronExpression).build();
 
     // when
-    eventService.scheduleEvent(cronEvent);
+    eventService.scheduleEvent(event);
 
     // then
-    verify(eventRepository).save(cronEvent);
+    verify(eventRepository).save(event);
     final ArgumentCaptor<CronTrigger> trigger = ArgumentCaptor.forClass(CronTrigger.class);
     verify(taskScheduler).schedule(any(Runnable.class), trigger.capture());
     assertThat(trigger.getValue().getExpression(), is(cronExpression));
@@ -389,15 +240,15 @@ public class EventServiceTest {
   }
 
   private CronEvent.CronEventBuilder defaults(final CronEvent.CronEventBuilder builder) {
-    return builder.id(randomUUID()).cronExpression("0 0 0 * * *");
+    return builder.id(randomUUID()).name("Event").cronExpression("0 0 20 * * *");
   }
 
   private DayTimeEvent.DayTimeEventBuilder defaults(final DayTimeEvent.DayTimeEventBuilder builder) {
-    return builder.id(randomUUID()).sunEvent(SUNRISE);
+    return builder.id(randomUUID()).name("Event").sunEvent(SUNRISE);
   }
 
   private FixedRateEvent.FixedRateEventBuilder defaults(final FixedRateEvent.FixedRateEventBuilder builder) {
-    return builder.id(randomUUID()).interval(1000);
+    return builder.id(randomUUID()).name("Event").interval(1000);
   }
 }
 

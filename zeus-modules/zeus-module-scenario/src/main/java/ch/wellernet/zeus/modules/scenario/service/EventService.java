@@ -24,10 +24,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Nonnull;
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -49,50 +51,13 @@ public class EventService {
   private @Setter(onMethod_ = @Autowired(required = false))
   ScheduledEventRegistrar scheduledEventRegistrar = new ScheduledEventRegistrar();
 
-  public Collection<Event> findAll() {
-    final Iterable<Event> events = eventRepository.findAll();
-    events.forEach(this::updateNextFiringDate);
-    return newArrayList(events);
-  }
 
-  public Event findById(final UUID eventId) {
-    final Event event = eventRepository.findById(eventId)
-                            .orElseThrow(
-                                () -> new NoSuchElementException(format("event with ID %s does not exists", eventId)));
+  public Event fireEvent(@NonNull final Event event) {
+    log.info(format("firing event '%s'", event.getName()));
+    event.setLastExecution(new Date());
+    event.getTransitions().forEach(scenarioService::fireTransition);
     updateNextFiringDate(event);
-    return event;
-  }
-
-  public Event save(@NonNull final Event event) {
-    final Event savedEvent = eventRepository.save(event);
-    scheduleEvent(savedEvent);
-    updateNextFiringDate(savedEvent);
-    return savedEvent;
-  }
-
-  public void delete(@NonNull final UUID eventId) {
-    if (!eventRepository.existsById(eventId)) {
-      throw new NoSuchElementException(format("event with ID %s does not exists", eventId));
-    }
-    cancelEvent(eventId);
-    eventRepository.deleteById(eventId);
-  }
-
-  public Event fireEvent(@NonNull final UUID eventId) {
-    final Optional<Event> eventOptional = eventRepository.findById(eventId);
-
-    if (eventOptional.isPresent()) {
-      final Event event = eventOptional.get();
-      log.info(format("firing event '%s'", event.getName()));
-      event.setLastExecution(new Date());
-      event.getTransitions().forEach(scenarioService::fireTransition);
-      updateNextFiringDate(event);
-      return eventRepository.save(event);
-    } else {
-      log.info(format("canceling event ID '%s' because it doesn't exist anymore", eventId));
-      cancelEvent(eventId);
-      return null;
-    }
+    return eventRepository.save(event);
   }
 
   public void scheduleAllExistingEvents() throws IllegalArgumentException {
@@ -100,7 +65,7 @@ public class EventService {
     eventRepository.findAll().forEach(this::scheduleEvent);
   }
 
-  private void scheduleEvent(final Event event) {
+  public void scheduleEvent(final Event event) {
     event.dispatch(new Event.Dispatcher<Void>() {
 
       @Override
@@ -124,7 +89,7 @@ public class EventService {
     });
   }
 
-  void cancelEvent(final UUID eventId) {
+  public void cancelEvent(final UUID eventId) {
     final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.remove(eventId);
     if (scheduledFuture != null) {
       scheduledFuture.cancel(true);
@@ -187,7 +152,7 @@ public class EventService {
     return () -> new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(final @Nonnull TransactionStatus status) {
-        fireEvent(event.getId());
+        fireEvent(event);
       }
     });
   }

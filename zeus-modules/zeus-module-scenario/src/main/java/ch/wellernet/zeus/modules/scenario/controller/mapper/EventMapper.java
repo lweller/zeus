@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Mapper(componentModel = "spring")
-abstract class EventMapper {
+public abstract class EventMapper {
 
   @Autowired
   private CronEventRepository cronEventRepository;
@@ -31,7 +31,7 @@ abstract class EventMapper {
   @Autowired
   private FixedRateEventRepository fixedRateEventRepository;
 
-  EventDto toDto(final Event event) {
+  public EventDto toDto(final Event event) {
     return Optional
                .ofNullable(event)
                .map(obj -> obj.dispatch(new Event.Dispatcher<EventDto>() {
@@ -61,7 +61,7 @@ abstract class EventMapper {
 
   public abstract Collection<EventDto> toDtos(Collection<Event> events);
 
-  Event createOrUpdateFrom(final EventDto eventDto) {
+  public Event createOrUpdateFrom(final EventDto eventDto) {
     return Optional
                .ofNullable(eventDto)
                .map(dto -> dto.dispatch(new EventDto.Dispatcher<Event>() {
