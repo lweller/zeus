@@ -108,7 +108,7 @@ public class DeviceControllerTest {
   }
 
   @Test
-  public void createOrUpdateShouldReturnReatachDevice() {
+  public void createOrUpdateShouldReturnReattachDevice() {
     // given
     final UUID deviceId = randomUUID();
     final Device device = Device.builder().id(deviceId).build();
