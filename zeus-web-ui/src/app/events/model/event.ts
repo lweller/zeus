@@ -1,6 +1,6 @@
 export class Event {
     id: string;
-    name: string;
-    nextScheduledExecution: string;
     version: number;
+    name: string;
+    nextScheduledExecution: string = null;
 }

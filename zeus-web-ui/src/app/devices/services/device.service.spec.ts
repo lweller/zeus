@@ -3,6 +3,7 @@ import {inject, TestBed} from '@angular/core/testing';
 import {DeviceService} from './device.service';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {provideMockStore} from '@ngrx/store/testing';
+import {Device} from '../model/device';
 import {DeviceState} from '../model/device-state';
 import {Store} from '@ngrx/store';
 import * as DeviceApiActions from '../actions/device-api.actions';
@@ -78,5 +79,51 @@ describe('DeviceService', () => {
                         statusText: 'Not Found'
                     });
                 expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.notFound({id: deviceId}));
+            }));
+
+    it('should dispatch refresh and savedSuccessfully action when save is called for existent device',
+        inject([DeviceService, HttpTestingController, Store],
+            (service: DeviceService, httpMock: HttpTestingController, storeMock: Store<DeviceState>) => {
+                // given
+                const deviceId = '00000000-0000-0000-000000000002';
+                const device: Device = {
+                    id: deviceId,
+                    version: 42,
+                    name: 'Test Device',
+                    state: 'ON'
+                };
+
+                // when
+                service.save(device).subscribe();
+
+                // then
+                httpMock.expectOne(request =>
+                    request.method === 'POST' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices`).flush(device);
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.refresh({device: device}));
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.savedSuccessfully({device: device}));
+            }));
+
+    it('should dispatch refresh and firedSuccessfully action when fire is called for existent device',
+        inject([DeviceService, HttpTestingController, Store],
+            (service: DeviceService, httpMock: HttpTestingController, storeMock: Store<DeviceState>) => {
+                // given
+                const deviceId = '00000000-0000-0000-000000000002';
+                const device: Device = {
+                    id: deviceId,
+                    version: 42,
+                    name: 'Test Device',
+                    state: 'ON'
+                };
+
+                // when
+                service.executeCommand(device).subscribe();
+
+                // then
+                httpMock.expectOne(request =>
+                    request.method === 'POST' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}/main-command!execute`).flush(device);
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.refresh({device: device}));
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.commandExecutedSuccessfully());
             }));
 });
