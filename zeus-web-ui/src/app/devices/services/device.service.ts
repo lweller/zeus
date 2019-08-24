@@ -6,8 +6,8 @@ import {catchError, tap} from 'rxjs/operators';
 import {Device} from '../model/device';
 import {environment} from '../../../environments/environment';
 import {Command} from '../model/command';
-import * as DeviceApiActions from "../../devices/actions/device-api.actions";
-import {Store} from "@ngrx/store";
+import * as DeviceApiActions from '../../devices/actions/device-api.actions';
+import {Store} from '@ngrx/store';
 
 const COMMUNICATION_NOT_SUCCESSFUL = 901;
 const COMMUNICATION_INTERRUPTED = 902;
@@ -49,9 +49,9 @@ export class DeviceService {
     save(device: Device): Observable<Device> {
         return this.httpClient.post<Device>(`${environment.zeusServerDeviceApiBaseUri}/devices`, device,
             {headers: new HttpHeaders().set('If-Match', `${device.version}`)}).pipe(
-            tap(device => {
-                    this.store.dispatch(DeviceApiActions.refresh({device: device}));
-                    this.store.dispatch(DeviceApiActions.savedSuccessfully({device: device}));
+            tap(thisDevice => {
+                    this.store.dispatch(DeviceApiActions.refresh({device: thisDevice}));
+                    this.store.dispatch(DeviceApiActions.savedSuccessfully({device: thisDevice}));
                 }
             ),
             catchError((error: HttpErrorResponse) => {
@@ -75,8 +75,8 @@ export class DeviceService {
 
         return this.httpClient.post<Device>(url, {})
             .pipe(
-                tap(device => {
-                        this.store.dispatch(DeviceApiActions.refresh({device: device}));
+                tap(thisDevice => {
+                        this.store.dispatch(DeviceApiActions.refresh({device: thisDevice}));
                         this.store.dispatch(DeviceApiActions.commandExecutedSuccessfully());
                     }
                 ),

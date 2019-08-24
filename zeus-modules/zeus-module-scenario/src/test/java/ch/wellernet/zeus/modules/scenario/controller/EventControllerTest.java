@@ -65,6 +65,8 @@ public class EventControllerTest {
     final ResponseEntity<Collection<EventDto>> response = eventController.findAll();
 
     // then
+    verify(eventService).updateNextFiringDate(event1);
+    verify(eventService).updateNextFiringDate(event2);
     assertThat(response.getBody(), containsInAnyOrder(eventDto1, eventDto2));
     assertThat(response.getStatusCode(), is(OK));
   }
@@ -82,6 +84,7 @@ public class EventControllerTest {
     final ResponseEntity<EventDto> response = eventController.findById(eventId);
 
     // then
+    verify(eventService).updateNextFiringDate(event);
     assertThat(response.getBody(), is(eventDto));
     assertThat(response.getStatusCode(), is(OK));
   }

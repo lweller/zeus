@@ -3,7 +3,4 @@ export class Event {
     name: string;
     nextScheduledExecution: string;
     version: number;
-
-    // additional meta attributes
-    $error: boolean;
 }

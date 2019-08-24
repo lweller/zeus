@@ -3,10 +3,10 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {EMPTY, Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
-import {Event} from "../model/event";
-import {NOT_FOUND, PRECONDITION_FAILED} from "http-status-codes";
-import * as EventApiActions from "../actions/event-api.actions";
-import {Store} from "@ngrx/store";
+import {Event} from '../model/event';
+import {NOT_FOUND, PRECONDITION_FAILED} from 'http-status-codes';
+import * as EventApiActions from '../actions/event-api.actions';
+import {Store} from '@ngrx/store';
 
 
 @Injectable()
@@ -44,11 +44,11 @@ export class EventService {
     }
 
     save(event: Event): Observable<Event> {
-        return this.httpClient.put<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}`, event,
+        return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events`, event,
             {headers: new HttpHeaders().set('If-Match', `${event.version}`)}).pipe(
-            tap(event => {
-                    this.store.dispatch(EventApiActions.refresh({event: event}));
-                    this.store.dispatch(EventApiActions.savedSuccessfully({event: event}));
+            tap(thisEvent => {
+                    this.store.dispatch(EventApiActions.refresh({event: thisEvent}));
+                    this.store.dispatch(EventApiActions.savedSuccessfully({event: thisEvent}));
                 }
             ),
             catchError((error: HttpErrorResponse) => {
@@ -64,9 +64,9 @@ export class EventService {
 
     fire(event: Event): Observable<Event> {
         return this.httpClient.post<Event>(`${environment.zeusServerScenarioApiBaseUri}/events/${event.id}!fire`, {}).pipe(
-            tap(event => {
-                    this.store.dispatch(EventApiActions.refresh({event: event}));
-                    this.store.dispatch(EventApiActions.firedSuccessfully({event: event}));
+            tap(thisEvent => {
+                    this.store.dispatch(EventApiActions.refresh({event: thisEvent}));
+                    this.store.dispatch(EventApiActions.firedSuccessfully({event: thisEvent}));
                 }
             ),
             catchError(() => {

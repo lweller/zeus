@@ -157,7 +157,7 @@ public class EventService {
     });
   }
 
-  void updateNextFiringDate(final Event event) {
+  public void updateNextFiringDate(final Event event) {
     if (event != null) {
       final ScheduledFuture<?> scheduledFuture = scheduledEventRegistrar.get(event.getId());
       if (scheduledFuture != null) {

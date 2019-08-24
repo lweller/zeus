@@ -40,13 +40,17 @@ public class EventController implements ScenarioApiV1Controller {
   @ApiOperation("Finds all registered events.")
   @GetMapping
   public ResponseEntity<Collection<EventDto>> findAll() {
-    return ResponseEntity.status(OK).body(eventMapper.toDtos(newArrayList(eventRepository.findAll())));
+    final Collection<Event> events = newArrayList(eventRepository.findAll());
+    events.forEach(eventService::updateNextFiringDate);
+    return ResponseEntity.status(OK).body(eventMapper.toDtos(events));
   }
 
   @ApiOperation("Finds event by its UUID.")
   @GetMapping("/{id}")
   public ResponseEntity<EventDto> findById(@ApiParam(value = "Event UUID", required = true) @PathVariable final UUID id) {
-    return ResponseEntity.status(OK).body(eventMapper.toDto(load(id)));
+    final Event event = load(id);
+    eventService.updateNextFiringDate(event);
+    return ResponseEntity.status(OK).body(eventMapper.toDto(event));
   }
 
   @ApiOperation("Creates a new event. If it does not already exist a new one is created.")
