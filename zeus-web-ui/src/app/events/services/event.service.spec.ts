@@ -76,11 +76,8 @@ describe('EventService', () => {
                 // then
                 httpMock.expectOne(request =>
                     request.method === 'GET' &&
-                    request.url === `http://localhost:8080/scenarioApi/v1/events/${eventId}`).flush(null,
-                    {
-                        status: NOT_FOUND,
-                        statusText: 'Not Found'
-                    });
+                    request.url === `http://localhost:8080/scenarioApi/v1/events/${eventId}`)
+                    .flush(null, {status: NOT_FOUND, statusText: 'Not Found'});
                 expect(storeMock.dispatch).toHaveBeenCalledWith(ScenarioApiActions.notFound({id: eventId}));
             }));
 
@@ -128,5 +125,28 @@ describe('EventService', () => {
                     request.url === `http://localhost:8080/scenarioApi/v1/events/${eventId}!fire`).flush(event);
                 expect(storeMock.dispatch).toHaveBeenCalledWith(ScenarioApiActions.refresh({event: event}));
                 expect(storeMock.dispatch).toHaveBeenCalledWith(ScenarioApiActions.firedSuccessfully({event: event}));
+            }));
+
+    it('should dispatch notFound action when fire is called for not existent event',
+        inject([EventService, HttpTestingController, Store],
+            (service: EventService, httpMock: HttpTestingController, storeMock: Store<EventState>) => {
+                // given
+                const eventId = '00000000-0000-0000-000000000002';
+                const event: Event = {
+                    id: eventId,
+                    version: 42,
+                    name: 'Test Event',
+                    nextScheduledExecution: undefined
+                };
+
+                // when
+                service.fire(event).subscribe();
+
+                // then
+                httpMock.expectOne(request =>
+                    request.method === 'POST' &&
+                    request.url === `http://localhost:8080/scenarioApi/v1/events/${eventId}!fire`)
+                    .flush(null, {status: NOT_FOUND, statusText: 'Not Found'});
+                expect(storeMock.dispatch).toHaveBeenCalledWith(ScenarioApiActions.notFound({id: eventId}));
             }));
 });

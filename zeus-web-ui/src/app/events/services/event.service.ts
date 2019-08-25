@@ -69,7 +69,11 @@ export class EventService {
                     this.store.dispatch(EventApiActions.firedSuccessfully({event: thisEvent}));
                 }
             ),
-            catchError(() => {
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === NOT_FOUND) {
+                    this.store.dispatch(EventApiActions.notFound({id: event.id}));
+                    return of(error.error);
+                }
                 this.store.dispatch(EventApiActions.unexpectedError());
                 return EMPTY;
             }));

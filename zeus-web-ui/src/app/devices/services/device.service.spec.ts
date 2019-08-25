@@ -1,6 +1,6 @@
 import {inject, TestBed} from '@angular/core/testing';
 
-import {DeviceService} from './device.service';
+import {COMMUNICATION_INTERRUPTED, COMMUNICATION_NOT_SUCCESSFUL, DeviceService} from './device.service';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {provideMockStore} from '@ngrx/store/testing';
 import {Device} from '../model/device';
@@ -38,7 +38,9 @@ describe('DeviceService', () => {
                 service.findAll().subscribe();
 
                 // then
-                httpMock.expectOne('http://localhost:8080/deviceApi/v1/devices').flush(devices);
+                httpMock.expectOne(request =>
+                    request.method === 'GET' &&
+                    request.url === 'http://localhost:8080/deviceApi/v1/devices').flush(devices);
                 expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.loadedAllSuccessfully({devices: devices}));
             }));
 
@@ -59,7 +61,9 @@ describe('DeviceService', () => {
                 service.findById(deviceId).subscribe();
 
                 // then
-                httpMock.expectOne(`http://localhost:8080/deviceApi/v1/devices/${deviceId}`).flush(device);
+                httpMock.expectOne(request =>
+                    request.method === 'GET' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}`).flush(device);
                 expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.refresh({device: device}));
             }));
 
@@ -73,7 +77,9 @@ describe('DeviceService', () => {
                 service.findById(deviceId).subscribe();
 
                 // then
-                httpMock.expectOne(`http://localhost:8080/deviceApi/v1/devices/${deviceId}`).flush(null,
+                httpMock.expectOne(request =>
+                    request.method === 'GET' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}`).flush(null,
                     {
                         status: NOT_FOUND,
                         statusText: 'Not Found'
@@ -104,7 +110,7 @@ describe('DeviceService', () => {
                 expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.savedSuccessfully({device: device}));
             }));
 
-    it('should dispatch refresh and firedSuccessfully action when fire is called for existent device',
+    it('should dispatch refresh and commandExecutedSuccessfully action when executeCommand is called for existent device',
         inject([DeviceService, HttpTestingController, Store],
             (service: DeviceService, httpMock: HttpTestingController, storeMock: Store<DeviceState>) => {
                 // given
@@ -125,5 +131,78 @@ describe('DeviceService', () => {
                     request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}/main-command!execute`).flush(device);
                 expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.refresh({device: device}));
                 expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.commandExecutedSuccessfully());
+            }));
+
+    it('should dispatch notFound action when executeCommand is called for not existent device',
+        inject([DeviceService, HttpTestingController, Store],
+            (service: DeviceService, httpMock: HttpTestingController, storeMock: Store<DeviceState>) => {
+                // given
+                const deviceId = '00000000-0000-0000-000000000002';
+                const device: Device = {
+                    id: deviceId,
+                    version: 42,
+                    name: 'Test Device',
+                    state: 'ON'
+                };
+                // when
+                service.executeCommand(device).subscribe();
+
+                // then
+                httpMock.expectOne(request =>
+                    request.method === 'POST' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}/main-command!execute`).flush(null,
+                    {
+                        status: NOT_FOUND,
+                        statusText: 'Not Found'
+                    });
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.notFound({id: deviceId}));
+            }));
+
+    it('should dispatch refresh and commandExecutedSuccessfully action when executeCommand is called for existent device',
+        inject([DeviceService, HttpTestingController, Store],
+            (service: DeviceService, httpMock: HttpTestingController, storeMock: Store<DeviceState>) => {
+                // given
+                const deviceId = '00000000-0000-0000-000000000002';
+                const device: Device = {
+                    id: deviceId,
+                    version: 42,
+                    name: 'Test Device',
+                    state: 'ON'
+                };
+
+                // when
+                service.executeCommand(device).subscribe();
+
+                // then
+                httpMock.expectOne(request =>
+                    request.method === 'POST' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}/main-command!execute`)
+                    .flush(device, {status: COMMUNICATION_NOT_SUCCESSFUL, statusText: 'Application Error'});
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.refresh({device: device}));
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.communicationNotSuccessful());
+            }));
+
+    it('should dispatch refresh and commandExecutedSuccessfully action when executeCommand is called for existent device',
+        inject([DeviceService, HttpTestingController, Store],
+            (service: DeviceService, httpMock: HttpTestingController, storeMock: Store<DeviceState>) => {
+                // given
+                const deviceId = '00000000-0000-0000-000000000002';
+                const device: Device = {
+                    id: deviceId,
+                    version: 42,
+                    name: 'Test Device',
+                    state: 'ON'
+                };
+
+                // when
+                service.executeCommand(device).subscribe();
+
+                // then
+                httpMock.expectOne(request =>
+                    request.method === 'POST' &&
+                    request.url === `http://localhost:8080/deviceApi/v1/devices/${deviceId}/main-command!execute`)
+                    .flush(device, {status: COMMUNICATION_INTERRUPTED, statusText: 'Application Error'});
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.refresh({device: device}));
+                expect(storeMock.dispatch).toHaveBeenCalledWith(DeviceApiActions.communicationInterrupted());
             }));
 });

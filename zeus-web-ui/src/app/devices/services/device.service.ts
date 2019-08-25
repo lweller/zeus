@@ -9,8 +9,8 @@ import {Command} from '../model/command';
 import * as DeviceApiActions from '../../devices/actions/device-api.actions';
 import {Store} from '@ngrx/store';
 
-const COMMUNICATION_NOT_SUCCESSFUL = 901;
-const COMMUNICATION_INTERRUPTED = 902;
+export const COMMUNICATION_NOT_SUCCESSFUL = 901;
+export const COMMUNICATION_INTERRUPTED = 902;
 
 @Injectable()
 export class DeviceService {
@@ -82,6 +82,9 @@ export class DeviceService {
                 ),
                 catchError((error: HttpErrorResponse) => {
                     switch (error.status) {
+                        case NOT_FOUND:
+                            this.store.dispatch(DeviceApiActions.notFound({id: device.id}));
+                            return of(error.error);
                         case COMMUNICATION_NOT_SUCCESSFUL:
                             this.store.dispatch(DeviceApiActions.refresh({device: error.error}));
                             this.store.dispatch(DeviceApiActions.communicationNotSuccessful());
