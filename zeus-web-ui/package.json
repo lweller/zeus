@@ -63,7 +63,6 @@
     "karma-phantomjs-launcher": "^1.0.4",
     "mocha": "^6.2.0",
     "ngx-translate-testing": "^2.0.0",
-    "protractor": "~5.4.2",
     "querystringify": "~2.1.1",
     "tar-fs": "~1.16.2",
     "ts-node": "~8.2.0",
