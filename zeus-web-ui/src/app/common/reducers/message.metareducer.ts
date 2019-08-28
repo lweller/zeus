@@ -1,10 +1,10 @@
-import {ActionReducer} from "@ngrx/store";
-import {ACTION_TYPE_PREFIX} from "../utils/message.util";
+import {ActionReducer} from '@ngrx/store';
+import {ACTION_TYPE_PREFIX} from '../utils/message.util';
 
 export function messageStateReducer(reducer: ActionReducer<any>): ActionReducer<any> {
     return function (state, action) {
         if (action.type.startsWith(ACTION_TYPE_PREFIX)) {
-            let actionInfo = JSON.parse(action.type.substring(ACTION_TYPE_PREFIX.length));
+            const actionInfo = JSON.parse(action.type.substring(ACTION_TYPE_PREFIX.length));
             console.log(`[${actionInfo.source}] ${actionInfo.id}`);
             if (!actionInfo.level || !actionInfo.message) {
                 return reducer(state, action);

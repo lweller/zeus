@@ -1,6 +1,6 @@
-import {Action, createReducer, on} from "@ngrx/store";
-import * as MessageActions from "../actions/message.actions";
-import {initialState, MessageState} from "../model/message-state";
+import {Action, createReducer, on} from '@ngrx/store';
+import * as MessageActions from '../actions/message.actions';
+import {initialState, MessageState} from '../model/message-state';
 
 const reducer = createReducer(
     initialState,
