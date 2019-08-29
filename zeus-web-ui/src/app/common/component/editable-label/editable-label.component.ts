@@ -7,26 +7,25 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 })
 export class EditableLabelComponent implements OnInit {
 
-    @Input() value: string;
+    @Input() value = '';
 
     @Output() startedEditing = new EventEmitter();
     @Output() canceledEditing = new EventEmitter();
     @Output() finishedEditing = new EventEmitter<String>();
 
-    editing: boolean;
+    editing = false;
 
     constructor() {
     }
 
-    static setCaretPosition(elem, caretStartPos, caretEndPos) {
-        if (elem !== null) {
-            elem.focus();
-            elem.setSelectionRange(caretStartPos, caretEndPos);
+    static setCaretPosition(inputField, caretStartPos, caretEndPos) {
+        if (inputField) {
+            inputField.focus();
+            inputField.setSelectionRange(caretStartPos, caretEndPos);
         }
     }
 
     ngOnInit() {
-        this.editing = false;
     }
 
     startEditing(inputField) {

@@ -2,8 +2,8 @@
     <input
             (blur)="finishEditing($event.target)"
             (dblclick)="startEditing($event.target)"
-            (keydown.esc)="cancelEditing($event.target)"
             (keyup.enter)="$event.target.blur()"
+            (keyup.esc)="cancelEditing($event.target)"
             [class.editing]="editing"
             [readOnly]="!editing"
             [value]="value">
