@@ -10,7 +10,6 @@ import {Store} from '@ngrx/store';
 import {initialState} from '../../model/message-state';
 
 describe('MessageBoxComponent', () => {
-    let component: MessageBoxComponent;
     let fixture: ComponentFixture<MessageBoxComponent>;
 
     beforeEach(async(() => {
@@ -26,7 +25,6 @@ describe('MessageBoxComponent', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(MessageBoxComponent);
-        component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
@@ -36,16 +34,17 @@ describe('MessageBoxComponent', () => {
 
     it('should initialize component correctly', fakeAsync(
         () => {
-            expect(component).toBeTruthy();
-            expect(component.state).toBe(State.ACKNOWLEDGED);
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('0');
+            expect(fixture.componentInstance).toBeTruthy();
+            expect(fixture.componentInstance.state).toBe(State.ACKNOWLEDGED);
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('0');
         })
     );
 
     it('should call display when message is reduced to store', fakeAsync(
         inject([Store], (store: MockStore<any>) => {
             // given
-            spyOn(component, 'display').and.stub();
+            spyOn(fixture.componentInstance, 'display').and.stub();
             const text = 'Test text!';
             const level = Level.INFO;
             const message = {level: level, text: text};
@@ -54,7 +53,7 @@ describe('MessageBoxComponent', () => {
             store.setState({messageState: {message: message}});
 
             // then
-            expect(component.display).toHaveBeenCalledWith(message);
+            expect(fixture.componentInstance.display).toHaveBeenCalledWith(message);
         })
     ));
 
@@ -78,7 +77,8 @@ describe('MessageBoxComponent', () => {
             // given a displayed message
             fixture.componentInstance.display(<Message>{level: Level.INFO, text: 'Test Message!'});
             fixture.detectChanges();
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('1');
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('1');
 
             // when
             fixture.debugElement.nativeElement.querySelector('#close-button').click();
@@ -93,7 +93,8 @@ describe('MessageBoxComponent', () => {
             // given a displayed message
             fixture.componentInstance.display(<Message>{level: Level.INFO, text: 'Test Message!'});
             fixture.detectChanges();
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('1');
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('1');
 
             // when a second message is display after less than 5 seconds
             tick(4900);
@@ -102,7 +103,8 @@ describe('MessageBoxComponent', () => {
             tick(4900);
 
             // then second message shall still be visible after another 4.9 seconds
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('1');
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('1');
 
             // when
             tick(100);
@@ -118,11 +120,12 @@ describe('MessageBoxComponent', () => {
             const message = <Message>{level: undefined, text: 'Test text!'};
 
             // when
-            component.display(message);
+            fixture.componentInstance.display(message);
             fixture.detectChanges();
 
             // then
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('0');
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('0');
         }));
 
     it('should not display message with undefined text',
@@ -131,11 +134,12 @@ describe('MessageBoxComponent', () => {
             const message = <Message>{level: Level.INFO, text: undefined};
 
             // when
-            component.display(message);
+            fixture.componentInstance.display(message);
             fixture.detectChanges();
 
             // then
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('0');
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('0');
         }));
 
     it('should not display message with empty text',
@@ -144,16 +148,18 @@ describe('MessageBoxComponent', () => {
             const message = <Message>{level: Level.INFO, text: ''};
 
             // when
-            component.display(message);
+            fixture.componentInstance.display(message);
             fixture.detectChanges();
 
             // then
-            expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('0');
+            expect(window.getComputedStyle(fixture.debugElement.nativeElement
+                .querySelector('.message-box')).opacity).toBe('0');
         }));
 });
 
 
-function callDisplayAndVerifyThatMessageHasBeenDisplayed(fixture: ComponentFixture<MessageBoxComponent>, level: Level, text = 'Test Message!') {
+function callDisplayAndVerifyThatMessageHasBeenDisplayed(
+    fixture: ComponentFixture<MessageBoxComponent>, level: Level, text = 'Test Message!') {
     // when
     fixture.componentInstance.display(<Message>{level: level, text: text});
     fixture.detectChanges();
@@ -166,12 +172,14 @@ function callDisplayAndVerifyThatMessageHasBeenDisplayed(fixture: ComponentFixtu
         [Level.WARNING, 'warning'],
         [Level.ERROR, 'error'],
     ]).get(level));
-    expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('1');
+    expect(window.getComputedStyle(fixture.debugElement.nativeElement
+        .querySelector('.message-box')).opacity).toBe('1');
 
     // and 4.9 seconds later
     tick(4900);
     fixture.detectChanges();
-    expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('1');
+    expect(window.getComputedStyle(fixture.debugElement.nativeElement
+        .querySelector('.message-box')).opacity).toBe('1');
 
     // and 0.1 seconds later
     tick(100);
@@ -187,6 +195,7 @@ function verifyThatMessageHasBeenAcknowledged(fixture: ComponentFixture<MessageB
     tick();
     fixture.detectChanges();
 
-    expect(window.getComputedStyle(fixture.debugElement.nativeElement.querySelector('.message-box')).opacity).toBe('0');
+    expect(window.getComputedStyle(fixture.debugElement.nativeElement
+        .querySelector('.message-box')).opacity).toBe('0');
 }
 
