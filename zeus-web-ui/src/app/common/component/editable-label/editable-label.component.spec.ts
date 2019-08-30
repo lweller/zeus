@@ -56,7 +56,8 @@ describe('EditableLabelComponent', () => {
             const value = 'Test!';
             fixture.componentInstance.value = value;
             fixture.detectChanges();
-            spyOn(fixture.debugElement.query(By.css('input')).nativeElement, 'setSelectionRange').and.callThrough();
+            spyOn(fixture.debugElement.query(By.css('input')).nativeElement, 'setSelectionRange');
+            spyOn(fixture.componentInstance.startedEditing, 'emit');
 
             // when
             fireMouseEvent(fixture.debugElement.query(By.css('input')), MouseEvent.DOUBLE_CLICK);
@@ -64,19 +65,21 @@ describe('EditableLabelComponent', () => {
             fixture.detectChanges();
 
             // then
+            expect(fixture.componentInstance.startedEditing.emit).toHaveBeenCalled();
             expect(fixture.componentInstance.editing).toBe(true);
             expect(fixture.debugElement.query(By.css('input')).nativeElement.classList).toContain('editing');
             expect(fixture.debugElement.query(By.css('input')).nativeElement.readOnly).toBe(false);
             expect(fixture.debugElement.query(By.css('input')).nativeElement.setSelectionRange).toHaveBeenCalledWith(0, value.length);
         }));
 
-    it('should stop editing when esc key is released',
+    it('should cancel editing when esc key is released',
         fakeAsync(() => {
             // given
             const value = 'Test!';
             fixture.componentInstance.value = value;
             fixture.componentInstance.editing = true;
             fixture.detectChanges();
+            spyOn(fixture.componentInstance.canceledEditing, 'emit');
 
             // when
             fixture.debugElement.query(By.css('input')).nativeElement.value = 'Edited!';
@@ -84,6 +87,7 @@ describe('EditableLabelComponent', () => {
             fixture.detectChanges();
 
             // then
+            expect(fixture.componentInstance.canceledEditing.emit).toHaveBeenCalled();
             verifyNotEditing(fixture, value);
         }));
 
@@ -93,7 +97,7 @@ describe('EditableLabelComponent', () => {
             fixture.componentInstance.value = 'Test!';
             fixture.componentInstance.editing = true;
             fixture.detectChanges();
-            spyOn(fixture.debugElement.query(By.css('input')).nativeElement, 'blur').and.callThrough();
+            spyOn(fixture.debugElement.query(By.css('input')).nativeElement, 'blur');
 
             // when
             fireKeyboardEvent(fixture.debugElement.query(By.css('input')), KeyboardEvent.KEY_UP, Key.ENTER);
@@ -103,7 +107,7 @@ describe('EditableLabelComponent', () => {
             expect(fixture.debugElement.query(By.css('input')).nativeElement.blur).toHaveBeenCalled();
         }));
 
-    it('should stop editing when blur event occurs',
+    it('should finish editing when blur event occurs',
         fakeAsync(() => {
             // given
             const value = 'Test!';
@@ -111,6 +115,7 @@ describe('EditableLabelComponent', () => {
             fixture.componentInstance.value = value;
             fixture.componentInstance.editing = true;
             fixture.detectChanges();
+            spyOn(fixture.componentInstance.finishedEditing, 'emit');
 
             // when
             fixture.debugElement.query(By.css('input')).nativeElement.value = newValue;
@@ -118,6 +123,7 @@ describe('EditableLabelComponent', () => {
             fixture.detectChanges();
 
             // then
+            expect(fixture.componentInstance.finishedEditing.emit).toHaveBeenCalledWith(newValue);
             verifyNotEditing(fixture, newValue);
         }));
 });
