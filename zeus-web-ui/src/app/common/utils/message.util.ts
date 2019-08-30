@@ -6,6 +6,5 @@ export function createActionType(source: string, id: string, message?: string, l
         id: id,
         message: message,
         level: level
-
     });
 }
