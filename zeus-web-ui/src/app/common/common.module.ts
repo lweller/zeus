@@ -7,7 +7,7 @@ import {TranslateModule} from '@ngx-translate/core';
 import {RouterModule} from '@angular/router';
 import {StoreModule} from '@ngrx/store';
 import {MESSAGE_STATE} from './model/message-state';
-import {messageReducer} from './reducers/message.reducers';
+import {messageReducer} from './reducers/message.reducer';
 
 @NgModule({
     imports: [
