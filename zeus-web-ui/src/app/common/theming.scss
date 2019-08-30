@@ -1,3 +1,5 @@
+@import "~@angular/material/_theming.scss";
+
 @mixin zeus-common($theme) {
 
   $app-foreground: map-get($theme, foreground);

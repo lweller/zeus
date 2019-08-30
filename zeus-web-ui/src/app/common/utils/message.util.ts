@@ -1,9 +1,3 @@
-export interface ActionTye {
-    type: string,
-    message: string,
-    level: string
-}
-
 export const ACTION_TYPE_PREFIX = '@zeus';
 
 export function createActionType(source: string, id: string, message?: string, level?: string): string {
@@ -13,5 +7,5 @@ export function createActionType(source: string, id: string, message?: string, l
         message: message,
         level: level
 
-    })
+    });
 }

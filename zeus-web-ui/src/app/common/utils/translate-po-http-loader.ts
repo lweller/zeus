@@ -35,7 +35,7 @@ export class TranslatePoHttpLoader implements TranslateLoader {
      * @returns any
      */
     public parse(contents: string): any {
-        let translations: { [key: string]: string } = {};
+        const translations: { [key: string]: string } = {};
 
         const po = gettext.po.parse(contents, 'utf-8');
         if (!po.translations.hasOwnProperty(this.domain)) {
@@ -52,5 +52,4 @@ export class TranslatePoHttpLoader implements TranslateLoader {
 
         return translations;
     }
-
 }
