@@ -3,7 +3,7 @@ import {async, ComponentFixture, fakeAsync, inject, TestBed, tick} from '@angula
 import {MessageBoxComponent} from './message-box.component';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {MockStore, provideMockStore} from '@ngrx/store/testing';
-import {TranslateMockService} from '../../service/translate.service.mock';
+import {TranslateMockService} from '../../../../test/mock/translate.service.mock';
 import {TranslateService} from '@ngx-translate/core';
 import {Level, Message, State} from '../../model/message';
 import {Store} from '@ngrx/store';

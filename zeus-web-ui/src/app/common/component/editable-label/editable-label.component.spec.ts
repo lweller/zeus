@@ -1,10 +1,10 @@
 import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 
 import {EditableLabelComponent} from './editable-label.component';
-import {fireMouseEvent, MouseEvent} from '../../../../test/MouseEventUtils';
+import {fireMouseEvent, MouseEvent} from '../../../../test/utils/MouseEventUtils';
 import {By} from '@angular/platform-browser';
-import {fireKeyboardEvent, Key, KeyboardEvent} from '../../../../test/KeyboardEventUtils';
-import {fireFocusEvent, FocusEvent} from '../../../../test/FocusEventUtils';
+import {fireKeyboardEvent, Key, KeyboardEvent} from '../../../../test/utils/KeyboardEventUtils';
+import {fireFocusEvent, FocusEvent} from '../../../../test/utils/FocusEventUtils';
 
 describe('EditableLabelComponent', () => {
     let fixture: ComponentFixture<EditableLabelComponent>;
