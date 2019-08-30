@@ -4,13 +4,13 @@ import {LOCALE_ID, NgModule} from '@angular/core';
 import {AppComponent} from './app.component';
 import {DeviceService} from './devices/services/device.service';
 import {ScenarioService} from './scenarios/services/scenario.service';
-import {MetaReducer, StoreModule} from "@ngrx/store";
-import {ZeusCommonModule} from "./common/common.module";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {BrowserModule} from "@angular/platform-browser";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {EffectsModule} from "@ngrx/effects";
-import {messageStateReducer} from "./common/reducers/message.metareducer";
+import {MetaReducer, StoreModule} from '@ngrx/store';
+import {ZeusCommonModule} from './common/common.module';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {EffectsModule} from '@ngrx/effects';
+import {messageStateReducer} from './common/reducers/message.metareducer';
 import {
     MissingTranslationHandler,
     MissingTranslationHandlerParams,
@@ -19,15 +19,15 @@ import {
     TranslateModule,
     TranslateParser,
     TranslateService
-} from "@ngx-translate/core";
-import {registerLocaleData} from "@angular/common";
-import localeEn from "@angular/common/locales/en";
-import localeDe from "@angular/common/locales/de";
-import localeFr from "@angular/common/locales/fr";
-import {TranslatePoHttpLoader} from "./common/utils/translate-po-http-loader";
-import {EventsModule} from "./events/events.module";
-import {ScenariosModule} from "./scenarios/scenarios.module";
-import {DevicesModule} from "./devices/devices.module";
+} from '@ngx-translate/core';
+import {registerLocaleData} from '@angular/common';
+import localeEn from '@angular/common/locales/en';
+import localeDe from '@angular/common/locales/de';
+import localeFr from '@angular/common/locales/fr';
+import {TranslatePoHttpLoader} from './common/utils/translate-po-http-loader';
+import {EventsModule} from './events/events.module';
+import {ScenariosModule} from './scenarios/scenarios.module';
+import {DevicesModule} from './devices/devices.module';
 
 registerLocaleData(localeEn);
 registerLocaleData(localeDe);
