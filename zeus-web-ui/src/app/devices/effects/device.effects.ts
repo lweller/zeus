@@ -1,11 +1,11 @@
-import {Injectable} from "@angular/core";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {DeviceService} from "../services/device.service";
-import {concatMap, switchMap, withLatestFrom} from "rxjs/operators";
-import {EMPTY, of} from "rxjs";
-import * as DeviceUiActions from "../actions/device-ui.actions";
-import {select, Store} from "@ngrx/store";
-import {devices} from "../model/device-state";
+import {Injectable} from '@angular/core';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {DeviceService} from '../services/device.service';
+import {concatMap, switchMap, withLatestFrom} from 'rxjs/operators';
+import {EMPTY, of} from 'rxjs';
+import * as DeviceUiActions from '../actions/device-ui.actions';
+import {select, Store} from '@ngrx/store';
+import {devices} from '../model/device-state';
 
 @Injectable()
 export class DeviceEffects {
@@ -15,9 +15,9 @@ export class DeviceEffects {
         () => this.actions.pipe(
             ofType(DeviceUiActions.init),
             switchMap(action => of(action).pipe(withLatestFrom(this.store.pipe(select(devices))))),
-            switchMap(([, devices]) => {
-                    if (devices) {
-                        return EMPTY
+            switchMap(([, actualDevices]) => {
+                    if (actualDevices) {
+                        return EMPTY;
                     }
                     return this.deviceService.findAll();
                 }
