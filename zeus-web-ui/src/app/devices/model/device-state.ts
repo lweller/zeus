@@ -1,5 +1,5 @@
-import {Device} from './device'
-import {createFeatureSelector, createSelector} from "@ngrx/store";
+import {Device} from './device';
+import {createFeatureSelector, createSelector} from '@ngrx/store';
 
 export interface DeviceState {
     devices: Device[];
@@ -7,8 +7,8 @@ export interface DeviceState {
 }
 
 export const initialDeviceState: DeviceState = {
-    devices: null,
-    editedDevice: null
+    devices: undefined,
+    editedDevice: undefined
 };
 
 export const DEVICE_STATE_ID = 'ch.wellernet.zeus.devices';
