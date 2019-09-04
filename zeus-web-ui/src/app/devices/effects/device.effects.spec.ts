@@ -24,8 +24,9 @@ describe('DeviceEffects', () => {
                     provide: DeviceService,
                     useValue: jasmine.createSpyObj([
                         'findAll',
+                        'executeCommand',
                         'refreshState',
-                        'executeCommand'
+                        'save'
                     ])
                 },
                 provideMockStore({initialState: {'ch.wellernet.zeus.devices': initialDeviceState}}),
@@ -36,7 +37,7 @@ describe('DeviceEffects', () => {
         effects = TestBed.get(DeviceEffects);
     });
 
-    it('should load devices when refresh UI init is dispatched and devices not already loaded',
+    it('should load devices when refresh init UI action is dispatched and devices not already loaded',
         inject([DeviceService], (deviceService: SpyObj<DeviceService>) => {
             // given
             const action = DeviceUiActions.init();
@@ -50,7 +51,7 @@ describe('DeviceEffects', () => {
             expect(deviceService.findAll).toHaveBeenCalled();
         }));
 
-    it('should not load devices when refresh UI init is dispatched and devices are already loaded',
+    it('should not load devices when refresh init UI action is dispatched and devices are already loaded',
         inject([DeviceService, Store], (deviceService: SpyObj<DeviceService>, store: MockStore<any>) => {
             // given
             store.setState({
@@ -67,6 +68,25 @@ describe('DeviceEffects', () => {
             // then
             expect(effects.loadAll).toBeObservable(cold(''));
             expect(deviceService.findAll).not.toHaveBeenCalled();
+        }));
+
+    it('should save when refresh modified UI action is dispatched and devices are already loaded',
+        inject([DeviceService], (deviceService: SpyObj<DeviceService>) => {
+            // given
+            const device = {
+                id: uuid.v4(),
+                version: 42,
+                name: 'Test Device',
+                state: 'OFF'
+            };
+            const action = DeviceUiActions.modified({device: device});
+
+            // when
+            actions = hot('-a', {a: action});
+
+            // then
+            expect(effects.save).toBeObservable(cold(''));
+            expect(deviceService.save).toHaveBeenCalledWith(device);
         }));
 
     it('should refresh when refresh UI action is dispatched',
