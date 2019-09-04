@@ -1,7 +1,7 @@
-import {DeviceState, initialDeviceState} from "../model/device-state";
-import {Action, createReducer, on} from "@ngrx/store";
-import * as DeviceUiActions from "../actions/device-ui.actions";
-import * as DeviceApiActions from "../actions/device-api.actions";
+import {DeviceState, initialDeviceState} from '../model/device-state';
+import {Action, createReducer, on} from '@ngrx/store';
+import * as DeviceUiActions from '../actions/device-ui.actions';
+import * as DeviceApiActions from '../actions/device-api.actions';
 
 const reducer = createReducer(initialDeviceState,
     on(
@@ -28,7 +28,7 @@ const reducer = createReducer(initialDeviceState,
         (state, {device}) => ({
             ...state,
             editedDevice: state.editedDevice && state.editedDevice.id === device.id ? device : state.editedDevice,
-            devices: state.devices.map(otherDevice => otherDevice.id === device.id ? device : otherDevice)
+            devices: state.devices ? state.devices.map(otherDevice => otherDevice.id === device.id ? device : otherDevice) : undefined
         }))
 );
 
