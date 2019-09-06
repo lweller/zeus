@@ -4,7 +4,6 @@ import {RouterTestingModule} from '@angular/router/testing';
 import {MockStore, provideMockStore} from '@ngrx/store/testing';
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {TranslatePipeMock} from '../translate.pipe.mock';
 import * as uuid from 'uuid';
 import {By} from '@angular/platform-browser';
 import {fireInputEvent} from '../../../test/utils/InputEventUtils';
@@ -15,14 +14,15 @@ import {DEVICE_STATE_ID, DeviceState, initialDeviceState} from '../model/device-
 import {ActivatedRoute, Router} from '@angular/router';
 import {cold} from 'jasmine-marbles';
 import {fireKeyboardEvent, Key, KeyboardEvent, Modifier} from '../../../test/utils/KeyboardEventUtils';
+import {TranslateMockModule} from '../../../test/mock/translate.mock.module';
 
 describe('DeviceEditComponent', () => {
     let fixture: ComponentFixture<DeviceEditComponent>;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [RouterTestingModule, FormsModule],
-            declarations: [DeviceEditComponent, TranslatePipeMock],
+            imports: [RouterTestingModule, FormsModule, TranslateMockModule],
+            declarations: [DeviceEditComponent],
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
             providers: [provideMockStore({initialState: {[DEVICE_STATE_ID]: initialDeviceState}})]
         }).compileComponents().then();
