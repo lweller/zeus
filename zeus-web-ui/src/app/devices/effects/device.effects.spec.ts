@@ -80,6 +80,7 @@ describe('DeviceEffects', () => {
                 state: 'OFF'
             };
             const action = DeviceUiActions.modified({device: device});
+            deviceService.save.and.returnValue(EMPTY);
 
             // when
             actions = hot('-a', {a: action});

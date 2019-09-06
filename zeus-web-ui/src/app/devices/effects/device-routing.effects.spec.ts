@@ -34,7 +34,7 @@ describe('DeviceRoutingEffects', () => {
     it('should route to device edit form when edit UI action is dispatched',
         inject([Router], (router: Router) => {
             // given
-            spyOn(router, 'navigate');
+            spyOn(router, 'navigate').and.returnValue(cold('').toPromise());
 
             // when
             actions = hot('-a', {a: DeviceUiActions.edit({device: undefined})});
