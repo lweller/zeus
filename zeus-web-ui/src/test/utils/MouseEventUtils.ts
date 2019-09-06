@@ -1,6 +1,7 @@
 import {DebugElement} from '@angular/core';
 
 export enum MouseEvent {
+    CLICK = 'click',
     DOUBLE_CLICK = 'dblclick'
 }
 

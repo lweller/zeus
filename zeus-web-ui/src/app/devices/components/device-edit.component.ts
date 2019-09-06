@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
-import {Device} from "../model/device";
-import {ActivatedRoute, Router} from "@angular/router";
-import * as DeviceActions from "../actions/device-ui.actions";
-import {select, Store} from "@ngrx/store";
-import {editedDevice} from "../model/device-state";
+import {Device} from '../model/device';
+import {ActivatedRoute, Router} from '@angular/router';
+import * as DeviceActions from '../actions/device-ui.actions';
+import {select, Store} from '@ngrx/store';
+import {editedDevice} from '../model/device-state';
 import * as lodash from 'lodash';
 
 @Component({
@@ -18,7 +18,7 @@ export class DeviceEditComponent implements OnInit {
     constructor(private store: Store<any>,
                 private router: Router,
                 private route: ActivatedRoute) {
-        store.pipe(select(editedDevice)).subscribe(device => device == undefined ? this.close() : this.device = lodash.cloneDeep(device));
+        store.pipe(select(editedDevice)).subscribe(device => !device ? this.close() : this.device = lodash.cloneDeep(device));
     }
 
     ngOnInit() {
@@ -29,6 +29,7 @@ export class DeviceEditComponent implements OnInit {
     }
 
     close() {
-        this.router.navigate(['..'], {relativeTo: this.route}).then()
+        this.device = undefined;
+        this.router.navigate(['..'], {relativeTo: this.route}).then();
     }
 }

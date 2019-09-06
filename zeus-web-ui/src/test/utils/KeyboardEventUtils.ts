@@ -10,7 +10,11 @@ export enum Key {
     ESC = 'Esc'
 }
 
-export function fireKeyboardEvent(element: DebugElement, eventType: KeyboardEvent, key: Key) {
+export enum Modifier {
+    CTRL = 'Control'
+}
+
+export function fireKeyboardEvent(element: DebugElement, eventType: KeyboardEvent, key: Key, modifiers: Modifier[] = []) {
     const event = document.createEvent('KeyboardEvent');
     event.initKeyboardEvent(
         eventType.toString(),
@@ -19,7 +23,7 @@ export function fireKeyboardEvent(element: DebugElement, eventType: KeyboardEven
         undefined,
         key.toString(),
         undefined,
-        undefined,
+        modifiers.join(' '),
         undefined,
         undefined);
     element.nativeElement.dispatchEvent(event);
